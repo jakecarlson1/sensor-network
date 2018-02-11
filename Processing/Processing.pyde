@@ -7,6 +7,8 @@ CANVAS_WIDTH = 720
 NUM_NODES = 1000
 AVG_DEG = 16
 
+MAX_NODES_TO_DRAW_EDGES = 100
+
 """
 Topology - super class for the shape of the random geometric graph 
 """
@@ -40,7 +42,6 @@ class Topology(object):
         self.edges = dict((n, []) for n in self.nodes)
     
     def distance(self, n, m):
-        # return sqrt(sum((n[i] - m[i])**2 for i in range(len(n))))
         return sqrt((n[0] - m[0])**2+(n[1] - m[1])**2)
     
     def findAvgDegree(self):
@@ -103,6 +104,10 @@ class Square(Topology):
     def getRadiusForAverageDegree(self):
         self.node_r = sqrt(AVG_DEG/(NUM_NODES * PI))
 
+"""
+Disk - inherits from Topology, overloads generateNodes and getRadiusForAverageDegree
+for a unit circle topology
+"""
 class Disk(Topology):
     
     def __init__(self):
@@ -118,13 +123,35 @@ class Disk(Topology):
     def getRadiusForAverageDegree(self):
         self.node_r = sqrt((AVG_DEG + 0.0)/NUM_NODES)/2
 
+"""
+Sphere - inherits from Topology, overloads generateNodes, getRadiusForAverageDegree,
+and distance for a unit sphere topology
+"""
+class Sphere(Topology):
+    
+    def __init__(self):
+        super(Sphere, self).__init__()
+        
+    def generateNodes(self):
+        for i in range(NUM_NODES):
+            p = (random.uniform(0,1), random.uniform(0,1), random.uniform(0,1))
+            while self.distance(p, (0.5,0.5,0.5)) > 0.5:
+                p = (random.uniform(0,1), random.uniform(0,1), random.uniform(0,1))
+            self.nodes.append(p)
+
+    def getRadiusForAverageDegree(self):
+            self.node_r = sqrt((AVG_DEG + 0.0)/NUM_NODES)
+
+    def distance(self, n, m):
+        return sqrt((n[0] - m[0])**2+(n[1] - m[1])**2+(n[2] - m[2])**2)
+
 def setup():
     size(CANVAS_WIDTH, CANVAS_HEIGHT, P3D)
     background(0)
 
 def draw():
     topology.drawNodes()
-    if NUM_NODES < 16000:
+    if NUM_NODES < MAX_NODES_TO_DRAW_EDGES:
         topology.drawEdges()
     else:
         topology.drawMinMaxDegNodes()
@@ -132,7 +159,8 @@ def draw():
 def main():
     global topology
     # topology = Square()
-    topology = Disk()
+    # topology = Disk()
+    topology = Sphere()
     
     run_time = time.clock()
     
