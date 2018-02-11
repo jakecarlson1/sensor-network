@@ -4,7 +4,7 @@ import time
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 16000
+NUM_NODES = 1000
 AVG_DEG = 16
 
 MAX_NODES_TO_DRAW_EDGES = 16000
@@ -30,6 +30,8 @@ class Topology(object):
             self.bruteForceFindEdges()
         elif method == "sweep":
             self.sweepFindEdges()
+        elif method == "cell":
+            self.cellFindEdges()
     
     def bruteForceFindEdges(self):
         for n in self.nodes:
@@ -55,6 +57,44 @@ class Topology(object):
             for m in search_space:
                 if self.distance(n, m) <= self.node_r:
                     self.edges[n].append(m)
+    
+    def cellFindEdges(self):
+        num_cells = int(1/self.node_r) + 1
+        cells = []
+        for i in range(num_cells):
+            cells.append([[] for j in range(num_cells)])
+        
+        for n in self.nodes:
+            cells[int(n[0]/self.node_r)][int(n[1]/self.node_r)].append(n)
+        
+        for i in range(num_cells):
+            for j in range(num_cells):
+                for n in cells[i][j]:
+                    for c in self.findPosAdjCells(i, j, num_cells):
+                        for m in cells[c[0]][c[1]]:
+                            if n != m and self.distance(n, m) <= self.node_r:
+                                self.edges[n].append(m)
+
+    def findPosAdjCells(self, i, j, n):
+        result = []
+        result.append((i,j))
+        if i < n - 1:
+            result.append((i+1, j))
+            if j < n - 1:
+                result.append((i+1, j+1))
+            if j > 0:
+                result.append((i+1, j-1))
+        if j < n - 1:
+            result.append((i, j+1))
+        # if j > 0:
+        #     result.append((i+1, j-1))
+        # if j < n:
+        #     result.append((i, j+1))
+        # if i < n:
+        #     result.append((i+1, j))
+        # if j < n and i < n:
+        #     result.append((i+1, j+1))
+        return result
     
     def getRadiusForAverageDegree(self):
         print "Method for finding necessary radius for average degree not subclassed"
@@ -182,14 +222,14 @@ def draw():
 
 def main():
     global topology
-    topology = Square()
-    # topology = Disk()
+    # topology = Square()
+    topology = Disk()
     # topology = Sphere()
     
     run_time = time.clock()
     
     topology.generateNodes()
-    topology.findEdges(method="sweep")
+    topology.findEdges(method="cell")
     
     print "Average degree: {}".format(topology.findAvgDegree())
     
