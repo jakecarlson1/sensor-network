@@ -77,23 +77,12 @@ class Topology(object):
 
     def findPosAdjCells(self, i, j, n):
         result = []
-        result.append((i,j))
-        if i < n - 1:
-            result.append((i+1, j))
-            if j < n - 1:
-                result.append((i+1, j+1))
-            if j > 0:
-                result.append((i+1, j-1))
-        if j < n - 1:
-            result.append((i, j+1))
-        # if j > 0:
-        #     result.append((i+1, j-1))
-        # if j < n:
-        #     result.append((i, j+1))
-        # if i < n:
-        #     result.append((i+1, j))
-        # if j < n and i < n:
-        #     result.append((i+1, j+1))
+        xRange = [(i-1)%n, i, (i+1)%n]
+        yRange = [(j-1)%n, j, (j+1)%n]
+        for x in xRange:
+            for y in yRange:
+                result.append((x,y))
+        
         return result
     
     def getRadiusForAverageDegree(self):
