@@ -4,10 +4,10 @@ import time
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 1000
+NUM_NODES = 16000
 AVG_DEG = 16
 
-MAX_NODES_TO_DRAW_EDGES = 100
+MAX_NODES_TO_DRAW_EDGES = 16000
 
 """
 Topology - super class for the shape of the random geometric graph 
@@ -28,11 +28,32 @@ class Topology(object):
         
         if method == "brute":
             self.bruteForceFindEdges()
+        elif method == "sweep":
+            self.sweepFindEdges()
     
     def bruteForceFindEdges(self):
         for n in self.nodes:
             for m in self.nodes:
                 if n != m and self.distance(n, m) <= self.node_r:
+                    self.edges[n].append(m)
+    
+    def sweepFindEdges(self):
+        self.nodes.sort(key=lambda x: x[0])
+        
+        for i, n in enumerate(self.nodes):
+            search_space = []
+            for j in range(1,i+1):
+                if abs(n[0] - self.nodes[i-j][0]) <= self.node_r:
+                    search_space.append(self.nodes[i-j])
+                else:
+                    break
+            for j in range(1,NUM_NODES-i):
+                if abs(n[0] - self.nodes[i+j][0]) <= self.node_r:
+                    search_space.append(self.nodes[i+j])
+                else:
+                    break
+            for m in search_space:
+                if self.distance(n, m) <= self.node_r:
                     self.edges[n].append(m)
     
     def getRadiusForAverageDegree(self):
@@ -131,7 +152,8 @@ class Sphere(Topology):
     
     def __init__(self):
         super(Sphere, self).__init__()
-        
+
+    # TODO: fix this as it fills the volume of the sphere
     def generateNodes(self):
         for i in range(NUM_NODES):
             p = (random.uniform(0,1), random.uniform(0,1), random.uniform(0,1))
@@ -144,6 +166,8 @@ class Sphere(Topology):
 
     def distance(self, n, m):
         return sqrt((n[0] - m[0])**2+(n[1] - m[1])**2+(n[2] - m[2])**2)
+    
+    # TODO: overload drawNodes and drawEdges for a 3D object, add rotation
 
 def setup():
     size(CANVAS_WIDTH, CANVAS_HEIGHT, P3D)
@@ -158,14 +182,14 @@ def draw():
 
 def main():
     global topology
-    # topology = Square()
+    topology = Square()
     # topology = Disk()
-    topology = Sphere()
+    # topology = Sphere()
     
     run_time = time.clock()
     
     topology.generateNodes()
-    topology.findEdges()
+    topology.findEdges(method="sweep")
     
     print "Average degree: {}".format(topology.findAvgDegree())
     
