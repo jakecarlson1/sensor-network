@@ -15,6 +15,8 @@ class Topology(object):
         self.nodes = []
         self.edges = {}
         self.node_r = 0.0
+        self.minDeg = ()
+        self.maxDeg = ()
 
     def generateNodes(self):
         print "Method for generating nodes not subclassed"
@@ -29,6 +31,8 @@ class Topology(object):
             self.sweepFindEdges()
         elif method == "cell":
             self.cellFindEdges()
+
+        self.findMinAndMaxDegree()
 
     def bruteForceFindEdges(self):
         for n in self.nodes:
@@ -98,6 +102,22 @@ class Topology(object):
 
         return sigma_degree/len(self.edges.keys())
 
+    def findMinAndMaxDegree(self):
+        self.minDeg = self.edges.keys()[0]
+        self.maxDeg = self.edges.keys()[0]
+
+        for k in self.edges.keys():
+            if len(self.edges[k]) < len(self.edges[self.minDeg]):
+                self.minDeg = k
+            if len(self.edges[k]) > len(self.edges[self.maxDeg]):
+                self.maxDeg = k
+
+    def getMinDegree(self):
+        return len(self.edges[self.minDeg])
+
+    def getMaxDegree(self):
+        return len(self.edges[self.maxDeg])
+
     def drawNodes(self):
         strokeWeight(2)
         stroke(255)
@@ -116,24 +136,15 @@ class Topology(object):
                 line(n[0]*self.canvas_width, n[1]*self.canvas_height, m[0]*self.canvas_width, m[1]*self.canvas_height)
 
     def drawMinMaxDegNodes(self):
-        minDeg = self.edges.keys()[0]
-        maxDeg = self.edges.keys()[0]
-
-        for k in self.edges.keys():
-            if len(self.edges[k]) < len(self.edges[minDeg]):
-                minDeg = k
-            if len(self.edges[k]) > len(self.edges[maxDeg]):
-                maxDeg = k
-
         strokeWeight(1)
         stroke(0,255,0)
         fill(255)
-        for n in self.edges[minDeg]:
-            line(minDeg[0]*self.canvas_width, minDeg[1]*self.canvas_height, n[0]*self.canvas_width, n[1]*self.canvas_height)
+        for n in self.edges[self.minDeg]:
+            line(self.minDeg[0]*self.canvas_width, self.minDeg[1]*self.canvas_height, n[0]*self.canvas_width, n[1]*self.canvas_height)
 
         stroke(0,0,255)
-        for n in self.edges[maxDeg]:
-            line(maxDeg[0]*self.canvas_width, maxDeg[1]*self.canvas_height, n[0]*self.canvas_width, n[1]*self.canvas_height)
+        for n in self.edges[self.maxDeg]:
+            line(self.maxDeg[0]*self.canvas_width, self.maxDeg[1]*self.canvas_height, n[0]*self.canvas_width, n[1]*self.canvas_height)
 
 """
 Square - inherits from Topology, overloads generateNodes and getRadiusForAverageDegree
@@ -179,16 +190,24 @@ class Sphere(Topology):
     def __init__(self):
         super(Sphere, self).__init__()
 
-    # TODO: fix this as it fills the volume of the sphere
     def generateNodes(self):
         for i in range(self.num_nodes):
-            p = (random.uniform(0,1), random.uniform(0,1), random.uniform(0,1))
-            while self.distance(p, (0.5,0.5,0.5)) > 0.5:
-                p = (random.uniform(0,1), random.uniform(0,1), random.uniform(0,1))
+            # equations for uniformly distributing nodes on the surface area of
+            # a sphere: http://mathworld.wolfram.com/SpherePointPicking.html
+            # divide by 2 and shift by 0.5 to place in canvas window
+            u = random.uniform(0,1)
+            theta = random.uniform(0, 2*math.pi)
+            p = (
+                math.sqrt(1 - u**2) * math.cos(theta)/2 + 0.5,
+                math.sqrt(1 - u**2) * math.sin(theta)/2 + 0.5,
+                u/2
+
+            )
             self.nodes.append(p)
 
     def getRadiusForAverageDegree(self):
-            self.node_r = math.sqrt((self.avg_deg + 0.0)/self.num_nodes)
+            # divide by two to account for adjustments in generateNodes
+            self.node_r = math.sqrt((self.avg_deg + 0.0)/self.num_nodes)/2
 
     def distance(self, n, m):
         return math.sqrt((n[0] - m[0])**2+(n[1] - m[1])**2+(n[2] - m[2])**2)

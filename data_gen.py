@@ -1,6 +1,8 @@
 import time
 import matplotlib.pyplot as plt
+import numpy as np
 from Processing.objects.topology import *
+from collections import Counter
 
 def varryNumNodes(method="cell"):
     print "-------- {} --------".format(method)
@@ -67,19 +69,38 @@ def plotForVarNodes():
 def plotForVarAvgDeg():
     times_cell, avg_degs_cell = varryAvgDeg(method="cell")
     times_sweep, avg_degs_sweep = varryAvgDeg(method="sweep")
-    # times_brute, avg_degs_brute = varryAvgDeg(method="brute")
 
     plt.plot(avg_degs_cell, times_cell, 'r-', label="Cell")
     plt.plot(avg_degs_sweep, times_sweep, 'b-', label="Sweep")
-    # plt.plot(avg_degs_brute, times_brute, 'g-', label="Brute")
     plt.xlabel("Average Degree")
     plt.ylabel("Run time (s)")
     plt.title("Run Time for |V| = 32,000")
     plt.legend(loc=2)
     plt.show()
 
+def plotDistributionOfDegrees():
+    topology = Square()
+    topology.num_nodes = 32000
+    topology.avg_deg = 16
+
+    topology.generateNodes()
+    topology.findEdges(method="cell")
+
+    c = Counter([len(v) for v in topology.edges.values()])
+    labels = [x[0] for x in c.items()]
+    values = [x[1] for x in c.items()]
+    indexes = np.arange(len(labels))
+    plt.bar(indexes, values)
+    plt.xticks(indexes + 0.5, labels)
+    plt.xlabel("Degree")
+    plt.ylabel("Number of Occurances")
+    plt.title("Distribution Of Degrees of Nodes")
+    plt.show()
+
+
 def main():
     # plotForVarNodes()
-    plotForVarAvgDeg()
+    # plotForVarAvgDeg()
+    # plotDistributionOfDegrees()
 
 main()

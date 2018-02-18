@@ -8,7 +8,7 @@ CANVAS_WIDTH = 720
 NUM_NODES = 1000
 AVG_DEG = 16
 
-MAX_NODES_TO_DRAW_EDGES = 16000
+MAX_NODES_TO_DRAW_EDGES = 8000
 
 def setup():
     size(CANVAS_WIDTH, CANVAS_HEIGHT, P3D)
@@ -38,6 +38,8 @@ def main():
     topology.findEdges(method="cell")
     
     print "Average degree: {}".format(topology.findAvgDegree())
+    print "Min degree: {}".format(topology.getMinDegree())
+    print "Max degree: {}".format(topology.getMaxDegree())
     
     run_time = time.clock() - run_time
     print "Run time: {0:.3f} s".format(run_time)
