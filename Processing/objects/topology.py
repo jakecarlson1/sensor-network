@@ -1,6 +1,12 @@
 import random
 import math
 
+# benchmarks (num_nodes, avg_deg)
+SQUARE_BENCHMARKS = [(1000,32), (8000,64), (16000,32), (64000,64), (64000,128),
+                     (128000,64), (128000, 128)]
+DISK_BENCHMARKS = [(8000,64), (64000,64), (64000,128)]
+SPHERE_BENCHMARKS = [(16000,64), (32000,128), (64000,128)]
+
 """
 Topology - super class for the shape of the random geometric graph
 """
@@ -118,6 +124,9 @@ class Topology(object):
     def getMaxDegree(self):
         return len(self.edges[self.maxDeg])
 
+    def prepBenchmark(self, n):
+        print "Method for preparing benchmark not subclassed"
+
     def drawNodes(self):
         strokeWeight(2)
         stroke(255)
@@ -162,6 +171,10 @@ class Square(Topology):
     def getRadiusForAverageDegree(self):
         self.node_r = math.sqrt(self.avg_deg/(self.num_nodes * math.pi))
 
+    def prepBenchmark(self, n):
+        self.num_nodes = SQUARE_BENCHMARKS[n][0]
+        self.avg_deg = SQUARE_BENCHMARKS[n][1]
+
 """
 Disk - inherits from Topology, overloads generateNodes and getRadiusForAverageDegree
 for a unit circle topology
@@ -180,6 +193,10 @@ class Disk(Topology):
 
     def getRadiusForAverageDegree(self):
         self.node_r = math.sqrt((self.avg_deg + 0.0)/self.num_nodes)/2
+
+    def prepBenchmark(self, n):
+        self.num_nodes = DISK_BENCHMARKS[n][0]
+        self.avg_deg = DISK_BENCHMARKS[n][1]
 
 """
 Sphere - inherits from Topology, overloads generateNodes, getRadiusForAverageDegree,
@@ -211,5 +228,9 @@ class Sphere(Topology):
 
     def distance(self, n, m):
         return math.sqrt((n[0] - m[0])**2+(n[1] - m[1])**2+(n[2] - m[2])**2)
+
+    def prepBenchmark(self, n):
+        self.num_nodes = SPHERE_BENCHMARKS[n][0]
+        self.avg_deg = SPHERE_BENCHMARKS[n][1]
 
     # TODO: overload drawNodes and drawEdges for a 3D object, add rotation

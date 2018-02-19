@@ -10,13 +10,15 @@ AVG_DEG = 16
 
 MAX_NODES_TO_DRAW_EDGES = 8000
 
+RUN_BENCHMARK = False
+
 def setup():
     size(CANVAS_WIDTH, CANVAS_HEIGHT, P3D)
     background(0)
 
 def draw():
     topology.drawNodes()
-    if NUM_NODES < MAX_NODES_TO_DRAW_EDGES:
+    if topology.num_nodes < MAX_NODES_TO_DRAW_EDGES:
         topology.drawEdges()
     else:
         topology.drawMinMaxDegNodes()
@@ -31,6 +33,10 @@ def main():
     topology.avg_deg = AVG_DEG
     topology.canvas_height = CANVAS_HEIGHT
     topology.canvas_width = CANVAS_WIDTH
+    
+    if RUN_BENCHMARK:
+        n_benchmark = 2
+        topology.prepBenchmark(n_benchmark)
     
     run_time = time.clock()
     

@@ -4,12 +4,6 @@ import numpy as np
 from Processing.objects.topology import *
 from collections import Counter
 
-# benchmarks (num_nodes, avg_deg)
-SQUARE_BENCHMARKS = [(1000,32), (8000,64), (16000,32), (64000,64), (64000,128),
-                     (128000,64),, (128000, 128)]
-DISK_BENCHMARKS = [(8000,64), (64000,64), (64000,128)]
-SPHERE_BENCHMARKS = [(16000,64), (32000,128), (64000,128)]
-
 def varryNumNodes(method="cell"):
     print "-------- {} --------".format(method)
     times = []
