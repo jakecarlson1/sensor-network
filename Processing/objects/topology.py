@@ -206,7 +206,7 @@ class Sphere(Topology):
 
     def __init__(self):
         super(Sphere, self).__init__()
-        self.ROT = (0,math.pi/4,0)
+        self.rot = (0,math.pi/4,0)
 
     def generateNodes(self):
         for i in range(self.num_nodes):
@@ -245,10 +245,10 @@ class Sphere(Topology):
     # TODO: overload drawNodes and drawEdges for a 3D object, add rotation
 
     def drawNodes(self):
-        camera(self.canvas_width/2, self.canvas_height/2, self.canvas_width*-4, 0.5,0.5,0.5, 0,1,0)
+        camera(self.canvas_width/2, self.canvas_height/2, self.canvas_width*-3, 0.5,0.5,0.5, 0,1,0)
         clear()
         noStroke()
-        self.ROT = (self.ROT[0], self.ROT[1]-math.pi/100, self.ROT[2])
+        self.rot = (self.rot[0], self.rot[1]-math.pi/100, self.rot[2])
         strokeWeight(2)
         stroke(255)
         fill(255)
@@ -257,18 +257,18 @@ class Sphere(Topology):
 
             pushMatrix()
             # camera(self.canvas_width/2 + LOC[0], self.canvas_height/2 + LOC[0], -2*self.canvas_width + LOC[2], 0, 0, 0, 1, 1, 1)
-            rotateZ(self.ROT[2])
-            rotateY(-1*self.ROT[1])
-            # rotateX(-1*self.ROT[0])
+            rotateZ(self.rot[2])
+            rotateY(-1*self.rot[1])
+            # rotateX(-1*self.rot[0])
 
-            # rotateY(ROT[0])
+            # rotateY(rot[0])
 
             translate((self.nodes[n][0])*self.canvas_width/2, (self.nodes[n][1])*self.canvas_width/2, (self.nodes[n][2])*self.canvas_width*-1.5)
             # rotateY(self.inc)
             # translate(self.canvas_width/2, self.canvas_height/2, self.canvas_width*-2)
             # noFill()
             # box(200)
-            ellipse(self.nodes[n][0]*self.canvas_width, self.nodes[n][1]*self.canvas_height, 15, 15)
+            ellipse(self.nodes[n][0]*self.canvas_width, self.nodes[n][1]*self.canvas_height, 5, 5)
 
             # for e in self.edges[self.nodes[n]]:
             #     # line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
