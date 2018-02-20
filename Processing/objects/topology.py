@@ -206,25 +206,34 @@ class Sphere(Topology):
 
     def __init__(self):
         super(Sphere, self).__init__()
+        self.ROT = (0,math.pi/4,0)
 
     def generateNodes(self):
         for i in range(self.num_nodes):
             # equations for uniformly distributing nodes on the surface area of
             # a sphere: http://mathworld.wolfram.com/SpherePointPicking.html
             # divide by 2 and shift by 0.5 to place in canvas window
-            u = random.uniform(0,1)
-            theta = random.uniform(0, 2*math.pi)
-            p = (
-                math.sqrt(1 - u**2) * math.cos(theta)/2 + 0.5,
-                math.sqrt(1 - u**2) * math.sin(theta)/2 + 0.5,
-                u/2
-
-            )
-            self.nodes.append(p)
+            # u = random.uniform(-0.5,0.5)
+            # u = random.uniform(-1,1)
+            # theta = random.uniform(0, 2*math.pi)
+            # p = (
+            #     math.sqrt(1 - u**2) * math.cos(theta),
+            #     math.sqrt(1 - u**2) * math.sin(theta),
+            #     u/2
+            #
+            # )
+            # self.nodes.append(p)
+            p = [random.uniform(-0.5,0.5),random.uniform(-0.5,0.5),random.uniform(-0.5,0.5)]
+            dist = self.distance(p, (0,0,0))
+            if dist <= 1:
+                p[0] /= dist
+                p[1] /= dist
+                p[2] /= dist
+            self.nodes.append(tuple(p))
 
     def getRadiusForAverageDegree(self):
             # divide by two to account for adjustments in generateNodes
-            self.node_r = math.sqrt((self.avg_deg + 0.0)/self.num_nodes)/2
+            self.node_r = math.sqrt((self.avg_deg + 0.0)/self.num_nodes)*2
 
     def distance(self, n, m):
         return math.sqrt((n[0] - m[0])**2+(n[1] - m[1])**2+(n[2] - m[2])**2)
@@ -234,3 +243,48 @@ class Sphere(Topology):
         self.avg_deg = SPHERE_BENCHMARKS[n][1]
 
     # TODO: overload drawNodes and drawEdges for a 3D object, add rotation
+
+    def drawNodes(self):
+        camera(self.canvas_width/2, self.canvas_height/2, self.canvas_width*-4, 0.5,0.5,0.5, 0,1,0)
+        clear()
+        noStroke()
+        self.ROT = (self.ROT[0], self.ROT[1]-math.pi/100, self.ROT[2])
+        strokeWeight(2)
+        stroke(255)
+        fill(255)
+
+        for n in range(self.num_nodes):
+
+            pushMatrix()
+            # camera(self.canvas_width/2 + LOC[0], self.canvas_height/2 + LOC[0], -2*self.canvas_width + LOC[2], 0, 0, 0, 1, 1, 1)
+            rotateZ(self.ROT[2])
+            rotateY(-1*self.ROT[1])
+            # rotateX(-1*self.ROT[0])
+
+            # rotateY(ROT[0])
+
+            translate((self.nodes[n][0])*self.canvas_width/2, (self.nodes[n][1])*self.canvas_width/2, (self.nodes[n][2])*self.canvas_width*-1.5)
+            # rotateY(self.inc)
+            # translate(self.canvas_width/2, self.canvas_height/2, self.canvas_width*-2)
+            # noFill()
+            # box(200)
+            ellipse(self.nodes[n][0]*self.canvas_width, self.nodes[n][1]*self.canvas_height, 15, 15)
+
+            # for e in self.edges[self.nodes[n]]:
+            #     # line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
+            #     line(e[0]*self.canvas_width, e[1]*self.canvas_height, e[2]*self.canvas_width, self.nodes[n][0]*self.canvas_width, self.nodes[n][1]*self.canvas_height, self.nodes[n][2]*self.canvas_width)
+
+            popMatrix()
+
+    def drawEdges(self):
+        return
+        # strokeWeight(1)
+        # stroke(245)
+        # fill(255)
+        #
+        # for n in self.edges.keys():
+        #     pushMatrix()
+        #     for m in self.edges[n]:
+        #         line(0.5,0.5,0.5, (m[0] - n[0])*self.canvas_width, (m[1] - n[1])*self.canvas_height, (m[2] - n[2])*self.canvas_width)
+        #         # line(0.5,0.5,0.5, n[0]*self.canvas_width, n[1]*self.canvas_height, m[0]*self.canvas_width, m[1]*self.canvas_height)
+        #     popMatrix()

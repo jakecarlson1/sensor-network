@@ -1,5 +1,6 @@
 import random
 import time
+import math
 from objects.topology import Square, Disk, Sphere
 
 CANVAS_HEIGHT = 720
@@ -15,6 +16,7 @@ RUN_BENCHMARK = False
 def setup():
     size(CANVAS_WIDTH, CANVAS_HEIGHT, P3D)
     background(0)
+    # frameRate(30)
 
 def draw():
     topology.drawNodes()
