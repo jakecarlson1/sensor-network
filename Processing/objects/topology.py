@@ -127,6 +127,13 @@ class Topology(object):
     def prepBenchmark(self, n):
         print "Method for preparing benchmark not subclassed"
 
+    def drawGraph(self, n_limit):
+        self.drawNodes()
+        if self.num_nodes < n_limit:
+            self.drawEdges()
+        else:
+            self.drawMinMaxDegNodes()
+
     def drawNodes(self):
         strokeWeight(2)
         stroke(255)
@@ -207,6 +214,7 @@ class Sphere(Topology):
     def __init__(self):
         super(Sphere, self).__init__()
         self.rot = (0,math.pi/4,0)
+        self.n_limit = 8000
 
     def generateNodes(self):
         for i in range(self.num_nodes):
@@ -218,7 +226,6 @@ class Sphere(Topology):
             self.nodes.append(tuple(p))
 
     def getRadiusForAverageDegree(self):
-            # divide by two to account for adjustments in generateNodes
             self.node_r = math.sqrt((self.avg_deg + 0.0)/self.num_nodes)*2
 
     def distance(self, n, m):
@@ -228,7 +235,9 @@ class Sphere(Topology):
         self.num_nodes = SPHERE_BENCHMARKS[n][0]
         self.avg_deg = SPHERE_BENCHMARKS[n][1]
 
-    # TODO: overload drawNodes and drawEdges for a 3D object, add rotation
+    def drawGraph(self, n_limit):
+        self.n_limit = n_limit
+        self.drawNodes()
 
     def drawNodes(self):
         background(0)
@@ -249,20 +258,21 @@ class Sphere(Topology):
 
             ellipse(0, 0, 10, 10)
 
-            for e in self.edges[self.nodes[n]]:
-                line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
+            # draw all edges
+            if self.num_nodes < self.n_limit:
+                for e in self.edges[self.nodes[n]]:
+                    line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
+            # draw edges for min degree node
+            elif self.nodes[n] == self.minDeg:
+                stroke(0,255,0)
+                for e in self.edges[self.nodes[n]]:
+                    line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
+                stroke(255)
+            # draw edges for max degree node
+            elif self.nodes[n] == self.maxDeg:
+                stroke(0,0,255)
+                for e in self.edges[self.nodes[n]]:
+                    line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
+                stroke(255)
 
             popMatrix()
-
-    def drawEdges(self):
-        return
-        # strokeWeight(1)
-        # stroke(245)
-        # fill(255)
-        #
-        # for n in self.edges.keys():
-        #     pushMatrix()
-        #     for m in self.edges[n]:
-        #         line(0.5,0.5,0.5, (m[0] - n[0])*self.canvas_width, (m[1] - n[1])*self.canvas_height, (m[2] - n[2])*self.canvas_width)
-        #         # line(0.5,0.5,0.5, n[0]*self.canvas_width, n[1]*self.canvas_height, m[0]*self.canvas_width, m[1]*self.canvas_height)
-        #     popMatrix()

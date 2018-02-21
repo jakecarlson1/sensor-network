@@ -6,7 +6,7 @@ from objects.topology import Square, Disk, Sphere
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 1000
+NUM_NODES = 8000
 AVG_DEG = 16
 
 MAX_NODES_TO_DRAW_EDGES = 8000
@@ -16,14 +16,9 @@ RUN_BENCHMARK = False
 def setup():
     size(CANVAS_WIDTH, CANVAS_HEIGHT, P3D)
     background(0)
-    # frameRate(30)
 
 def draw():
-    topology.drawNodes()
-    if topology.num_nodes < MAX_NODES_TO_DRAW_EDGES:
-        topology.drawEdges()
-    else:
-        topology.drawMinMaxDegNodes()
+    topology.drawGraph(MAX_NODES_TO_DRAW_EDGES)
 
 def main():
     global topology
@@ -37,7 +32,7 @@ def main():
     topology.canvas_width = CANVAS_WIDTH
     
     if RUN_BENCHMARK:
-        n_benchmark = 2
+        n_benchmark = 0
         topology.prepBenchmark(n_benchmark)
     
     run_time = time.clock()
