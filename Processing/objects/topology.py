@@ -30,27 +30,27 @@ class Topology(object):
 
     # public function for finding edges
     def findEdges(self, method="brute"):
-        self.getRadiusForAverageDegree()
-        self.addNodesAsEdgeKeys()
+        self._getRadiusForAverageDegree()
+        self._addNodesAsEdgeKeys()
 
         if method == "brute":
-            self.bruteForceFindEdges()
+            self._bruteForceFindEdges()
         elif method == "sweep":
-            self.sweepFindEdges()
+            self._sweepFindEdges()
         elif method == "cell":
-            self.cellFindEdges()
+            self._cellFindEdges()
 
-        self.findMinAndMaxDegree()
+        self._findMinAndMaxDegree()
 
     # brute force edge detection
-    def bruteForceFindEdges(self):
+    def _bruteForceFindEdges(self):
         for n in self.nodes:
             for m in self.nodes:
-                if n != m and self.distance(n, m) <= self.node_r:
+                if n != m and self._distance(n, m) <= self.node_r:
                     self.edges[n].append(m)
 
     # sweep edge detection (2D)
-    def sweepFindEdges(self):
+    def _sweepFindEdges(self):
         self.nodes.sort(key=lambda x: x[0])
 
         for i, n in enumerate(self.nodes):
@@ -66,11 +66,11 @@ class Topology(object):
                 else:
                     break
             for m in search_space:
-                if self.distance(n, m) <= self.node_r:
+                if self._distance(n, m) <= self.node_r:
                     self.edges[n].append(m)
 
     # cell edge detection (2D)
-    def cellFindEdges(self):
+    def _cellFindEdges(self):
         num_cells = int(1/self.node_r) + 1
         cells = []
         for i in range(num_cells):
@@ -82,13 +82,13 @@ class Topology(object):
         for i in range(num_cells):
             for j in range(num_cells):
                 for n in cells[i][j]:
-                    for c in self.findPosAdjCells(i, j, num_cells):
+                    for c in self._findPosAdjCells(i, j, num_cells):
                         for m in cells[c[0]][c[1]]:
-                            if n != m and self.distance(n, m) <= self.node_r:
+                            if n != m and self._distance(n, m) <= self.node_r:
                                 self.edges[n].append(m)
 
     # cell edge detection helper function (2D)
-    def findPosAdjCells(self, i, j, n):
+    def _findPosAdjCells(self, i, j, n):
         result = []
         xRange = [(i-1)%n, i, (i+1)%n]
         yRange = [(j-1)%n, j, (j+1)%n]
@@ -100,15 +100,15 @@ class Topology(object):
 
     # function for finding the radius needed for the desired average degree
     # must be subclassed
-    def getRadiusForAverageDegree(self):
+    def _getRadiusForAverageDegree(self):
         print "Method for finding necessary radius for average degree not subclassed"
 
     # helper function for findEdges, initializes edges dict
-    def addNodesAsEdgeKeys(self):
+    def _addNodesAsEdgeKeys(self):
         self.edges = dict((n, []) for n in self.nodes)
 
     # claculates the distance between two nodes (2D)
-    def distance(self, n, m):
+    def _distance(self, n, m):
         return math.sqrt((n[0] - m[0])**2+(n[1] - m[1])**2)
 
     # public function for finding the average degree of nodes
@@ -120,7 +120,7 @@ class Topology(object):
         return sigma_degree/len(self.edges.keys())
 
     # helper funciton for finding nodes with min and max degree
-    def findMinAndMaxDegree(self):
+    def _findMinAndMaxDegree(self):
         self.minDeg = self.edges.keys()[0]
         self.maxDeg = self.edges.keys()[0]
 
@@ -144,14 +144,14 @@ class Topology(object):
 
     # public function for drawing the graph
     def drawGraph(self, n_limit):
-        self.drawNodes()
+        self._drawNodes()
         if self.num_nodes < n_limit:
-            self.drawEdges()
+            self._drawEdges()
         else:
-            self.drawMinMaxDegNodes()
+            self._drawMinMaxDegNodes()
 
     # responsible for drawing the nodes in the canvas
-    def drawNodes(self):
+    def _drawNodes(self):
         strokeWeight(2)
         stroke(255)
         fill(255)
@@ -160,7 +160,7 @@ class Topology(object):
             ellipse(self.nodes[n][0]*self.canvas_width, self.nodes[n][1]*self.canvas_height, 5, 5)
 
     # responsible for drawing the edges in the canavas
-    def drawEdges(self):
+    def _drawEdges(self):
         strokeWeight(1)
         stroke(245)
         fill(255)
@@ -170,7 +170,7 @@ class Topology(object):
                 line(n[0]*self.canvas_width, n[1]*self.canvas_height, m[0]*self.canvas_width, m[1]*self.canvas_height)
 
     # responsible for drawing the edges of the min and max degree nodes
-    def drawMinMaxDegNodes(self):
+    def _drawMinMaxDegNodes(self):
         strokeWeight(1)
         stroke(0,255,0)
         fill(255)
@@ -182,7 +182,7 @@ class Topology(object):
             line(self.maxDeg[0]*self.canvas_width, self.maxDeg[1]*self.canvas_height, n[0]*self.canvas_width, n[1]*self.canvas_height)
 
 """
-Square - inherits from Topology, overloads generateNodes and getRadiusForAverageDegree
+Square - inherits from Topology, overloads generateNodes and _getRadiusForAverageDegree
 for a unit square topology
 """
 class Square(Topology):
@@ -196,7 +196,7 @@ class Square(Topology):
             self.nodes.append((random.uniform(0,1), random.uniform(0,1)))
 
     # calculates the radius needed for the requested average degree in a unit square
-    def getRadiusForAverageDegree(self):
+    def _getRadiusForAverageDegree(self):
         self.node_r = math.sqrt(self.avg_deg/(self.num_nodes * math.pi))
 
     # gets benchmark setting for square
@@ -205,7 +205,7 @@ class Square(Topology):
         self.avg_deg = SQUARE_BENCHMARKS[n][1]
 
 """
-Disk - inherits from Topology, overloads generateNodes and getRadiusForAverageDegree
+Disk - inherits from Topology, overloads generateNodes and _getRadiusForAverageDegree
 for a unit circle topology
 """
 class Disk(Topology):
@@ -218,12 +218,12 @@ class Disk(Topology):
     def generateNodes(self):
         for i in range(self.num_nodes):
             p = (random.uniform(0,1), random.uniform(0,1))
-            while self.distance(p, (0.5,0.5)) > 0.5:
+            while self._distance(p, (0.5,0.5)) > 0.5:
                 p = (random.uniform(0,1), random.uniform(0,1))
             self.nodes.append(p)
 
     # calculates the radius needed for the requested average degree in a unit circle
-    def getRadiusForAverageDegree(self):
+    def _getRadiusForAverageDegree(self):
         self.node_r = math.sqrt((self.avg_deg + 0.0)/self.num_nodes)/2
 
     # gets benchmark setting for disk
@@ -232,8 +232,8 @@ class Disk(Topology):
         self.avg_deg = DISK_BENCHMARKS[n][1]
 
 """
-Sphere - inherits from Topology, overloads generateNodes, getRadiusForAverageDegree,
-and distance for a unit sphere topology
+Sphere - inherits from Topology, overloads generateNodes, _getRadiusForAverageDegree,
+and _distance for a unit sphere topology
 """
 class Sphere(Topology):
 
@@ -241,25 +241,25 @@ class Sphere(Topology):
     def __init__(self):
         super(Sphere, self).__init__()
         self.rot = (0,math.pi/4,0) # this may move to Topology if rotation is given to the 2D shapes
-        # used to control drawNodes functionality
+        # used to control _drawNodes functionality
         self.n_limit = 8000
 
     # places nodes in a unit cube and projects them onto the surface of the sphere
     def generateNodes(self):
         for i in range(self.num_nodes):
             p = [random.uniform(-0.5,0.5),random.uniform(-0.5,0.5),random.uniform(-0.5,0.5)]
-            dist = self.distance(p, (0,0,0))
+            dist = self._distance(p, (0,0,0))
             p[0] /= dist
             p[1] /= dist
             p[2] /= dist
             self.nodes.append(tuple(p))
 
     # calculates the radius needed for the requested average degree in a unit sphere
-    def getRadiusForAverageDegree(self):
+    def _getRadiusForAverageDegree(self):
             self.node_r = math.sqrt((self.avg_deg + 0.0)/self.num_nodes)*2
 
     # calculates the distance between two nodes (3D)
-    def distance(self, n, m):
+    def _distance(self, n, m):
         return math.sqrt((n[0] - m[0])**2+(n[1] - m[1])**2+(n[2] - m[2])**2)
 
     # gets benchmark setting for sphere
@@ -270,10 +270,10 @@ class Sphere(Topology):
     # public function for drawing graph, updates node limit if necessary
     def drawGraph(self, n_limit):
         self.n_limit = n_limit
-        self.drawNodesAndEdges()
+        self._drawNodesAndEdges()
 
     # responsible for drawing nodes and edges in 3D space
-    def drawNodesAndEdges(self):
+    def _drawNodesAndEdges(self):
         # positions camera
         camera(self.canvas_width/2, self.canvas_height/2, self.canvas_width*-2, 0.5,0.5,0, 0,1,0)
 
