@@ -210,25 +210,11 @@ class Sphere(Topology):
 
     def generateNodes(self):
         for i in range(self.num_nodes):
-            # equations for uniformly distributing nodes on the surface area of
-            # a sphere: http://mathworld.wolfram.com/SpherePointPicking.html
-            # divide by 2 and shift by 0.5 to place in canvas window
-            # u = random.uniform(-0.5,0.5)
-            # u = random.uniform(-1,1)
-            # theta = random.uniform(0, 2*math.pi)
-            # p = (
-            #     math.sqrt(1 - u**2) * math.cos(theta),
-            #     math.sqrt(1 - u**2) * math.sin(theta),
-            #     u/2
-            #
-            # )
-            # self.nodes.append(p)
             p = [random.uniform(-0.5,0.5),random.uniform(-0.5,0.5),random.uniform(-0.5,0.5)]
             dist = self.distance(p, (0,0,0))
-            if dist <= 1:
-                p[0] /= dist
-                p[1] /= dist
-                p[2] /= dist
+            p[0] /= dist
+            p[1] /= dist
+            p[2] /= dist
             self.nodes.append(tuple(p))
 
     def getRadiusForAverageDegree(self):
@@ -245,9 +231,8 @@ class Sphere(Topology):
     # TODO: overload drawNodes and drawEdges for a 3D object, add rotation
 
     def drawNodes(self):
-        camera(self.canvas_width/2, self.canvas_height/2, self.canvas_width*-3, 0.5,0.5,0.5, 0,1,0)
-        clear()
-        noStroke()
+        background(0)
+        camera(self.canvas_width/2, self.canvas_height/2, self.canvas_width*-2, 0.5,0.5,0, 0,1,0)
         self.rot = (self.rot[0], self.rot[1]-math.pi/100, self.rot[2])
         strokeWeight(2)
         stroke(255)
@@ -256,23 +241,16 @@ class Sphere(Topology):
         for n in range(self.num_nodes):
 
             pushMatrix()
-            # camera(self.canvas_width/2 + LOC[0], self.canvas_height/2 + LOC[0], -2*self.canvas_width + LOC[2], 0, 0, 0, 1, 1, 1)
+
             rotateZ(self.rot[2])
             rotateY(-1*self.rot[1])
-            # rotateX(-1*self.rot[0])
 
-            # rotateY(rot[0])
+            translate((self.nodes[n][0])*self.canvas_width, (self.nodes[n][1])*self.canvas_height, (self.nodes[n][2])*self.canvas_width)
 
-            translate((self.nodes[n][0])*self.canvas_width/2, (self.nodes[n][1])*self.canvas_width/2, (self.nodes[n][2])*self.canvas_width*-1.5)
-            # rotateY(self.inc)
-            # translate(self.canvas_width/2, self.canvas_height/2, self.canvas_width*-2)
-            # noFill()
-            # box(200)
-            ellipse(self.nodes[n][0]*self.canvas_width, self.nodes[n][1]*self.canvas_height, 5, 5)
+            ellipse(0, 0, 10, 10)
 
-            # for e in self.edges[self.nodes[n]]:
-            #     # line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
-            #     line(e[0]*self.canvas_width, e[1]*self.canvas_height, e[2]*self.canvas_width, self.nodes[n][0]*self.canvas_width, self.nodes[n][1]*self.canvas_height, self.nodes[n][2]*self.canvas_width)
+            for e in self.edges[self.nodes[n]]:
+                line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
 
             popMatrix()
 
