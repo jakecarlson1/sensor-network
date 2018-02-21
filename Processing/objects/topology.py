@@ -39,6 +39,8 @@ class Topology(object):
             self._sweepFindEdges()
         elif method == "cell":
             self._cellFindEdges()
+        else:
+            print "Find edges method not defined: {}".format(method)
 
         self._findMinAndMaxDegree()
 
@@ -233,7 +235,8 @@ class Disk(Topology):
 
 """
 Sphere - inherits from Topology, overloads generateNodes, _getRadiusForAverageDegree,
-and _distance for a unit sphere topology
+and _distance for a unit sphere topology. Also updates the drawGraph function for
+a 3D canvas
 """
 class Sphere(Topology):
 
