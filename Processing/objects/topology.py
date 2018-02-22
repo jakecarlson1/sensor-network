@@ -250,12 +250,16 @@ class Sphere(Topology):
     # places nodes in a unit cube and projects them onto the surface of the sphere
     def generateNodes(self):
         for i in range(self.num_nodes):
-            p = [random.uniform(-0.5,0.5),random.uniform(-0.5,0.5),random.uniform(-0.5,0.5)]
-            dist = self._distance(p, (0,0,0))
-            p[0] /= dist
-            p[1] /= dist
-            p[2] /= dist
-            self.nodes.append(tuple(p))
+            # equations for uniformly distributing nodes on the surface area of
+            # a sphere: http://mathworld.wolfram.com/SpherePointPicking.html
+            u = random.uniform(-1,1)
+            theta = random.uniform(0, 2*math.pi)
+            p = (
+                math.sqrt(1 - u**2) * math.cos(theta),
+                math.sqrt(1 - u**2) * math.sin(theta),
+                u
+            )
+            self.nodes.append(p)
 
     # calculates the radius needed for the requested average degree in a unit sphere
     def _getRadiusForAverageDegree(self):
