@@ -44,15 +44,19 @@ A report on implementing algorithms to partition a random geometric graph into b
         where $\theta \in [0,2\pi]$ and $u \in [-1,1]$. This is guaranteed to uniformly distribute nodes on the surface area of the sphere \cite{spherepoints}.
 
         \subsubsection{Edge Determination}
-        I implemented multiple methods for finding the edges in the graph. The brute force method iterates over every node, and for each node checks all other nodes to see if they are close enough to form an edge. The brute force method is $\Theta\left(n^2\right)$ where $n = |V|$.
+        There are several methods for finding the edges in the graph. The brute force method checks every node, and for each node checks all other nodes to see if they are close enough to form an edge. The brute force method is $\Theta\left(n^2\right)$ where $n = |V|$.
         \par
-        The second method I implemented to find the edges is the sweep method. This method first sorts the nodes along the x-axis. Then, for any node, we only need to search left and right until the distance along the x-axis is greater than the connection radius for the nodes. This dramatically reduces the search space. The sweep method is $O\left(n lg(n) + 2rn^2\right)$ where $n = |V|$ and $r$ is the connection radius. The $n lg(n)$ portion is for the sorting and the $2rn^2$ portion is for measuring the distance between nodes in a sweep step.
+        The second method to find the edges is the sweep method. This method first sorts the nodes along the x-axis. Then, for any node, we only need to search left and right until the distance along the x-axis is greater than the connection radius for the nodes. This dramatically reduces the search space. The sweep method is $O\left(n lg(n) + 2rn^2\right)$ where $n = |V|$ and $r$ is the connection radius. The $n lg(n)$ portion is for the sorting and the $2rn^2$ portion is for measuring the distance between nodes in a sweep step.
         \par
-        The final method I implemented to find edges is the cell method. This method places the nodes into cells of area $r \times r$ based on their position in the topology. When the edge detection runs, each node needs to be visited once, but only the cell the node populates and the neighboring cells need to be searched for connections.
+        The final method to find edges is the cell method. This method places the nodes into cells of area $r \times r$ based on their position in the topology. When the edge detection runs, each node needs to be visited once, but only the cell the node populates and the neighboring cells need to be searched for connections.
 
         % TODO: update for 3D algos
 
     \subsection{Algorithm Engineering}
+
+        \subsubsection{Node Placement}
+
+        \subsubsection{Edge Determination}
 
     \subsection{Verification}
 
