@@ -92,6 +92,7 @@ class Topology(object):
     # cell edge detection helper function (2D)
     def _findAdjCells(self, i, j, n):
         result = []
+        # TODO: add bounds checking so the flip opposite side of the graph is not searched
         xRange = [(i-1)%n, i, (i+1)%n]
         yRange = [(j-1)%n, j, (j+1)%n]
         for x in xRange:
@@ -260,6 +261,42 @@ class Sphere(Topology):
                 u
             )
             self.nodes.append(p)
+
+    # overrides sweep for 3D topology, sweeps toward equator from poles
+    # def _sweepFindEdges(self):
+
+    # overrides cell for 3D topology, uses 3D mesh of buckets
+    def _cellFindEdges(self):
+        num_cells = int(1/self.node_r) + 1
+        cells = []
+        for i in range(num_cells):
+            cells.append([[[] for k in range(num_cells)] for j in range(num_cells)])
+
+        for n in self.nodes:
+            cells[int(n[0]/self.node_r)][int(n[1]/self.node_r)][int(n[2]/self.node_r)].append(n)
+
+        for i in range(num_cells):
+            for j in range(num_cells):
+                for k in range(num_cells):
+                    for n in cells[i][j][k]:
+                        for c in self._findAdjCells(i, j, k, num_cells):
+                            for m in cells[c[0]][c[1]][c[2]]:
+                                if n != m and self._distance(n, m) <= self.node_r:
+                                    self.edges[n].append(m)
+
+    # overrides adjacent cell finding for 3x3 surrounding buckets
+    def _findAdjCells(self, i, j, k, n):
+        result = []
+        # TODO: add bounds checking so the flip opposite side of the graph is not searched
+        xRange = [(i-1)%n, i, (i+1)%n]
+        yRange = [(j-1)%n, j, (j+1)%n]
+        zRange = [(k-1)%n, k, (k+1)%n]
+        for x in xRange:
+            for y in yRange:
+                for z in zRange:
+                    result.append((x,y,z))
+
+        return result
 
     # calculates the radius needed for the requested average degree in a unit sphere
     def _getRadiusForAverageDegree(self):
