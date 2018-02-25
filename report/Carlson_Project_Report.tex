@@ -72,9 +72,9 @@ A report on implementing algorithms to partition a random geometric graph into b
         \begin{align}
             \frac{(2r)^2-\pi r^2}{(2r)^2} = \frac{4-\pi}{4} = 0.2146
         \end{align}
-        Since the placement algorithm for each node of the Disk will iterate until the node falls within the unit circle, the total number of iterations $I$ can be found as the sum of the geometric series:
+        Since the placement algorithm for each node of the Disk will iterate until the node falls within the unit circle, the total number of iterations $N$ can be found as the sum of the geometric series:
         \begin{align}
-            I = \sum_{k=0}^{\infty} n (0.2146)^k = \frac{n}{1-0.2146} = 1.273n
+            N = \sum_{k=0}^{\infty} n (0.2146)^k = \frac{n}{1-0.2146} = 1.273n
         \end{align}
         where $n = |V|$. This shows this implementation is $\Theta\left(n\right)$.
         \par
@@ -96,6 +96,33 @@ A report on implementing algorithms to partition a random geometric graph into b
 
         \subsubsection{Edge Determination}
         Add those plots and a table of the runtime for each benchmark. Use regression to find the trendlines for each...
+
+        \begin{center}
+            \begin{table}
+                \centering
+                \begin{tabular}{|c|c|c|c|c|}
+                    \hline
+                    Benchmark \# & Num. Nodes & Avg. Degree & Distribution & Run Time (s)\\
+                    \hline
+                    1 & 1000 & 32 & Square & 0.430 \\
+                    2 & 8000 & 64 & Square & 2.157 \\
+                    3 & 16000 & 32 & Square & 1.926 \\
+                    4 & 64000 & 64 & Square & 9.960 \\
+                    5 & 64000 & 128 & Square & 14.543 \\
+                    6 & 128000 & 64 & Square & 17.258 \\
+                    7 & 128000 & 128 & Square & 28.460 \\
+                    8 & 8000 & 64 & Disk & 1.402 \\
+                    9 & 64000 & 64 & Disk & 8.908 \\
+                    10 & 64000 & 128 & Disk & 18.700 \\
+                    11 & 16000 & 64 & Sphere & 22.627 \\
+                    12 & 32000 & 128 & Sphere & 86.638 \\
+                    13 & 64000 & 128 & Sphere & 177.856 \\
+                    \hline
+                \end{tabular}
+                \caption{Benchmark Data and Run Times}
+                \label{tab1}
+            \end{table}
+        \end{center}
 
 \section{Results Summary}
 
@@ -145,7 +172,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/square_0.png}
-        \caption{Square Benchmark Number 0. 1000 Nodes, Average Degree of 32}
+        \caption{Square Benchmark Number 1. 1000 Nodes, Average Degree of 32}
         \label{square0}
     \end{figure}
 \end{center}
@@ -153,7 +180,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/square_1.png}
-        \caption{Square Benchmark Number 1. 8000 Nodes, Average Degree of 64}
+        \caption{Square Benchmark Number 2. 8000 Nodes, Average Degree of 64}
         \label{square1}
     \end{figure}
 \end{center}
@@ -161,7 +188,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/square_2.png}
-        \caption{Square Benchmark Number 2. 16000 Nodes, Average Degree of 32}
+        \caption{Square Benchmark Number 3. 16000 Nodes, Average Degree of 32}
         \label{square2}
     \end{figure}
 \end{center}
@@ -169,7 +196,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/square_3.png}
-        \caption{Square Benchmark Number 3. 64000 Nodes, Average Degree of 64}
+        \caption{Square Benchmark Number 4. 64000 Nodes, Average Degree of 64}
         \label{square3}
     \end{figure}
 \end{center}
@@ -177,7 +204,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/square_4.png}
-        \caption{Square Benchmark Number 4. 64000 Nodes, Average Degree of 128}
+        \caption{Square Benchmark Number 5. 64000 Nodes, Average Degree of 128}
         \label{square4}
     \end{figure}
 \end{center}
@@ -185,7 +212,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/square_5.png}
-        \caption{Square Benchmark Number 5. 128000 Nodes, Average Degree of 64}
+        \caption{Square Benchmark Number 6. 128000 Nodes, Average Degree of 64}
         \label{square5}
     \end{figure}
 \end{center}
@@ -193,7 +220,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/square_6.png}
-        \caption{Square Benchmark Number 6. 128000 Nodes, Average Degree of 128}
+        \caption{Square Benchmark Number 7. 128000 Nodes, Average Degree of 128}
         \label{square6}
     \end{figure}
 \end{center}
@@ -201,7 +228,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/disk_0.png}
-        \caption{Disk Benchmark Number 0. 8000 Nodes, Average Degree of 64}
+        \caption{Disk Benchmark Number 1. 8000 Nodes, Average Degree of 64}
         \label{disk0}
     \end{figure}
 \end{center}
@@ -209,7 +236,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/disk_1.png}
-        \caption{Disk Benchmark Number 1. 64000 Nodes, Average Degree of 64}
+        \caption{Disk Benchmark Number 2. 64000 Nodes, Average Degree of 64}
         \label{disk1}
     \end{figure}
 \end{center}
@@ -217,7 +244,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/disk_2.png}
-        \caption{Disk Benchmark Number 2. 64000 Nodes, Average Degree of 128}
+        \caption{Disk Benchmark Number 3. 64000 Nodes, Average Degree of 128}
         \label{disk2}
     \end{figure}
 \end{center}
@@ -225,7 +252,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/sphere_0.png}
-        \caption{Sphere Benchmark Number 0. 16000 Nodes, Average Degree of 64}
+        \caption{Sphere Benchmark Number 1. 16000 Nodes, Average Degree of 64}
         \label{sphere0}
     \end{figure}
 \end{center}
@@ -233,7 +260,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/sphere_1.png}
-        \caption{Sphere Benchmark Number 1. 32000 Nodes, Average Degree of 128}
+        \caption{Sphere Benchmark Number 2. 32000 Nodes, Average Degree of 128}
         \label{sphere1}
     \end{figure}
 \end{center}
@@ -241,7 +268,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \begin{center}
     \begin{figure}
         \includegraphics[scale=0.45]{./images/sphere_2.png}
-        \caption{Sphere Benchmark Number 2. 64000 Nodes, Average Degree of 128}
+        \caption{Sphere Benchmark Number 3. 64000 Nodes, Average Degree of 128}
         \label{sphere2}
     \end{figure}
 \end{center}

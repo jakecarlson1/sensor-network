@@ -100,7 +100,7 @@ def plotDistributionOfDegrees():
 
 def main():
     # plotForVarNodes()
-    # plotForVarAvgDeg()
-    plotDistributionOfDegrees()
+    plotForVarAvgDeg()
+    # plotDistributionOfDegrees()
 
 main()
