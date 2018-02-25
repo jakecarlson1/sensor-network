@@ -6,8 +6,8 @@ from objects.topology import Square, Disk, Sphere
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 1000
-AVG_DEG = 16
+NUM_NODES = 8000
+AVG_DEG = 32
 
 MAX_NODES_TO_DRAW_EDGES = 8000
 

@@ -84,13 +84,13 @@ class Topology(object):
         for i in range(num_cells):
             for j in range(num_cells):
                 for n in cells[i][j]:
-                    for c in self._findPosAdjCells(i, j, num_cells):
+                    for c in self._findAdjCells(i, j, num_cells):
                         for m in cells[c[0]][c[1]]:
                             if n != m and self._distance(n, m) <= self.node_r:
                                 self.edges[n].append(m)
 
     # cell edge detection helper function (2D)
-    def _findPosAdjCells(self, i, j, n):
+    def _findAdjCells(self, i, j, n):
         result = []
         xRange = [(i-1)%n, i, (i+1)%n]
         yRange = [(j-1)%n, j, (j+1)%n]

@@ -94,13 +94,13 @@ def plotDistributionOfDegrees():
     plt.xticks(indexes + 0.5, labels)
     plt.xlabel("Degree")
     plt.ylabel("Number of Occurances")
-    plt.title("Distribution Of Degrees of Nodes")
+    plt.title("Distribution Of Degrees of Nodes, Square")
     plt.show()
 
 
 def main():
     # plotForVarNodes()
     # plotForVarAvgDeg()
-    # plotDistributionOfDegrees()
+    plotDistributionOfDegrees()
 
 main()

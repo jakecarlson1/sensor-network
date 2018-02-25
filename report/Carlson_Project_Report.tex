@@ -22,14 +22,18 @@ A report on implementing algorithms to partition a random geometric graph into b
     Random geometric graphs (RGGs) are useful for simulating wireless sensor networks placed in different topologies. This project examines three different geometries: Square, Disk, and Sphere. The user supplies parameters for how many nodes they want in the network and how many connections they want for each node. Then, the simulation finds the average radius needed for that number of connections, finds multiple backbones for the RGG, and displays the results graphically.
 
     \subsection{Environment Description}
-    The data structures and topologies for this simulation are implemented in Python2.7. The graphics are done using Processing.py. All development and benchmarking has been done on a 2014 MackBook Pro with a 3 GHz Intel Core i7 processor and 16 GB of DDR3 RAM.
+    The data structures and topologies for this simulation are implemented in Python2.7. The graphics are done using Processing.py. All development and benchmarking has been done on a 2014 MackBook Pro with a 3 GHz Intel Core i7 processor and 16 GB of DDR3 RAM running macOS High Sierra 10.13.3.
+    \par
+    A separate data generation script was used to generate the graphs using matplotlib. This library, and a variety of others, could not be imported into Processing.py because the jython interpreter used by Processing only accepts libraries written in raw Python.
+    \par
+    The different geometries were implemented in a stand alone Python file and imported into the Processing.py script or the data generation script depending on what was being run. Because there is no intermediary file to hold the generated nodes and edges, there is no additional disk space needed to run the simulation. Everything can be done in system memory managed by Processing.
 
 \section{Reduction to Practice}
 
     \subsection{Data Structure Design}
-    The primary data structure used for this project is an adjacency list. However, to allow for constant time lookup of edges of a node, I used a Python dictionary where the keys are nodes and the values are a list of adjacent nodes.
+    The primary data structure used for this project is an adjacency list. However, to allow for constant time lookup of edges of a node, I used a Python dictionary where the keys are nodes and the values are a list of adjacent nodes. The space needed by the adjacency list is $\Theta(2n)$ where $n = |E|$. Two entries are used for each edge because they are undirected. This is superior to the adjacency matrix data structure which would require $\Theta(n^2)$ space where $n = |E|$.
     \par
-    In order to make this project maintainable as it is built on along the semester, I used the object-oriented capabilities Python has to offer to design the different geometries. I start with a base Topology class that creates the interface Processing uses to draw the graphs. This base class implements all of the methods needed for node placement and edge detection in 2D graphs. Then, I create three subclasses: Square, Disk, and Sphere.
+    In order to make this project maintainable as it is developed along the semester, I used the object-oriented capabilities Python has to offer to design the different geometries. I start with a base Topology class that creates the interface Processing uses to draw the graphs. This base class implements all of the methods needed for node placement and edge detection in 2D graphs. Then, I create three subclasses: Square, Disk, and Sphere.
     \par
     The Square and Disk topologies simply need to override the methods for generating nodes and calculating the node radius needed for the desired average degree. The Sphere subclass needs to override a few additional functions because it exists in a 3D space. Other than the methods for generating nodes and calculating the node radius, it also needs to override the function used to draw the graph so that Processing will render the graph properly in 3D.
 
@@ -77,16 +81,21 @@ A report on implementing algorithms to partition a random geometric graph into b
         For the node placement algorithm of the Sphere, again the math library in Python makes this easy. Each node needs two random values pulled from a uniform distribution, two square root operations, one sine operation, and one cosine operation. Each node only needs to be placed once so the runtime of this algorithm is $\Theta(n)$ where $n = |V|$.
 
         \subsubsection{Edge Determination}
+        Each method implemented for finding edges has a different time complexity. The brute force method uses an outer loop and an inner loop, which each iterate over every node in the graph. An edge is saved to the adjacency list if the nodes are not the same and the distance between them is less than or equal to the calculated node radius. This is guaranteed to run in $\Theta\left(n^2\right)$ where $n = |V|$. The number of times the distance needs to be calculated is $n \times (n-1)$ because it will not be calculated when the nodes are the same (distance would be zero, but no edge is drawn here). No additional space is needed for the brute force method so the space complexity is $O(1)$.
+        \par
+        The implementation of sweep starts by sorting the nodes along the x-axis. Python lists have a built-in sort function that has $O\left(n lg(n)\right)$ time complexity \cite{listsort}. After this stage, it iterates over every node building a search space which will be scaned for edges. For each node, the list of nodes is searched left and right $~r\times n$ nodes to find those within one radius length of the current node. With the search space built, the search space is iterated over once to find nodes that have a distance less than or equal the node radius. My implementation of this runs in $O\left(n lg(n) + 4rn\right)$ where $n = |V|$ and $r$ is the node connection radius. Because the list sort method sorts inplace, the onlt additional space needed is for the search space. This saves $O(2rn)$ nodes and is reset after every iteration.
+        \par
+        The cell method implementation works in linear time. In the first step of the method, the cells are initialized as a list of empty lists. There are $(1/r + 1)^2$ cells. The nodes are then iterated over and assigned a cell by dividing their x and y coordinates by the node radius. At this point, the cells are iterated over and, for each node in the cell, the nodes in the current cell and the eight addjacent cells and the are checked to see if they fall within the node radius of the current node. All together, this implementation runs at $O\left(n + n + 9nr^2\right) = O\left((2 + 9r^2)n\right)$ where $n = |V|$. The amount of additional space needed is equal to the number of nodes because they are coppied into their respective cells. This places the space complexity at $O(n)$.
+        \par
+        The sweep and cell implementations need to be updated for the Sphere due to its 3D shape...
 
     \subsection{Verification}
 
-    % \subsection{RGG Generation}
-    %
-    %     \subsubsection{Edge Determination}
-    %
-    % \subsection{Graph Coloring}
-    %
-    % \subsection{Backbone Selection}
+        \subsubsection{Node Placement}
+        The nodes can be verified to be distributed uniformly if the distribution of degrees follows a normal distribution. To show that the distribution of degrees for each of my geometries are following a normal distribution, I plotted degree histograms for each of the geometries with 32,000 nodes and an average degree of 16. The histrogram for Square is given in Figure \ref{squaredeghist}, Disk is given in \ref{diskdeghist}, and Sphere is given in Figure \ref{spheredeghist}. These histograms clearly follow a normal distribution.
+
+        \subsubsection{Edge Determination}
+        Add those plots and a table of the runtime for each benchmark. Use regression to find the trendlines for each...
 
 \section{Results Summary}
 
@@ -98,11 +107,40 @@ A report on implementing algorithms to partition a random geometric graph into b
     \textit{Sphere Point Picking}
     \texttt{http://mathworld.wolfram.com/SpherePointPicking.html}
 
+    \bibitem{listsort}
+    Tim Peters
+    \textit{Timsort}
+    \texttt{http://svn.python.org/projects/python/trunk/Objects/listsort.txt}
+
 \end{thebibliography}
 
 \newpage
 
 \section{Appendix}
+
+\begin{center}
+    \begin{figure}
+        \includegraphics[scale=0.45]{./graphs/hist_deg_square.png}
+        \caption{Distribution of Degree counts for Square. 32,000 Nodes, Average Degree of 16}
+        \label{squaredeghist}
+    \end{figure}
+\end{center}
+
+\begin{center}
+    \begin{figure}
+        \includegraphics[scale=0.45]{./graphs/hist_deg_disk.png}
+        \caption{Distribution of Degree counts for Disk. 32,000 Nodes, Average Degree of 16}
+        \label{diskdeghist}
+    \end{figure}
+\end{center}
+
+\begin{center}
+    \begin{figure}
+        \includegraphics[scale=0.45]{./graphs/hist_deg_sphere.png}
+        \caption{Distribution of Degree counts for Sphere. 32,000 Nodes, Average Degree of 16}
+        \label{spheredeghist}
+    \end{figure}
+\end{center}
 
 \begin{center}
     \begin{figure}
