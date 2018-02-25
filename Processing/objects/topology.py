@@ -92,7 +92,6 @@ class Topology(object):
     # cell edge detection helper function (2D)
     def _findAdjCells(self, i, j, n):
         result = []
-        # TODO: add bounds checking so the flip opposite side of the graph is not searched
         xRange = [(i-1)%n, i, (i+1)%n]
         yRange = [(j-1)%n, j, (j+1)%n]
         for x in xRange:
@@ -262,8 +261,25 @@ class Sphere(Topology):
             )
             self.nodes.append(p)
 
-    # overrides sweep for 3D topology, sweeps toward equator from poles
-    # def _sweepFindEdges(self):
+    # overrides sweep for 3D topology
+    def _sweepFindEdges(self):
+        self.nodes.sort(key=lambda x: x[0])#.sort(key=lambda x:x[1])
+
+        for i, n in enumerate(self.nodes):
+            search_space = []
+            for j in range(1,i+1):
+                if abs(n[0] - self.nodes[i-j][0]) <= self.node_r and abs(n[1] - self.nodes[i-j][1]):
+                    search_space.append(self.nodes[i-j])
+                else:
+                    break
+            for j in range(1,self.num_nodes-i):
+                if abs(n[0] - self.nodes[i+j][0]) <= self.node_r and abs(n[1] - self.nodes[i+j][1]) <= self.node_r:
+                    search_space.append(self.nodes[i+j])
+                else:
+                    break
+            for m in search_space:
+                if self._distance(n, m) <= self.node_r:
+                    self.edges[n].append(m)
 
     # overrides cell for 3D topology, uses 3D mesh of buckets
     def _cellFindEdges(self):
@@ -287,7 +303,6 @@ class Sphere(Topology):
     # overrides adjacent cell finding for 3x3 surrounding buckets
     def _findAdjCells(self, i, j, k, n):
         result = []
-        # TODO: add bounds checking so the flip opposite side of the graph is not searched
         xRange = [(i-1)%n, i, (i+1)%n]
         yRange = [(j-1)%n, j, (j+1)%n]
         zRange = [(k-1)%n, k, (k+1)%n]

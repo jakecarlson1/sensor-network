@@ -38,7 +38,7 @@ def main():
     run_time = time.clock()
     
     topology.generateNodes()
-    topology.findEdges(method="cell")
+    topology.findEdges(method="sweep")
     
     print "Average degree: {}".format(topology.findAvgDegree())
     print "Min degree: {}".format(topology.getMinDegree())
