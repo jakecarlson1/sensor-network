@@ -1,6 +1,7 @@
 import time
 import matplotlib.pyplot as plt
 import numpy as np
+import pickle
 from Processing.objects.topology import *
 from collections import Counter
 
@@ -52,10 +53,40 @@ def varryAvgDeg(method="cell"):
 
     return times, avg_degs[:len(times)]
 
-def plotForVarNodes():
+def runForVarNodes():
     times_cell, nodes_cell = varryNumNodes(method="cell")
+    with open('./report/data/times_cell.pkl', 'w') as f:
+        pickle.dump(times_cell, f)
+    with open('./report/data/nodes_cell.pkl', 'w') as f:
+        pickle.dump(nodes_cell, f)
+
     times_sweep, nodes_sweep = varryNumNodes(method="sweep")
+    with open('./report/data/times_sweep.pkl', 'w') as f:
+        pickle.dump(times_sweep, f)
+    with open('./report/data/nodes_sweep.pkl', 'w') as f:
+        pickle.dump(nodes_sweep, f)
+
     times_brute, nodes_brute = varryNumNodes(method="brute")
+    with open('./report/data/times_brute.pkl', 'w') as f:
+        pickle.dump(times_brute, f)
+    with open('./report/data/nodes_brute.pkl', 'w') as f:
+        pickle.dump(nodes_brute, f)
+
+def plotForVarNodes():
+    with open('./report/data/times_cell.pkl', 'r') as f:
+        times_cell = pickle.load(f)
+    with open('./report/data/nodes_cell.pkl', 'r') as f:
+        nodes_cell = pickle.load(f)
+
+    with open('./report/data/times_sweep.pkl', 'r') as f:
+        times_sweep = pickle.load(f)
+    with open('./report/data/nodes_sweep.pkl', 'r') as f:
+        nodes_sweep = pickle.load(f)
+
+    with open('./report/data/times_brute.pkl', 'r') as f:
+        times_brute = pickle.load(f)
+    with open('./report/data/nodes_brute.pkl', 'r') as f:
+        nodes_brute = pickle.load(f)
 
     plt.plot(nodes_cell, times_cell, 'r-', label="Cell")
     plt.plot(nodes_sweep, times_sweep, 'b-', label="Sweep")
@@ -66,9 +97,29 @@ def plotForVarNodes():
     plt.legend(loc=2)
     plt.show()
 
-def plotForVarAvgDeg():
+def runForVarAvgDeg():
     times_cell, avg_degs_cell = varryAvgDeg(method="cell")
+    with open('./report/data/times_cell_deg.pkl', 'w') as f:
+        pickle.dump(times_cell, f)
+    with open('./report/data/avg_degs_cell.pkl', 'w') as f:
+        pickle.dump(avg_degs_cell, f)
+
     times_sweep, avg_degs_sweep = varryAvgDeg(method="sweep")
+    with open('./report/data/times_sweep_deg.pkl', 'w') as f:
+        pickle.dump(times_sweep, f)
+    with open('./report/data/avg_degs_sweep.pkl', 'w') as f:
+        pickle.dump(avg_degs_sweep, f)
+
+def plotForVarAvgDeg():
+    with open('./report/data/times_cell_deg.pkl', 'r') as f:
+        times_cell = pickle.load(f)
+    with open('./report/data/avg_degs_cell.pkl', 'r') as f:
+        avg_degs_cell = pickle.load(f)
+
+    with open('./report/data/times_sweep_deg.pkl', 'r') as f:
+        times_sweep = pickle.load(f)
+    with open('./report/data/avg_degs_sweep.pkl', 'r') as f:
+        avg_degs_sweep = pickle.load(f)
 
     plt.plot(avg_degs_cell, times_cell, 'r-', label="Cell")
     plt.plot(avg_degs_sweep, times_sweep, 'b-', label="Sweep")
@@ -99,8 +150,10 @@ def plotDistributionOfDegrees():
 
 
 def main():
+    # runForVarNodes()
+    runForVarAvgDeg()
     # plotForVarNodes()
-    plotForVarAvgDeg()
+    # plotForVarAvgDeg()
     # plotDistributionOfDegrees()
 
 main()
