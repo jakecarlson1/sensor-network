@@ -1,6 +1,15 @@
 \documentclass{article}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{geometry}
+\geometry{
+letterpaper,
+% total={8.5in,11in},
+left=1in,
+right=1in,
+top=1in,
+bottom=1in
+}
 
 \begin{document}
 
@@ -95,7 +104,9 @@ A report on implementing algorithms to partition a random geometric graph into b
         The nodes can be verified to be distributed uniformly if the distribution of degrees follows a normal distribution. To show that the distribution of degrees for each of my geometries are following a normal distribution, I plotted degree histograms for each of the geometries with 32,000 nodes and an average degree of 16. The histrogram for Square is given in Figure \ref{squaredeghist}, Disk is given in Figure \ref{diskdeghist}, and Sphere is given in Figure \ref{spheredeghist}. These histograms clearly follow a normal distribution.
 
         \subsubsection{Edge Determination}
-        Add those plots and a table of the runtime for each benchmark. Use regression to find the trendlines for each...
+        The runtime for the edge detection methods can be varified by varying the number of nodes and measuring the runtime of each algorithm. By looking at how the runtime grows, we can calculate the trendline that best fits the growth rate. For the first comparison, I vary the number of nodes from 4,000 to 64,000 in steps of 4,000, while holding the desired average dgree constant at 16. As we can see in Figure \ref{avgdeg}, the growth rates of the brute force and sweep methods are quadratic, while the growth rate of the cell method. The trendline functions are given on the graph.
+        \par
+        For the second metric, I held the number of nodes constant at 32,000 and varied the desired average degree from 2 to 32 in steps of 2. The graph is given in Figure \ref{varavgdeg}. The cell method clearly grows linearly, but the sweep method is harder to gauge. Since varying the desired average degree should only change the node radius, I would expect this to grow linearly as well. However, because each graph is randomly generated, some graphs can have nodes that are closer to sorted order than others. This can effect the measured runtime. It would be easier to gauge the trend if it I ran the data collection multiple times and averages the results.
 
         \begin{center}
             \begin{table}
@@ -124,19 +135,19 @@ A report on implementing algorithms to partition a random geometric graph into b
             \end{table}
         \end{center}
 
-\section{Results Summary}
+% \section{Results Summary}
 
 \newpage
 
 \begin{thebibliography}{10}
     \bibitem{spherepoints}
-    Weisstein, Eric W., Wolfram MathWorld
-    \textit{Sphere Point Picking}
+    Weisstein, Eric W., Wolfram MathWorld \\
+    \textit{Sphere Point Picking} \\
     \texttt{http://mathworld.wolfram.com/SpherePointPicking.html}
 
     \bibitem{listsort}
-    Tim Peters
-    \textit{Timsort}
+    Tim Peters \\
+    \textit{Timsort} \\
     \texttt{http://svn.python.org/projects/python/trunk/Objects/listsort.txt}
 
 \end{thebibliography}
@@ -145,132 +156,130 @@ A report on implementing algorithms to partition a random geometric graph into b
 
 \section{Appendix}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./graphs/hist_deg_square.png}
+\begin{figure}[h]
+    \centering
+        \includegraphics[scale=0.6]{./graphs/hist_deg_square.png}
         \caption{Distribution of Degree counts for Square. 32,000 Nodes, Average Degree of 16}
         \label{squaredeghist}
-    \end{figure}
-\end{center}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./graphs/hist_deg_disk.png}
-        \caption{Distribution of Degree counts for Disk. 32,000 Nodes, Average Degree of 16}
-        \label{diskdeghist}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.6]{./graphs/hist_deg_disk.png}
+    \caption{Distribution of Degree counts for Disk. 32,000 Nodes, Average Degree of 16}
+    \label{diskdeghist}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./graphs/hist_deg_sphere.png}
-        \caption{Distribution of Degree counts for Sphere. 32,000 Nodes, Average Degree of 16}
-        \label{spheredeghist}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.6]{./graphs/hist_deg_sphere.png}
+    \caption{Distribution of Degree counts for Sphere. 32,000 Nodes, Average Degree of 16}
+    \label{spheredeghist}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/square_0.png}
-        \caption{Square Benchmark Number 1. 1000 Nodes, Average Degree of 32}
-        \label{square0}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.6]{./graphs/run_time_avg_deg_16.png}
+    \caption{Runtime for Each Edge Detection Method, Average Degree of 16}
+    \label{avgdeg}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/square_1.png}
-        \caption{Square Benchmark Number 2. 8000 Nodes, Average Degree of 64}
-        \label{square1}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.6]{./graphs/run_time_var_avg_deg.png}
+    \caption{Runtime for Cell and Sweep Edge Detection, Variable Average Degree}
+    \label{varavgdeg}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/square_2.png}
-        \caption{Square Benchmark Number 3. 16000 Nodes, Average Degree of 32}
-        \label{square2}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/square_0.png}
+    \caption{Square Benchmark Number 1. 1000 Nodes, Average Degree of 32}
+    \label{square0}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/square_3.png}
-        \caption{Square Benchmark Number 4. 64000 Nodes, Average Degree of 64}
-        \label{square3}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/square_1.png}
+    \caption{Square Benchmark Number 2. 8000 Nodes, Average Degree of 64}
+    \label{square1}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/square_4.png}
-        \caption{Square Benchmark Number 5. 64000 Nodes, Average Degree of 128}
-        \label{square4}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/square_2.png}
+    \caption{Square Benchmark Number 3. 16000 Nodes, Average Degree of 32}
+    \label{square2}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/square_5.png}
-        \caption{Square Benchmark Number 6. 128000 Nodes, Average Degree of 64}
-        \label{square5}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/square_3.png}
+    \caption{Square Benchmark Number 4. 64000 Nodes, Average Degree of 64}
+    \label{square3}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/square_6.png}
-        \caption{Square Benchmark Number 7. 128000 Nodes, Average Degree of 128}
-        \label{square6}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/square_4.png}
+    \caption{Square Benchmark Number 5. 64000 Nodes, Average Degree of 128}
+    \label{square4}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/disk_0.png}
-        \caption{Disk Benchmark Number 1. 8000 Nodes, Average Degree of 64}
-        \label{disk0}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/square_5.png}
+    \caption{Square Benchmark Number 6. 128000 Nodes, Average Degree of 64}
+    \label{square5}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/disk_1.png}
-        \caption{Disk Benchmark Number 2. 64000 Nodes, Average Degree of 64}
-        \label{disk1}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/square_6.png}
+    \caption{Square Benchmark Number 7. 128000 Nodes, Average Degree of 128}
+    \label{square6}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/disk_2.png}
-        \caption{Disk Benchmark Number 3. 64000 Nodes, Average Degree of 128}
-        \label{disk2}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/disk_0.png}
+    \caption{Disk Benchmark Number 1. 8000 Nodes, Average Degree of 64}
+    \label{disk0}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/sphere_0.png}
-        \caption{Sphere Benchmark Number 1. 16000 Nodes, Average Degree of 64}
-        \label{sphere0}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/disk_1.png}
+    \caption{Disk Benchmark Number 2. 64000 Nodes, Average Degree of 64}
+    \label{disk1}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/sphere_1.png}
-        \caption{Sphere Benchmark Number 2. 32000 Nodes, Average Degree of 128}
-        \label{sphere1}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/disk_2.png}
+    \caption{Disk Benchmark Number 3. 64000 Nodes, Average Degree of 128}
+    \label{disk2}
+\end{figure}
 
-\begin{center}
-    \begin{figure}
-        \includegraphics[scale=0.45]{./images/sphere_2.png}
-        \caption{Sphere Benchmark Number 3. 64000 Nodes, Average Degree of 128}
-        \label{sphere2}
-    \end{figure}
-\end{center}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/sphere_0.png}
+    \caption{Sphere Benchmark Number 1. 16000 Nodes, Average Degree of 64}
+    \label{sphere0}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/sphere_1.png}
+    \caption{Sphere Benchmark Number 2. 32000 Nodes, Average Degree of 128}
+    \label{sphere1}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{./images/sphere_2.png}
+    \caption{Sphere Benchmark Number 3. 64000 Nodes, Average Degree of 128}
+    \label{sphere2}
+\end{figure}
 
 \end{document}

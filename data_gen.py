@@ -140,18 +140,18 @@ def plotForVarAvgDeg():
 
     c = np.polyfit(avg_degs_cell, times_cell, 1)
     c_n = np.poly1d(c)
-    s = np.polyfit(avg_degs_sweep, times_sweep, 2)
+    s = np.polyfit(avg_degs_sweep, times_sweep, 1)
     s_n = np.poly1d(s)
 
     print "cell: t = %.6fn + (%.6f)"%(c[0],c[1])
-    print "sweep: t = %.6fn^2 + %.6fn + (%.6f)"%(s[0],s[1],s[2])
+    print "sweep: t = %.6fn + (%.6f)"%(s[0],s[1])
 
     plt.plot(avg_degs_cell, times_cell, 'r-', label="Cell")
     plt.plot(avg_degs_cell, c_n(avg_degs_cell), 'r--')
     plt.text(20, 6, '$t_{cell} = %.6fn + (%.6f)$'%(c[0],c[1]))
     plt.plot(avg_degs_sweep, times_sweep, 'b-', label="Sweep")
     plt.plot(avg_degs_sweep, s_n(avg_degs_sweep), 'b--')
-    plt.text(12, 56, '$t_{sweep} = %.6fn^2 + %.6fn + (%.6f)$'%(s[0],s[1],s[2]))
+    plt.text(12, 56, '$t_{sweep} = %.6fn + (%.6f)$'%(s[0],s[1]))
     plt.xlabel("Average Degree")
     plt.ylabel("Run time (s)")
     plt.title("Run Time for |V| = 32,000")
@@ -181,8 +181,8 @@ def plotDistributionOfDegrees():
 def main():
     # runForVarNodes()
     # runForVarAvgDeg()
-    plotForVarNodes()
-    # plotForVarAvgDeg()
+    # plotForVarNodes()
+    plotForVarAvgDeg()
     # plotDistributionOfDegrees()
 
 main()
