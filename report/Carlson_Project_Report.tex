@@ -1,14 +1,38 @@
 \documentclass{article}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{listings}
+\usepackage{color}
 \usepackage{geometry}
 \geometry{
-letterpaper,
-% total={8.5in,11in},
-left=1in,
-right=1in,
-top=1in,
-bottom=1in
+    letterpaper,
+    left=1in,
+    right=1in,
+    top=1in,
+    bottom=1in
+}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{1,1,1}
+
+\lstdefinestyle{codestyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4
 }
 
 \begin{document}
@@ -19,10 +43,11 @@ bottom=1in
 \maketitle
 
 \abstract
-A report on implementing algorithms to partition a random geometric graph into bipartite subgraphs. Three different graph geometries are explored: unit square, unit disk, and unit sphere. Nodes are uniformly distributed in the geometry. Then the edges are determined and ...
+A report on implementing algorithms to partition a random geometric graph into bipartite subgraphs. Three different graph geometries are explored: unit square, unit disk, and unit sphere. Nodes are uniformly distributed in the geometry. Then the edges are determined and the resulting graphs are drawn using Processing.
 \newpage
 
 \tableofcontents
+\lstlistoflistings
 \newpage
 
 \section{Executive Summary}
@@ -154,7 +179,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 
 \newpage
 
-\section{Appendix}
+\section{Appendix A - Figures}
 
 \begin{figure}[h]
     \centering
@@ -281,5 +306,15 @@ A report on implementing algorithms to partition a random geometric graph into b
     \caption{Sphere Benchmark Number 3. 64000 Nodes, Average Degree of 128}
     \label{sphere2}
 \end{figure}
+
+\newpage
+
+\section{Appendix B - Code Listings}
+
+\lstset{style=codestyle}
+
+\lstinputlisting[language=Python, caption=Processing driver, breaklines=true, showspaces=false]{../Processing/Processing.pyde}
+
+\lstinputlisting[language=Python, caption=Topology class and subclasses, breaklines=true, showspaces=false]{../Processing/objects/topology.py}
 
 \end{document}
