@@ -183,6 +183,55 @@ class Topology(object):
         for n in self.edges[self.maxDeg]:
             line(self.maxDeg[0]*self.canvas_width, self.maxDeg[1]*self.canvas_height, n[0]*self.canvas_width, n[1]*self.canvas_height)
 
+    # uses smallest last vertex ordering to color the graph
+    def colorGraph(self):
+        s_last = self._smallestLastVertexOrdering()
+
+    # constructs a degree structure and determines the smallest last vertex ordering
+    def _smallestLastVertexOrdering(self):
+        deg_list = [[] for i in range(len(self.edges[self.maxDeg])+1)]
+
+        for n in self.nodes:
+            deg_list[len(self.edges[n])].append(n)
+
+        smallest_last_ordering = []
+
+        clique_found = False
+        j = len(self.nodes)
+        while j > 0:
+            # get the current smallest bucket
+            curr_bucket = 0
+            while curr_bucket < len(deg_list) and len(deg_list[curr_bucket]) == 0:
+                curr_bucket += 1
+
+            # if all the remaining nodes are connected we have the terminal clique
+            if not clique_found and len(deg_list[curr_bucket]) == j:
+                clique_found = True
+                smallest_last_ordering.extend(deg_list[curr_bucket])
+                self.term_clique_size = curr_bucket
+                print "Terminal clique size:", self.term_clique_size
+
+            # get node with smallest degree
+            v = deg_list[curr_bucket].pop()
+            smallest_last_ordering.append(v)
+
+            # decrement position of nodes that shared an edge with v
+            for n in self.edges[v]:
+                for i in range(len(deg_list)):
+                    to_decrement = True
+                    try:
+                        deg_list[i].remove(n)
+                    except:
+                        to_decrement = False
+
+                    if to_decrement:
+                        deg_list[i-1].append(n)
+
+            j -= 1
+
+        # reverse list since it was built shortest-first
+        return smallest_last_ordering[::-1]
+
 """
 Square - inherits from Topology, overloads generateNodes and _getRadiusForAverageDegree
 for a unit square topology

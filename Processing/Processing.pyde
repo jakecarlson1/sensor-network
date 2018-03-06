@@ -22,9 +22,9 @@ def draw():
 
 def main():
     global topology
-    # topology = Square()
+    topology = Square()
     # topology = Disk()
-    topology = Sphere()
+    # topology = Sphere()
     
     topology.num_nodes = NUM_NODES
     topology.avg_deg = AVG_DEG
@@ -39,6 +39,7 @@ def main():
     
     topology.generateNodes()
     topology.findEdges(method="sweep")
+    topology.colorGraph()
     
     print "Average degree: {}".format(topology.findAvgDegree())
     print "Min degree: {}".format(topology.getMinDegree())
