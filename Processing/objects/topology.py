@@ -147,7 +147,7 @@ class Topology(object):
     # public function for drawing the graph
     def drawGraph(self, n_limit):
         self._drawNodes()
-        if self.num_nodes < n_limit:
+        if self.num_nodes <= n_limit:
             self._drawEdges()
         else:
             self._drawMinMaxDegNodes()
@@ -387,7 +387,7 @@ class Sphere(Topology):
             ellipse(0, 0, 10, 10)
 
             # draw all edges
-            if self.num_nodes < self.n_limit:
+            if self.num_nodes <= self.n_limit:
                 for e in self.edges[self.nodes[n]]:
                     # draws line from origin to neighboring node
                     line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
