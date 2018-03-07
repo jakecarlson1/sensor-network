@@ -43,7 +43,7 @@
 \maketitle
 
 \abstract
-A report on implementing algorithms to partition a random geometric graph into bipartite subgraphs. Three different graph geometries are explored: unit square, unit disk, and unit sphere. Nodes are uniformly distributed in the geometry. Then the edges are determined and the resulting graphs are drawn using Processing.
+A report on implementing algorithms to partition a random geometric graph into bipartite subgraphs. Three different graph geometries are explored: unit square, unit disk, and unit sphere. Nodes are uniformly distributed in the geometry. Then the edges are determined and the verticies are colored using smallest-last vertex ordering.
 \newpage
 
 \tableofcontents
@@ -96,6 +96,20 @@ A report on implementing algorithms to partition a random geometric graph into b
         The final method to find edges is the cell method. This method places the nodes into cells of area $r \times r$ based on their position in the topology. When the edge detection runs, each node needs to be visited once, but only the cell the node populates and the neighboring cells need to be searched for connections.
         \par
         The only method that needs to be adjusted for the Sphere is the cell method. Instead of using a two dimensional grid of cells, a three dimentional mesh is needed to divide the topology. The cells then have volume $r \times r \times r$. Only the current cell and the neighboring cells need to be searched.
+
+        \subsubsection{Graph Coloring}
+        Two algorithms are used for coloring the graphs. The first is smallest-last vertex ordering, which sorts the verticies based on the number of degrees they have. The second is the greedy graph coloring algorithm.
+        \par
+        Smallest-last vertex ordering is used to order the nodes for coloring. The steps to this algorithm are as follows \cite{slv}:
+        \begin{enumerate}
+            \item Initialize a representation of your target graph
+            \item Find the vertex $v_j$ of minimum degree in your representation
+            \item Update your representation to simulate deleting $v_j$
+            \item If there are still verticies in the representation, return to step 1, otherwise terminate with the sequence of verticies removed
+        \end{enumerate}
+        This algorithm is linear if each of the above steps is linear. Step 1 is linear if we can build a represenation of the graph in linear time. For this, we can use an array of buckets, where each bucket holds the verticies that have the same number of edges as the position of the bucket in the array of buckets. To build this data structure, each node only needs to be visited once, making this linear in both space and time. Next, finding the vertex of minimum degree simply requires finding the lowest index bucket that has a node. This is bounded by the number of buckets, which is bounded by the number of nodes, making Step 2 linear. Next, we have to update the representation of the graph. To do this, we have to look at each node that shares an edge with $v_j$ and move it to the bucket for nodes with one fewer degree. This requires traversing the list of edges for $v_j$ which means Step 3 is linear. Since this is repeated for each node, the runtime of this program is $\Theta\left(|E| + |V|\right)$ and the space needed is $\Theta(|V|)$.
+        \par
+        After this, a single traversal of the smallest-last vertex ordering is needed to color the graph. As we traverse this list, we check to see if the nodes before it (that are already colored) share an edge with the current node. The node can then be colored with any color it does not share an edge with or, if it shares an edge with all currently used colors, it is assigned a new color. This algorithm is also linear. Each node needs to be visited once and when a node is visited, all previous nodes are checked to see if they are in the edge list of the current node. Because we used smallest last vertex ordering, as we have to check more and more nodes, we get to check fewer and fewer edges. This makes the greedy coloring algorithm $O(|V| + |E|)$.
 
     \subsection{Algorithm Engineering}
 
@@ -322,8 +336,8 @@ A report on implementing algorithms to partition a random geometric graph into b
 
 \lstset{style=codestyle}
 
-\lstinputlisting[language=Python, caption=Processing driver, breaklines=true, showspaces=false]{../Processing/Processing.pyde}
+\lstinputlisting[language=Python, caption=Processing driver]{../Processing/Processing.pyde}
 
-\lstinputlisting[language=Python, caption=Topology class and subclasses, breaklines=true, showspaces=false]{../Processing/objects/topology.py}
+\lstinputlisting[language=Python, caption=Topology class and subclasses]{../Processing/objects/topology.py}
 
 \end{document}
