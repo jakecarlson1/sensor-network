@@ -185,11 +185,13 @@ class Topology(object):
 
     # uses smallest last vertex ordering to color the graph
     def colorGraph(self):
-        s_last = self._smallestLastVertexOrdering()
+        self.s_last = self._smallestLastVertexOrdering()
+        self.node_colors = self._assignNodeColors(self.s_last)
+        print "num colors:", len(set(self.node_colors))
 
     # constructs a degree structure and determines the smallest last vertex ordering
     def _smallestLastVertexOrdering(self):
-        deg_list = [[] for i in range(len(self.edges[self.maxDeg])+1)]
+        deg_list = [[] for _ in range(len(self.edges[self.maxDeg])+1)]
 
         for n in self.nodes:
             deg_list[len(self.edges[n])].append(n)
@@ -231,6 +233,18 @@ class Topology(object):
 
         # reverse list since it was built shortest-first
         return smallest_last_ordering[::-1]
+
+    # assigns the colors to nodes given in a smallest-last vertex ordering as a parallel array
+    def _assignNodeColors(self, s_last):
+        colors = [0 for _ in range(len(s_last))]
+        for i in range(1,len(s_last)):
+            adj_colors = [colors[j] for j in range(i) if s_last[j] in self.edges[s_last[i]]]
+            color = 0
+            while color in adj_colors:
+                color += 1
+            colors[i] = color
+
+        return colors
 
 """
 Square - inherits from Topology, overloads generateNodes and _getRadiusForAverageDegree
