@@ -137,6 +137,9 @@ A report on implementing algorithms to partition a random geometric graph into b
         \par
         The cell method needs to be updated for the Sphere. To do this, an extra dimension is added to the cells, creating a 3D mesh. The only changes needed from the 2D method is that another loop is needed to iterate over the added dimension, and the search space turns into a 3x3 cube with the current cell at the center. Each node is still only visited once as the edges are determined. The runtime for this algorithm is $O\left(n + n + 27nr^3\right) = O\left((2 + 27r^3)n\right)$ where $n = |V|$. Again, the space complexity is $\Theta(n)$.
 
+        \subsubsection{Graph Coloring}
+        % What I did
+
     \subsection{Verification}
 
         \subsubsection{Node Placement}

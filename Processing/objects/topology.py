@@ -185,7 +185,7 @@ class Topology(object):
 
     # uses smallest last vertex ordering to color the graph
     def colorGraph(self):
-        self.s_last = self._smallestLastVertexOrdering()
+        self.s_last, self.deg_when_del = self._smallestLastVertexOrdering()
         print "Terminal clique size:", self.term_clique_size
 
         self.node_colors = self._assignNodeColors(self.s_last)
@@ -194,9 +194,11 @@ class Topology(object):
     # constructs a degree structure and determines the smallest last vertex ordering
     def _smallestLastVertexOrdering(self):
         deg_list = [[] for _ in range(len(self.edges[self.maxDeg])+1)]
+        deg_when_del = {}
 
         for n in self.nodes:
             deg_list[len(self.edges[n])].append(n)
+            deg_when_del[n] = len(self.edges[n])
 
         smallest_last_ordering = []
 
@@ -220,20 +222,29 @@ class Topology(object):
 
             # decrement position of nodes that shared an edge with v
             for n in self.edges[v]:
-                for i in range(len(deg_list)):
-                    to_decrement = True
-                    try:
-                        deg_list[i].remove(n)
-                    except:
-                        to_decrement = False
-
-                    if to_decrement:
-                        deg_list[i-1].append(n)
+                to_decrement = True
+                try:
+                    deg_list[deg_when_del[n]].remove(n)
+                except:
+                    to_decrement = False
+                if to_decrement:
+                    deg_when_del[n] -= 1
+                    deg_list[deg_when_del[n]].append(n)
+            # for n in self.edges[v]:
+            #     for i in range(len(deg_list)):
+            #         to_decrement = True
+            #         try:
+            #             deg_list[i].remove(n)
+            #         except:
+            #             to_decrement = False
+            #
+            #         if to_decrement:
+            #             deg_list[i-1].append(n)
 
             j -= 1
 
         # reverse list since it was built shortest-first
-        return smallest_last_ordering[::-1]
+        return smallest_last_ordering[::-1], deg_when_del
 
     # assigns the colors to nodes given in a smallest-last vertex ordering as a parallel array
     def _assignNodeColors(self, s_last):
