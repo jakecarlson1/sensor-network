@@ -46,10 +46,10 @@ class Topology(object):
 
     # brute force edge detection
     def _bruteForceFindEdges(self):
-        for n in self.nodes:
-            for m in self.nodes:
-                if n != m and self._distance(n, m) <= self.node_r:
-                    self.edges[n].append(m)
+        for i, n in enumerate(self.nodes):
+            for j, m in enumerate(self.nodes):
+                if i != j and self._distance(n, m) <= self.node_r:
+                    self.edges[n].append(j)
 
     # sweep edge detection (2D)
     def _sweepFindEdges(self):
@@ -59,17 +59,17 @@ class Topology(object):
             search_space = []
             for j in range(1,i+1):
                 if abs(n[0] - self.nodes[i-j][0]) <= self.node_r:
-                    search_space.append(self.nodes[i-j])
+                    search_space.append(i-j)
                 else:
                     break
             for j in range(1,self.num_nodes-i):
                 if abs(n[0] - self.nodes[i+j][0]) <= self.node_r:
-                    search_space.append(self.nodes[i+j])
+                    search_space.append(i+j)
                 else:
                     break
-            for m in search_space:
-                if self._distance(n, m) <= self.node_r:
-                    self.edges[n].append(m)
+            for j in search_space:
+                if self._distance(n, self.nodes[j]) <= self.node_r:
+                    self.edges[n].append(j)
 
     # cell edge detection (2D)
     def _cellFindEdges(self):
@@ -78,16 +78,16 @@ class Topology(object):
         for i in range(num_cells):
             cells.append([[] for j in range(num_cells)])
 
-        for n in self.nodes:
-            cells[int(n[0]/self.node_r)][int(n[1]/self.node_r)].append(n)
+        for i, n in enumerate(self.nodes):
+            cells[int(n[0]/self.node_r)][int(n[1]/self.node_r)].append(i)
 
         for i in range(num_cells):
             for j in range(num_cells):
-                for n in cells[i][j]:
+                for n_i in cells[i][j]:
                     for c in self._findAdjCells(i, j, num_cells):
-                        for m in cells[c[0]][c[1]]:
-                            if n != m and self._distance(n, m) <= self.node_r:
-                                self.edges[n].append(m)
+                        for m_i in cells[c[0]][c[1]]:
+                            if n_i != m_i and self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r:
+                                self.edges[self.nodes[n_i]].append(m_i)
 
     # cell edge detection helper function (2D)
     def _findAdjCells(self, i, j, n):
@@ -168,20 +168,20 @@ class Topology(object):
         fill(255)
 
         for n in self.edges.keys():
-            for m in self.edges[n]:
-                line(n[0]*self.canvas_width, n[1]*self.canvas_height, m[0]*self.canvas_width, m[1]*self.canvas_height)
+            for m_i in self.edges[n]:
+                line(n[0]*self.canvas_width, n[1]*self.canvas_height, self.nodes[m_i][0]*self.canvas_width, self.nodes[m_i][1]*self.canvas_height)
 
     # responsible for drawing the edges of the min and max degree nodes
     def _drawMinMaxDegNodes(self):
         strokeWeight(1)
         stroke(0,255,0)
         fill(255)
-        for n in self.edges[self.minDeg]:
-            line(self.minDeg[0]*self.canvas_width, self.minDeg[1]*self.canvas_height, n[0]*self.canvas_width, n[1]*self.canvas_height)
+        for n_i in self.edges[self.minDeg]:
+            line(self.minDeg[0]*self.canvas_width, self.minDeg[1]*self.canvas_height, self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height)
 
         stroke(0,0,255)
-        for n in self.edges[self.maxDeg]:
-            line(self.maxDeg[0]*self.canvas_width, self.maxDeg[1]*self.canvas_height, n[0]*self.canvas_width, n[1]*self.canvas_height)
+        for n_i in self.edges[self.maxDeg]:
+            line(self.maxDeg[0]*self.canvas_width, self.maxDeg[1]*self.canvas_height, self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height)
 
     # uses smallest last vertex ordering to color the graph
     def colorGraph(self):
@@ -254,9 +254,10 @@ class Topology(object):
         #     for j in range(i):
         #         if s_last[j]
 
-        colors = [0 for _ in range(len(s_last))]
-        for i in range(1,len(s_last)):
-            adj_colors = [colors[j] for j in range(i) if s_last[j] in self.edges[s_last[i]]]
+        colors = [-1 for _ in range(len(s_last))]
+        for i in range(0,len(s_last)):
+            # adj_colors = set([colors[j] for j in range(i) if s_last[j] in self.edges[s_last[i]]])
+            adj_colors = set([colors[s_last.index(n)] for n in self.edges[s_last[i]]])
             color = 0
             while color in adj_colors:
                 color += 1
@@ -349,17 +350,17 @@ class Sphere(Topology):
         for i in range(num_cells):
             cells.append([[[] for k in range(num_cells)] for j in range(num_cells)])
 
-        for n in self.nodes:
-            cells[int(n[0]/self.node_r)][int(n[1]/self.node_r)][int(n[2]/self.node_r)].append(n)
+        for i, n in enumerate(self.nodes):
+            cells[int(n[0]/self.node_r)][int(n[1]/self.node_r)][int(n[2]/self.node_r)].append(i)
 
         for i in range(num_cells):
             for j in range(num_cells):
                 for k in range(num_cells):
-                    for n in cells[i][j][k]:
+                    for n_i in cells[i][j][k]:
                         for c in self._findAdjCells(i, j, k, num_cells):
-                            for m in cells[c[0]][c[1]][c[2]]:
-                                if n != m and self._distance(n, m) <= self.node_r:
-                                    self.edges[n].append(m)
+                            for m_i in cells[c[0]][c[1]][c[2]]:
+                                if n_i != m_i and self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r:
+                                    self.edges[self.nodes[n_i]].append(m_i)
 
     # overrides adjacent cell finding for 3x3 surrounding buckets
     def _findAdjCells(self, i, j, k, n):
@@ -420,20 +421,23 @@ class Sphere(Topology):
 
             # draw all edges
             if self.num_nodes <= self.n_limit:
-                for e in self.edges[self.nodes[n]]:
+                for e_i in self.edges[self.nodes[n]]:
+                    e = self.nodes[e_i]
                     # draws line from origin to neighboring node
                     line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
             # draw edges for min degree node
             elif self.nodes[n] == self.minDeg:
                 stroke(0,255,0)
-                for e in self.edges[self.nodes[n]]:
+                for e_i in self.edges[self.nodes[n]]:
+                    e = self.nodes[e_i]
                     # draws line from origin to neighboring node
                     line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
                 stroke(255)
             # draw edges for max degree node
             elif self.nodes[n] == self.maxDeg:
                 stroke(0,0,255)
-                for e in self.edges[self.nodes[n]]:
+                for e_i in self.edges[self.nodes[n]]:
+                    e = self.nodes[e_i]
                     # draws line from origin to neighboring node
                     line(0,0,0, (e[0] - self.nodes[n][0])*self.canvas_width, (e[1] - self.nodes[n][1])*self.canvas_height, (e[2] - self.nodes[n][2])*self.canvas_width)
                 stroke(255)
