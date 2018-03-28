@@ -177,12 +177,75 @@ def plotDistributionOfDegrees():
     plt.title("Distribution Of Degrees of Nodes, Square")
     plt.show()
 
+def validateIndepSets():
+    topology = Square()
+    topology.num_nodes = 1000
+    topology.avg_deg = 16
+
+    topology.generateNodes()
+    topology.findEdges(method="cell")
+    topology.colorGraph()
+
+    # check that the color sets are independent
+    for i in range(len(topology.s_last)):
+        for j in topology.edges[topology.s_last[i]]:
+            colors = [topology.node_colors[topology.s_last.index(j)]]
+        if topology.node_colors[i] in colors:
+            print "Node shares color with neighbor"
+
+def plotDistributionOfDegreesWhenDel():
+    topology = Square()
+    topology.num_nodes = 16000
+    topology.avg_deg = 32
+
+    topology.generateNodes()
+    topology.findEdges(method="cell")
+    topology.colorGraph()
+
+    c_orig = Counter([len(v) for v in topology.edges.values()])
+    c_del = Counter([topology.deg_when_del[n] for n in topology.nodes])
+    labels_orig = [x[0] for x in c_orig.items()]
+    labels_del = [x[0] for x in c_del.items()]
+    labels = list(set(labels_orig) | set(labels_del))
+    orig_deg = [c_orig[l] for l in labels]
+    del_deg = [c_del[l] for l in labels]
+    indexes = np.arange(len(labels))
+    plt.bar(indexes, orig_deg, color='b')
+    plt.bar(indexes, del_deg, color='r')
+    plt.xticks(indexes + 0.5, labels)
+    plt.xlabel("Degree")
+    plt.ylabel("Number of Occurances")
+    plt.title("Distribution Of Degrees of Nodes, Square")
+    plt.show()
+
+def plotSequentialColoring():
+    topology = Square()
+    topology.num_nodes = 1000
+    topology.avg_deg = 16
+
+    topology.generateNodes()
+    topology.findEdges(method="cell")
+    topology.colorGraph()
+
+    del_deg = [topology.deg_when_del[n] for n in topology.s_last]
+    orig_deg = [len(topology.edges[n]) for n in topology.s_last]
+    indexes = np.arange(len(del_deg))
+    plt.bar(indexes, del_deg, color='r')
+    plt.bar(indexes, orig_deg, color='b')
+    plt.xticks(indexes + 0.5, indexes)
+    plt.xlabel("Node")
+    plt.ylabel("Degree")
+    plt.title("Degree when Deleted vs. Original Degree of Nodes, Square")
+    plt.show()
 
 def main():
     # runForVarNodes()
     # runForVarAvgDeg()
     # plotForVarNodes()
-    plotForVarAvgDeg()
+    # plotForVarAvgDeg()
     # plotDistributionOfDegrees()
+    plotDistributionOfDegreesWhenDel()
+    # validateIndepSets()
+    # plotSequentialColoring()
 
 main()

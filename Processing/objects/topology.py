@@ -248,6 +248,12 @@ class Topology(object):
 
     # assigns the colors to nodes given in a smallest-last vertex ordering as a parallel array
     def _assignNodeColors(self, s_last):
+        # colors = [set(s_last[0])]
+        # for i in range(1,len(s_last)):
+        #     adj_colors = []
+        #     for j in range(i):
+        #         if s_last[j]
+
         colors = [0 for _ in range(len(s_last))]
         for i in range(1,len(s_last)):
             adj_colors = [colors[j] for j in range(i) if s_last[j] in self.edges[s_last[i]]]
