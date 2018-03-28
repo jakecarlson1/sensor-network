@@ -39,7 +39,7 @@ def main():
     
     topology.generateNodes()
     topology.findEdges(method="cell")
-    # topology.colorGraph()
+    topology.colorGraph()
     
     print "Average degree: {}".format(topology.findAvgDegree())
     print "Min degree: {}".format(topology.getMinDegree())

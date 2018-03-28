@@ -196,8 +196,8 @@ class Topology(object):
         deg_list = [[] for _ in range(len(self.edges[self.maxDeg])+1)]
         deg_when_del = {}
 
-        for n in self.nodes:
-            deg_list[len(self.edges[n])].append(n)
+        for i, n in enumerate(self.nodes):
+            deg_list[len(self.edges[n])].append(i)
             deg_when_del[n] = len(self.edges[n])
 
         smallest_last_ordering = []
@@ -217,29 +217,19 @@ class Topology(object):
                 self.term_clique_size = curr_bucket
 
             # get node with smallest degree
-            v = deg_list[curr_bucket].pop()
-            smallest_last_ordering.append(v)
+            v_i = deg_list[curr_bucket].pop()
+            smallest_last_ordering.append(v_i)
 
             # decrement position of nodes that shared an edge with v
-            for n in self.edges[v]:
+            for n_i in self.edges[self.nodes[v_i]]:
                 to_decrement = True
                 try:
-                    deg_list[deg_when_del[n]].remove(n)
+                    deg_list[deg_when_del[self.nodes[n_i]]].remove(n_i)
                 except:
                     to_decrement = False
                 if to_decrement:
-                    deg_when_del[n] -= 1
-                    deg_list[deg_when_del[n]].append(n)
-            # for n in self.edges[v]:
-            #     for i in range(len(deg_list)):
-            #         to_decrement = True
-            #         try:
-            #             deg_list[i].remove(n)
-            #         except:
-            #             to_decrement = False
-            #
-            #         if to_decrement:
-            #             deg_list[i-1].append(n)
+                    deg_when_del[self.nodes[n_i]] -= 1
+                    deg_list[deg_when_del[self.nodes[n_i]]].append(n_i)
 
             j -= 1
 
@@ -248,16 +238,9 @@ class Topology(object):
 
     # assigns the colors to nodes given in a smallest-last vertex ordering as a parallel array
     def _assignNodeColors(self, s_last):
-        # colors = [set(s_last[0])]
-        # for i in range(1,len(s_last)):
-        #     adj_colors = []
-        #     for j in range(i):
-        #         if s_last[j]
-
         colors = [-1 for _ in range(len(s_last))]
-        for i in range(0,len(s_last)):
-            # adj_colors = set([colors[j] for j in range(i) if s_last[j] in self.edges[s_last[i]]])
-            adj_colors = set([colors[s_last.index(n)] for n in self.edges[s_last[i]]])
+        for i in s_last:
+            adj_colors = set([colors[j] for j in self.edges[self.nodes[i]]])
             color = 0
             while color in adj_colors:
                 color += 1
