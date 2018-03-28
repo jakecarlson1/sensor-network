@@ -209,13 +209,14 @@ def plotDistributionOfDegreesWhenDel():
     labels = list(set(labels_orig) | set(labels_del))
     orig_deg = [c_orig[l] for l in labels]
     del_deg = [c_del[l] for l in labels]
-    indexes = np.arange(len(labels))
-    plt.bar(indexes, orig_deg, color='b')
-    plt.bar(indexes, del_deg, color='r')
-    plt.xticks(indexes + 0.5, labels)
+    indexes = np.arange(len(labels), step=5)
+    plt.bar(np.arange(len(labels)), orig_deg, color='b', label="Original Degree")
+    plt.bar(np.arange(len(labels)), del_deg, color='r', label="Degree when Deleted in SLVO")
+    plt.xticks(indexes + 0.1, labels[::5])
     plt.xlabel("Degree")
     plt.ylabel("Number of Occurances")
     plt.title("Distribution Of Degrees of Nodes, Square")
+    plt.legend()
     plt.show()
 
 def plotSequentialColoring():
