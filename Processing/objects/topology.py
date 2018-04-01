@@ -186,10 +186,8 @@ class Topology(object):
     # uses smallest last vertex ordering to color the graph
     def colorGraph(self):
         self.s_last, self.deg_when_del = self._smallestLastVertexOrdering()
-        print "Terminal clique size:", self.term_clique_size
 
         self.node_colors = self._assignNodeColors(self.s_last)
-        print "Number of colors:", len(set(self.node_colors))
 
     # constructs a degree structure and determines the smallest last vertex ordering
     def _smallestLastVertexOrdering(self):
