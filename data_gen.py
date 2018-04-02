@@ -244,15 +244,16 @@ def runBenchmarks():
         f.write("Benchmark #,Num. Nodes,Avg. Degree,Topology,Max Degree,Max Deg Deleted,# Color Sets,Max Color Set Size,Terminal Clique Size,Run Time (s)\n")
         n = 0
         tops = {
-            'Square': (Square(), SQUARE_BENCHMARKS),
-            'Disk': (Disk(), DISK_BENCHMARKS),
-            'Sphere': (Sphere(), SPHERE_BENCHMARKS)
+            'Square': (Square, SQUARE_BENCHMARKS),
+            'Disk': (Disk, DISK_BENCHMARKS),
+            'Sphere': (Sphere, SPHERE_BENCHMARKS)
         }
         for t in ['Square', 'Disk', 'Sphere']:
             for i in range(len(tops[t][1])):
                 n += 1
-                topology = tops[t][0]
+                topology = tops[t][0]()
                 topology.prepBenchmark(i)
+                print "nodes: {} | deg: {}".format(topology.num_nodes, topology.avg_deg)
                 run_time = time.clock()
                 topology.generateNodes()
                 topology.findEdges(method="cell")

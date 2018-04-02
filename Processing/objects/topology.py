@@ -1,5 +1,6 @@
 import random
 import math
+import time
 
 # benchmarks (num_nodes, avg_deg)
 SQUARE_BENCHMARKS = [(1000,32), (8000,64), (16000,32), (64000,64), (64000,128),
@@ -86,7 +87,7 @@ class Topology(object):
                 for n_i in cells[i][j]:
                     for c in self._findAdjCells(i, j, num_cells):
                         for m_i in cells[c[0]][c[1]]:
-                            if n_i != m_i and self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r:
+                            if self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r and n_i != m_i:
                                 self.edges[self.nodes[n_i]].append(m_i)
 
     # cell edge detection helper function (2D)
@@ -97,7 +98,6 @@ class Topology(object):
         for x in xRange:
             for y in yRange:
                 result.append((x,y))
-
         return result
 
     # function for finding the radius needed for the desired average degree
@@ -204,7 +204,7 @@ class Topology(object):
         while j > 0:
             # get the current smallest bucket
             curr_bucket = 0
-            while curr_bucket < len(deg_sets.keys()) and len(deg_sets[curr_bucket]) == 0:
+            while len(deg_sets[curr_bucket]) == 0:
                 curr_bucket += 1
 
             # if all the remaining nodes are connected we have the terminal clique
