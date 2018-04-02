@@ -186,17 +186,16 @@ class Topology(object):
     # uses smallest last vertex ordering to color the graph
     def colorGraph(self):
         self.s_last, self.deg_when_del = self._smallestLastVertexOrdering()
-
         self.node_colors = self._assignNodeColors(self.s_last)
 
     # constructs a degree structure and determines the smallest last vertex ordering
     def _smallestLastVertexOrdering(self):
-        deg_list = [[] for _ in range(len(self.edges[self.maxDeg])+1)]
+        deg_sets = {l:set() for l in range(len(self.edges[self.maxDeg])+1)}
         deg_when_del = {}
 
         for i, n in enumerate(self.nodes):
-            deg_list[len(self.edges[n])].append(i)
             deg_when_del[n] = len(self.edges[n])
+            deg_sets[deg_when_del[n]].add(i)
 
         smallest_last_ordering = []
 
@@ -205,29 +204,25 @@ class Topology(object):
         while j > 0:
             # get the current smallest bucket
             curr_bucket = 0
-            while curr_bucket < len(deg_list) and len(deg_list[curr_bucket]) == 0:
+            while curr_bucket < len(deg_sets.keys()) and len(deg_sets[curr_bucket]) == 0:
                 curr_bucket += 1
 
             # if all the remaining nodes are connected we have the terminal clique
-            if not clique_found and len(deg_list[curr_bucket]) == j:
+            if not clique_found and len(deg_sets[curr_bucket]) == j:
                 clique_found = True
-                smallest_last_ordering.extend(deg_list[curr_bucket])
                 self.term_clique_size = curr_bucket
 
             # get node with smallest degree
-            v_i = deg_list[curr_bucket].pop()
+            v_i = deg_sets[curr_bucket].pop()
             smallest_last_ordering.append(v_i)
 
             # decrement position of nodes that shared an edge with v
             for n_i in self.edges[self.nodes[v_i]]:
-                to_decrement = True
-                try:
-                    deg_list[deg_when_del[self.nodes[n_i]]].remove(n_i)
-                except:
-                    to_decrement = False
-                if to_decrement:
-                    deg_when_del[self.nodes[n_i]] -= 1
-                    deg_list[deg_when_del[self.nodes[n_i]]].append(n_i)
+                n = self.nodes[n_i]
+                if n in deg_sets[deg_when_del[n]]:
+                    deg_sets[deg_when_del[n]].remove(n_i)
+                    deg_when_del[n] -= 1
+                    deg_sets[deg_when_del[n]].add(n_i)
 
             j -= 1
 

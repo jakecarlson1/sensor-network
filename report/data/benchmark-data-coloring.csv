@@ -1,0 +1,7 @@
+Benchmark #,Num. Nodes,Avg. Degree,Topology,Max Degree,Max Deg Deleted,# Color Sets,Max Color Set Size,Terminal Clique Size,Run Time (s)
+1,1000,32,Square,53,22,24,74,17,0.125
+2,8000,64,Square,107,42,43,330,36,2.562
+3,16000,32,Square,77,33,34,1232,31,7.183
+4,64000,64,Square,137,53,51,2636,43,59.955
+5,64000,128,Square,393,164,136,1466,106,342.364
+6,128000,64,Square,191,81,72,5495,60,811.945

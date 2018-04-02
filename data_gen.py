@@ -187,9 +187,9 @@ def validateIndepSets():
     topology.colorGraph()
 
     # check that the color sets are independent
-    for i in range(len(topology.s_last)):
-        for j in topology.edges[topology.s_last[i]]:
-            colors = [topology.node_colors[topology.s_last.index(j)]]
+    for i in topology.s_last:
+        colors = [topology.node_colors[j] for j in topology.edges[topology.nodes[i]]]
+            # colors = [topology.node_colors[topology.s_last.index(j)]]
         if topology.node_colors[i] in colors:
             print "Node shares color with neighbor"
 
@@ -239,6 +239,31 @@ def plotDistributionOfColors():
     plt.title("Distribution of Colors, Square")
     plt.show()
 
+def runBenchmarks():
+    with open("./report/data/benchmark-data.csv", "w+") as f:
+        f.write("Benchmark #,Num. Nodes,Avg. Degree,Topology,Max Degree,Max Deg Deleted,# Color Sets,Max Color Set Size,Terminal Clique Size,Run Time (s)\n")
+        n = 0
+        tops = {
+            'Square': (Square(), SQUARE_BENCHMARKS),
+            'Disk': (Disk(), DISK_BENCHMARKS),
+            'Sphere': (Sphere(), SPHERE_BENCHMARKS)
+        }
+        for t in ['Square', 'Disk', 'Sphere']:
+            for i in range(len(tops[t][1])):
+                n += 1
+                topology = tops[t][0]
+                topology.prepBenchmark(i)
+                run_time = time.clock()
+                topology.generateNodes()
+                topology.findEdges(method="cell")
+                topology.colorGraph()
+                run_time = time.clock() - run_time
+                color_cnt = Counter(topology.node_colors)
+                f.write("{},{},{},{},{},".format(n, tops[t][1][i][0], tops[t][1][i][1], t, topology.getMaxDegree()))
+                f.write("{},{},{},{},".format(max(topology.deg_when_del.values()), len(set(topology.node_colors)), color_cnt.most_common(1)[0][1], topology.term_clique_size))
+                f.write("{0:.3f}\n".format(run_time))
+                f.flush()
+
 def main():
     # runForVarNodes()
     # runForVarAvgDeg()
@@ -247,6 +272,7 @@ def main():
     # plotDistributionOfDegrees()
     # plotDistributionOfDegreesWhenDel()
     # validateIndepSets()
-    plotDistributionOfColors()
+    # plotDistributionOfColors()
+    runBenchmarks()
 
 main()
