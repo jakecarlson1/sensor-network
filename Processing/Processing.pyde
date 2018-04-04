@@ -49,7 +49,8 @@ def main():
     print "Number of colors: {}".format(len(set(topology.node_colors)))
     print "Max degree when deleted: {}".format(max(topology.deg_when_del.values()))
     color_cnt = Counter(topology.node_colors)
-    print "Max color set size: {}  color: {}".format(color_cnt.most_common(1)[0][1], color_cnt.most_common(1)[0][0])
+    print "Max color set size: {}  color: {}".format(color_cnt.most_common(1)[0][1],
+                                                     color_cnt.most_common(1)[0][0])
     
     run_time = time.clock() - run_time
     print "Run time: {0:.3f} s".format(run_time)

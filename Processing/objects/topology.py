@@ -24,6 +24,9 @@ class Topology(object):
         self.node_r = 0.0
         self.minDeg = ()
         self.maxDeg = ()
+        self.s_last = []
+        self.deg_when_del = {}
+        self.node_colors = []
 
     # public funciton for generating nodes of the graph, must be subclassed
     def generateNodes(self):
@@ -92,13 +95,9 @@ class Topology(object):
 
     # cell edge detection helper function (2D)
     def _findAdjCells(self, i, j, n):
-        result = []
         xRange = [(i-1)%n, i, (i+1)%n]
         yRange = [(j-1)%n, j, (j+1)%n]
-        for x in xRange:
-            for y in yRange:
-                result.append((x,y))
-        return result
+        return ((x,y) for x in xRange for y in yRange)
 
     # function for finding the radius needed for the desired average degree
     # must be subclassed
@@ -191,10 +190,10 @@ class Topology(object):
     # constructs a degree structure and determines the smallest last vertex ordering
     def _smallestLastVertexOrdering(self):
         deg_sets = {l:set() for l in range(len(self.edges[self.maxDeg])+1)}
-        deg_when_del = {}
+        deg_when_del = {n:len(self.edges[n]) for n in self.nodes}
 
         for i, n in enumerate(self.nodes):
-            deg_when_del[n] = len(self.edges[n])
+            # deg_when_del[n] = len(self.edges[n])
             deg_sets[deg_when_del[n]].add(i)
 
         smallest_last_ordering = []
@@ -217,12 +216,10 @@ class Topology(object):
             smallest_last_ordering.append(v_i)
 
             # decrement position of nodes that shared an edge with v
-            for n_i in self.edges[self.nodes[v_i]]:
-                n = self.nodes[n_i]
-                if n in deg_sets[deg_when_del[n]]:
-                    deg_sets[deg_when_del[n]].remove(n_i)
-                    deg_when_del[n] -= 1
-                    deg_sets[deg_when_del[n]].add(n_i)
+            for n_i in (n_i for n_i in self.edges[self.nodes[v_i]] if self.nodes[n_i] in deg_sets[deg_when_del[self.nodes[n_i]]]):
+                deg_sets[deg_when_del[self.nodes[n_i]]].remove(n_i)
+                deg_when_del[self.nodes[n_i]] -= 1
+                deg_sets[deg_when_del[self.nodes[n_i]]].add(n_i)
 
             j -= 1
 
@@ -335,21 +332,15 @@ class Sphere(Topology):
                     for n_i in cells[i][j][k]:
                         for c in self._findAdjCells(i, j, k, num_cells):
                             for m_i in cells[c[0]][c[1]][c[2]]:
-                                if n_i != m_i and self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r:
+                                if self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r and n_i != m_i:
                                     self.edges[self.nodes[n_i]].append(m_i)
 
     # overrides adjacent cell finding for 3x3 surrounding buckets
     def _findAdjCells(self, i, j, k, n):
-        result = []
         xRange = [(i-1)%n, i, (i+1)%n]
         yRange = [(j-1)%n, j, (j+1)%n]
         zRange = [(k-1)%n, k, (k+1)%n]
-        for x in xRange:
-            for y in yRange:
-                for z in zRange:
-                    result.append((x,y,z))
-
-        return result
+        return ((x,y,z) for x in xRange for y in yRange for z in zRange)
 
     # calculates the radius needed for the requested average degree in a unit sphere
     def _getRadiusForAverageDegree(self):
