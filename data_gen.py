@@ -241,7 +241,7 @@ def plotDistributionOfColors():
 
 def runBenchmarks():
     with open("./report/data/benchmark-data.csv", "w+") as f:
-        f.write("Benchmark #,Num. Nodes,Avg. Degree,Topology,Max Degree,Max Deg Deleted,# Color Sets,Max Color Set Size,Terminal Clique Size,Run Time (s)\n")
+        f.write("Benchmark,Order,Avg Deg,Topology,r,Size,Realized Avg Deg,Max Deg,Min Deg,Max Deg Deleted,Color Sets,Largest Color Set,Terminal Clique Size,Run Time (s)\n")
         n = 0
         tops = {
             'Square': (Square, SQUARE_BENCHMARKS),
@@ -260,7 +260,9 @@ def runBenchmarks():
                 topology.colorGraph()
                 run_time = time.clock() - run_time
                 color_cnt = Counter(topology.node_colors)
-                f.write("{},{},{},{},{},".format(n, tops[t][1][i][0], tops[t][1][i][1], t, topology.getMaxDegree()))
+                f.write("{},{},{},{},".format(n, tops[t][1][i][0], tops[t][1][i][1], t))
+                f.write("{0:.3f},".format(topology.node_r))
+                f.write("{},{},{},{},".format(topology.findNumEdges(), topology.findAvgDegree(), topology.getMaxDegree(), topology.getMinDegree()))
                 f.write("{},{},{},{},".format(max(topology.deg_when_del.values()), len(set(topology.node_colors)), color_cnt.most_common(1)[0][1], topology.term_clique_size))
                 f.write("{0:.3f}\n".format(run_time))
                 f.flush()

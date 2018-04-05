@@ -57,6 +57,7 @@ class Topology(object):
 
     # sweep edge detection (2D)
     def _sweepFindEdges(self):
+        # TODO: Only look forward
         self.nodes.sort(key=lambda x: x[0])
 
         for i, n in enumerate(self.nodes):
@@ -95,6 +96,7 @@ class Topology(object):
 
     # cell edge detection helper function (2D)
     def _findAdjCells(self, i, j, n):
+        # TODO: Only look forward
         xRange = [(i-1)%n, i, (i+1)%n]
         yRange = [(j-1)%n, j, (j+1)%n]
         return ((x,y) for x in xRange for y in yRange)
@@ -106,19 +108,23 @@ class Topology(object):
 
     # helper function for findEdges, initializes edges dict
     def _addNodesAsEdgeKeys(self):
-        self.edges = dict((n, []) for n in self.nodes)
+        self.edges = {n:[] for n in self.nodes}
 
     # claculates the distance between two nodes (2D)
     def _distance(self, n, m):
         return math.sqrt((n[0] - m[0])**2+(n[1] - m[1])**2)
 
+    # public function for finding the number of edges
+    def findNumEdges(self):
+        sigma_edges = 0
+        for k in self.edges.keys():
+            sigma_edges += len(self.edges[k])
+
+        return sigma_edges/2
+
     # public function for finding the average degree of nodes
     def findAvgDegree(self):
-        sigma_degree = 0
-        for k in self.edges.keys():
-            sigma_degree += len(self.edges[k])
-
-        return sigma_degree/len(self.edges.keys())
+        return 2*self.findNumEdges()/self.num_nodes
 
     # helper funciton for finding nodes with min and max degree
     def _findMinAndMaxDegree(self):
@@ -193,7 +199,6 @@ class Topology(object):
         deg_when_del = {n:len(self.edges[n]) for n in self.nodes}
 
         for i, n in enumerate(self.nodes):
-            # deg_when_del[n] = len(self.edges[n])
             deg_sets[deg_when_del[n]].add(i)
 
         smallest_last_ordering = []
@@ -216,7 +221,7 @@ class Topology(object):
             smallest_last_ordering.append(v_i)
 
             # decrement position of nodes that shared an edge with v
-            for n_i in (n_i for n_i in self.edges[self.nodes[v_i]] if self.nodes[n_i] in deg_sets[deg_when_del[self.nodes[n_i]]]):
+            for n_i in (n_i for n_i in self.edges[self.nodes[v_i]] if n_i in deg_sets[deg_when_del[self.nodes[n_i]]]):
                 deg_sets[deg_when_del[self.nodes[n_i]]].remove(n_i)
                 deg_when_del[self.nodes[n_i]] -= 1
                 deg_sets[deg_when_del[self.nodes[n_i]]].add(n_i)
@@ -337,6 +342,7 @@ class Sphere(Topology):
 
     # overrides adjacent cell finding for 3x3 surrounding buckets
     def _findAdjCells(self, i, j, k, n):
+        # TODO: Only look forward
         xRange = [(i-1)%n, i, (i+1)%n]
         yRange = [(j-1)%n, j, (j+1)%n]
         zRange = [(k-1)%n, k, (k+1)%n]

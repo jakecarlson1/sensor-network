@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{csvsimple}
 \usepackage{listings}
 \usepackage{color}
 \usepackage{geometry}
@@ -61,6 +62,16 @@ A report on implementing algorithms to partition a random geometric graph into b
     A separate data generation script was used to generate the graphs using matplotlib. This library, and a variety of others, could not be imported into Processing.py because the jython interpreter used by Processing only accepts libraries written in raw Python.
     \par
     The different geometries were implemented in a stand alone Python file and imported into the Processing.py script or the data generation script depending on what was being run. Because there is no intermediary file to hold the generated nodes and edges, there is no additional disk space needed to run the simulation. Everything can be done in system memory managed by Processing.
+
+    % TODO: Wrap table/reformat
+    \begin{center}
+        \begin{table}
+            \centering
+            \csvautotabular{./data/benchmark-data.csv}
+            \caption{Benchmarks for Generating and Coloring RGGs}
+            \label{tab1}
+        \end{table}
+    \end{center}
 
 \section{Reduction to Practice}
 
@@ -168,32 +179,32 @@ A report on implementing algorithms to partition a random geometric graph into b
         \par
         For the second metric, I held the number of nodes constant at 32,000 and varied the desired average degree from 2 to 32 in steps of 2. The graph is given in Figure \ref{varavgdeg}. The cell method clearly grows linearly, but the sweep method is harder to gauge. Since varying the desired average degree should only change the node radius, I would expect this to grow linearly as well. However, because each graph is randomly generated, some graphs can have nodes that are closer to sorted order than others. This can effect the measured runtime. It would be easier to gauge the trend if it I ran the data collection multiple times and averaged the results.
 
-        \begin{center}
-            \begin{table}
-                \centering
-                \begin{tabular}{|c|c|c|c|c|}
-                    \hline
-                    Benchmark \# & Num. Nodes & Avg. Degree & Distribution & Run Time (s)\\
-                    \hline
-                    1 & 1000 & 32 & Square & 0.430 \\
-                    2 & 8000 & 64 & Square & 2.157 \\
-                    3 & 16000 & 32 & Square & 1.926 \\
-                    4 & 64000 & 64 & Square & 9.960 \\
-                    5 & 64000 & 128 & Square & 14.543 \\
-                    6 & 128000 & 64 & Square & 17.258 \\
-                    7 & 128000 & 128 & Square & 28.460 \\
-                    8 & 8000 & 64 & Disk & 1.402 \\
-                    9 & 64000 & 64 & Disk & 8.908 \\
-                    10 & 64000 & 128 & Disk & 18.700 \\
-                    11 & 16000 & 64 & Sphere & 22.627 \\
-                    12 & 32000 & 128 & Sphere & 86.638 \\
-                    13 & 64000 & 128 & Sphere & 177.856 \\
-                    \hline
-                \end{tabular}
-                \caption{Benchmark Data and Run Times}
-                \label{tab1}
-            \end{table}
-        \end{center}
+        % \begin{center}
+        %     \begin{table}
+        %         \centering
+        %         \begin{tabular}{|c|c|c|c|c|}
+        %             \hline
+        %             Benchmark \# & Num. Nodes & Avg. Degree & Distribution & Run Time (s)\\
+        %             \hline
+        %             1 & 1000 & 32 & Square & 0.430 \\
+        %             2 & 8000 & 64 & Square & 2.157 \\
+        %             3 & 16000 & 32 & Square & 1.926 \\
+        %             4 & 64000 & 64 & Square & 9.960 \\
+        %             5 & 64000 & 128 & Square & 14.543 \\
+        %             6 & 128000 & 64 & Square & 17.258 \\
+        %             7 & 128000 & 128 & Square & 28.460 \\
+        %             8 & 8000 & 64 & Disk & 1.402 \\
+        %             9 & 64000 & 64 & Disk & 8.908 \\
+        %             10 & 64000 & 128 & Disk & 18.700 \\
+        %             11 & 16000 & 64 & Sphere & 22.627 \\
+        %             12 & 32000 & 128 & Sphere & 86.638 \\
+        %             13 & 64000 & 128 & Sphere & 177.856 \\
+        %             \hline
+        %         \end{tabular}
+        %         \caption{Benchmark Data and Run Times}
+        %         \label{tab1}
+        %     \end{table}
+        % \end{center}
 
 % \section{Results Summary}
 
