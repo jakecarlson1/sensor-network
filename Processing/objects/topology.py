@@ -57,16 +57,10 @@ class Topology(object):
 
     # sweep edge detection (2D)
     def _sweepFindEdges(self):
-        # TODO: Only look forward
         self.nodes.sort(key=lambda x: x[0])
 
         for i, n in enumerate(self.nodes):
             search_space = []
-            for j in range(1,i+1):
-                if abs(n[0] - self.nodes[i-j][0]) <= self.node_r:
-                    search_space.append(i-j)
-                else:
-                    break
             for j in range(1,self.num_nodes-i):
                 if abs(n[0] - self.nodes[i+j][0]) <= self.node_r:
                     search_space.append(i+j)
@@ -75,6 +69,7 @@ class Topology(object):
             for j in search_space:
                 if self._distance(n, self.nodes[j]) <= self.node_r:
                     self.edges[n].append(j)
+                    self.edges[self.nodes[j]].append(i)
 
     # cell edge detection (2D)
     def _cellFindEdges(self):
