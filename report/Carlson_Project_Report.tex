@@ -59,9 +59,11 @@ A report on implementing algorithms to partition a random geometric graph into b
     \subsection{Environment Description}
     The data structures and topologies for this simulation are implemented in Python2.7. The graphics are done using Processing.py. All development and benchmarking has been done on a 2014 MackBook Pro with a 3 GHz Intel Core i7 processor and 16 GB of DDR3 RAM running macOS High Sierra 10.13.3.
     \par
-    A separate data generation script was used to generate the graphs using matplotlib. This library, and a variety of others, could not be imported into Processing.py because the jython interpreter used by Processing only accepts libraries written in raw Python.
+    I elected to use Processing because of the simple API used to draw and render shapes in two- and three-dimensional space. I choose to use Processing.py over Java Processing because of my familiarity and comfort with the Python programming language. I could have writen the graph generation, coloring, and backbone determination in another langague and saved the data to a file for loading in processing, but since I intend to implement all of the algorithms in linear time, I don't think there will be a performance issue with using an interpreted language instead of a compiled one.
     \par
-    The different geometries were implemented in a stand alone Python file and imported into the Processing.py script or the data generation script depending on what was being run. Because there is no intermediary file to hold the generated nodes and edges, there is no additional disk space needed to run the simulation. Everything can be done in system memory managed by Processing.
+    A separate data generation script was used to generate the summary table and graphs using matplotlib. This library, and a variety of others, could not be imported into Processing.py because the jython interpreter used by Processing only accepts libraries written in raw Python.
+    \par
+    The different geometries were implemented in a stand alone Python file and imported into the Processing.py script or the data generation script depending on what was being run. These classes can then be used directly by Processing or the data generation script. Because there is no intermediary file to hold the generated nodes and edges, there is no additional disk space needed to run the simulation. Everything can be done in system memory managed by Processing.
 
     % TODO: Wrap table/reformat
     \begin{center}
@@ -76,7 +78,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 \section{Reduction to Practice}
 
     \subsection{Data Structure Design}
-    The primary data structure used for this project is an adjacency list. However, to allow for constant time lookup of edges of a node, I used a Python dictionary where the keys are nodes and the values are a list of adjacent nodes. The space needed by the adjacency list is $\Theta(2n)$ where $n = |E|$. Two entries are used for each edge because they are undirected. This is superior to the adjacency matrix data structure which would require $\Theta(n^2)$ space where $n = |E|$.
+    The primary data structure used for this project is an adjacency list. However, to allow for constant time lookup of edges of a node, I used a Python dictionary where the keys are nodes and the values are a list of indicies of adjacent nodes in the original list of nodes. The space needed by the adjacency list is $\Theta(|V| + 2|E|)$. Two entries are used for each edge because they are undirected. This is superior to the adjacency matrix data structure which would require $\Theta(|E|^2)$ space.
     \par
     In order to make this project maintainable as it is developed along the semester, I used the object-oriented capabilities Python has to offer to design the different geometries. I start with a base Topology class that creates the interface Processing uses to draw the graphs. This base class implements all of the methods needed for node placement and edge detection in 2D graphs. Then, I create three subclasses: Square, Disk, and Sphere.
     \par
@@ -97,12 +99,12 @@ A report on implementing algorithms to partition a random geometric graph into b
         \end{align}
         where $\theta \in [0,2\pi]$ and $u \in [-1,1]$. This is guaranteed to uniformly distribute nodes on the surface area of the sphere \cite{spherepoints}.
         \par
-        All of these algorithms can be solved in $\Theta\left(n\right)$ where $n = |V|$ because each node only needs to be assigned a position once.
+        All of these algorithms can be solved in $\Theta\left(|V|\right)$ where because each node only needs to be assigned a position once.
 
         \subsubsection{Edge Determination}
-        There are several methods for finding the edges in the graph. The brute force method checks every node, and for each node checks all other nodes to see if they are close enough to form an edge. The brute force method is $\Theta\left(n^2\right)$ where $n = |V|$.
+        There are several methods for finding the edges in the graph. The brute force method checks every node, and for each node checks all other nodes to see if they are close enough to form an edge. The brute force method is $\Theta\left(|V|^2\right)$.
         \par
-        The second method to find the edges is the sweep method. This method first sorts the nodes along the x-axis. Then, for any node, we only need to search left and right until the distance along the x-axis is greater than the connection radius for the nodes. This dramatically reduces the search space. The sweep method is $O\left(n lg(n) + 2rn^2\right)$ where $n = |V|$ and $r$ is the connection radius. The $n lg(n)$ portion is for the sorting and the $2rn^2$ portion is for measuring the distance between nodes in a sweep step.
+        The second method to find the edges is the sweep method. This method first sorts the nodes along the x-axis. Then, for any node, we only need to search left and right until the distance along the x-axis is greater than the connection radius for the nodes. This dramatically reduces the search space. The sweep method is $O\left(n lg(n) + 2rn^2\right)$ where $n = |V|$ an $r$ is the connection radius. The $n lg(n)$ portion is for the sorting and the $2rn^2$ portion is for measuring the distance between nodes in a sweep step.
         \par
         The final method to find edges is the cell method. This method places the nodes into cells of area $r \times r$ based on their position in the topology. When the edge detection runs, each node needs to be visited once, but only the cell the node populates and the neighboring cells need to be searched for connections.
         \par
@@ -125,7 +127,7 @@ A report on implementing algorithms to partition a random geometric graph into b
     \subsection{Algorithm Engineering}
 
         \subsubsection{Node Placement}
-        It is easy to implement the algorithms for placing nodes in the different geometries using Python's math library. This library offers functions for sampling points on a uniform distribution. For the Square, sampling on a range $[0,1]$ is sufficient for all of the nodes. Since each node only needs to be placed once, this runs at $\Theta(n)$ where $n = |V|$.
+        It is easy to implement the algorithms for placing nodes in the different geometries using Python's math library. This library offers functions for sampling points on a uniform distribution. For the Square, sampling on a range $[0,1]$ is sufficient for all of the nodes. Since each node only needs to be placed once, this runs at $\Theta(|V|)$ where.
         \par
         For the Disk, the node needs to be resampled if it is too far from the center. To do this, the distance function is used to find the distance between the node and the center. If the node is further than $1$ from the center, node generation falls into a while loop which iterates until the node is within the unit circle. Since nodes are taken from a uniform distribution, the number of nodes that will need to be resampled is approximately equal to the ratio of the area of the square that circumscribes the unit circle which falls outside of the unit circle to the total area of the square. This is given by:
         \begin{align}
@@ -142,14 +144,12 @@ A report on implementing algorithms to partition a random geometric graph into b
         \subsubsection{Edge Determination}
         Each method implemented for finding edges has a different time complexity. The brute force method uses an outer loop and an inner loop, which each iterate over every node in the graph. An edge is saved to the adjacency list if the nodes are not the same and the distance between them is less than or equal to the calculated node radius. This is guaranteed to run in $\Theta\left(n^2\right)$ where $n = |V|$. The number of times the distance needs to be calculated is $n \times (n-1)$ because it will not be calculated when the nodes are the same (distance would be zero, but no edge is drawn here). No additional space is needed for the brute force method so the space complexity is $O(1)$.
         \par
-        The implementation of sweep starts by sorting the nodes along the x-axis. Python lists have a built-in sort function that has $O\left(n lg(n)\right)$ time complexity \cite{listsort}. After this stage, it iterates over every node building a search space which will be scaned for edges. For each node, the list of nodes is searched left and right $~r\times n$ nodes to find those within one radius length of the current node. With the search space built, the search space is iterated over once to find nodes that have a distance less than or equal the node radius. My implementation of this runs in $O\left(n lg(n) + 4rn\right)$ where $n = |V|$ and $r$ is the node connection radius. Because the list sort method sorts inplace, the only additional space needed is for the search space. This saves $O(2rn)$ nodes and is reset after every iteration.
+        The implementation of sweep starts by sorting the nodes along the x-axis. Python lists have a built-in sort function that has $O\left(n lg(n)\right)$ time complexity \cite{listsort}. After this stage, it iterates over every node building a search space which will be scaned for edges. For each node, the list of nodes is searched right $~r\times n$ nodes to find those within one radius length of the current node. With the search space built, the search space is iterated over once to find nodes that have a distance less than or equal the node radius. Then, the indicies of the nodes are added to the adjacency list entry for each other. My implementation of this runs in $O\left(n lg(n) + 2rn\right)$ where $n = |V|$ and $r$ is the node connection radius. Because the list sort method sorts inplace, the only additional space needed is for the search space. This saves $O(rn)$ nodes and is reset after every iteration.
         \par
-        The cell method implementation works in linear time. In the first step of the method, the cells are initialized as a list of empty lists. There are $(1/r + 1)^2$ cells. The nodes are then iterated over and assigned a cell by dividing their x and y coordinates by the node radius. At this point, the cells are iterated over and, for each node in the cell, the nodes in the current cell and the eight adjacent cells and the are checked to see if they fall within the node radius of the current node. All together, this implementation runs at $O\left(n + n + 9nr^2\right) = O\left((2 + 9r^2)n\right)$ where $n = |V|$. The amount of additional space needed is equal to the number of nodes because they are coppied into their respective cells. This places the space complexity at $\Theta(n)$.
-        \par
-        The cell method needs to be updated for the Sphere. To do this, an extra dimension is added to the cells, creating a 3D mesh. The only changes needed from the 2D method is that another loop is needed to iterate over the added dimension, and the search space turns into a 3x3 cube with the current cell at the center. Each node is still only visited once as the edges are determined. The runtime for this algorithm is $O\left(n + n + 27nr^3\right) = O\left((2 + 27r^3)n\right)$ where $n = |V|$. Again, the space complexity is $\Theta(n)$.
+        The cell method implementation works in linear time. In the first step of the method, the cells are initialized as a list of empty lists. There are $(1/r + 1)^2$ cells. The nodes are then iterated over and assigned a cell by dividing their x and y coordinates by the node radius. At this point, the cells are iterated over and, for each node in the cell, the nodes in the current cell and the four forward adjacent cells and the are checked to see if they fall within the node radius of the current node. All together, this implementation runs at $O\left(n + n + 5nr^2\right) = O\left((2 + 5r^2)n\right)$ where $n = |V|$. The amount of additional space needed is equal to the number of nodes because they are coppied into their respective cells. This places the space complexity at $\Theta(n)$.
 
         \subsubsection{Graph Coloring}
-        Implementing the smallest-last coloring algorithm involves implementing the smallest-last vertex ordering algorithm and the greedy graph coloring algorithm. For smallest-last vertex ordering, the first thing to do is build the data structure used to represent the graph with deleted nodes. The number of buckets needed it equal to the maximum degree of the nodes. Then, each node is placed in the bucket corresponding to the number of edges it has then the RGG. Simultaneously, a dictionary is created that maps each node to the number of degrees it has in the graph with deletions. Each value starts at the number of edges the corresponding node has in the RGG. At this point, we have iterated over all of the nodes once and allocated space for twice the number of nodes by copying them into the buckets and using them as the keys for the degrees dictionary.
+        Implementing the smallest-last coloring algorithm involves implementing the smallest-last vertex ordering algorithm and the greedy graph coloring algorithm. For smallest-last vertex ordering, the first thing to do is build the data structure used to represent the graph with deleted nodes. The number of sets needed is equal to the maximum degree of the nodes. Then, the index of each node is placed in the set corresponding to the number of edges it has then the RGG. Simultaneously, a dictionary is created that maps each node to the number of degrees it has in the graph with deletions. Each value starts at the number of edges the corresponding node has in the RGG. At this point, we have iterated over all of the nodes once and allocated space for twice the number of nodes by copying them into the sets and using them as the keys for the degrees dictionary.
         \par
         Because Python dictionaries resize at specific numbers of entries, we can determine the number of additional insertions caused by rehashing while the degrees dictionary is built. Python dictionaries start out with space for 8 entries and quadruple in size until the number of entries is above 50,000, at which point it begins to double in size. Clearly the dictionary grows at a logarithmic rate, but the total number of insertions $I$ for an input size of $n$ is given by:
         \begin{align}
@@ -159,15 +159,15 @@ A report on implementing algorithms to partition a random geometric graph into b
                 n + 8\sum_{k=1}^{6}4^k + 32768\sum_{k=1}^{\log_2\lceil n/32768\rceil}2^k & n > 50,000
             \end{cases}
         \end{align}
-        Fortunately, because the entire dictionary is built before it is used by the smallest-last vertex ordering algorithm, it will never again be resized once the algorithm starts. It will also be used to index into the buckets, so we gain a speed up here by not having to iterate over all of the edges for a node and determining if the node it shares an edge with are in the remaining graph each time we want to sift nodes down to lower buckets.
+        Fortunately, because the entire dictionary is built before it is used by the smallest-last vertex ordering algorithm, it will never again be resized once the algorithm starts. Unfortunately, the sets resize at a similar rate and it is more difficult to predict how large the sets will need to be when performing smallest-last vertex ordering. The degree dictionary will also be used to index into the sets, so we gain a speed up here by not having to iterate over all of the edges for a node and determining if the node it shares an edge with are in the remaining graph each time we want to sift nodes down to lower set.
         \par
-        Next, the smallest-last vertex ordering algorithm is run until every node has been removed from the buckets. For each node, I iterate over the buckets from lowest degree to highest degree to find the first non-empty bucket. This bucket must contain the next node to remove becuase it contains all nodes with smallest degree. Before deleting the node from the graph and moving all adjacent nodes down a bucket, I check to see if the current bucket has all remaining nodes. If this is the case, the terminal clique has been found, and the size of the terminal clique must be saved. After this check, a node is popped from the end of the current bucket, and appended to the smallest-last ordering result. Then, for all the adjacent nodes to the popped node in the original graph, I try to remove that node from the bucket with its degree. If the delete fails, then the node has already been removed. Otherwise, the number of degrees for that node can be decremented and the node can be appended to the correct bucket for its new degree.
+        Next, the smallest-last vertex ordering algorithm is run until every node has been removed from the sets. For each node, I iterate over the sets from lowest degree to highest degree to find the first non-empty set. This set must contain the next node to remove becuase it contains all nodes with smallest degree. Before deleting the node from the graph and moving all adjacent nodes down a set, I check to see if the current set has all remaining nodes. If this is the case, the terminal clique has been found, and the size of the terminal clique must be saved. After this check, a node is popped from the end of the current set, and appended to the smallest-last ordering result. Then, for all the adjacent nodes to the popped node in the original graph, I check if the node is in the set with its degree. If it is, the number of degrees for that node can be decremented and the node can be placed into the correct set for its new degree.
         \par
-        The last step is to reverse the order of the smallest-last ordering result because it was built in the opposite order (smallest-first). All together, excluding the initialization of accessory data structures, this implementation runs in $\Theta(|V| + |V|\times |E|)$ time and $\Theta(2|V|)$ space since nodes are removed from the buckets and added to the result.
+        The last step is to reverse the order of the smallest-last ordering result because it was built in the opposite order (smallest-first). All together, excluding the initialization of accessory data structures, this implementation runs in $\Theta(2|V| + 2|E|)$ time and $\Theta(2|V|)$ space since nodes are removed from the buckets and added to the result.
         \par
-        After this the graph needs to be colored. For this I initially assign each node a color of $0$. I iterate over all of the nodes in the smallest-last vertex ordering. At each node, I generate a list of colors that is already used by the neighbors of that node by iterating over all of the nodes before it in the smallest-last ordering and checking if they exist in the list of edges for the current node. Then, I just have to increment color from $0$ until it does not exist in the search space and I have the color to assign to the node.
+        After this the graph needs to be colored. For this I initially assign each node a color of $-1$ in a node color array that is parallel to the original list of nodes. I iterate over all of the nodes in the smallest-last vertex ordering. At each node, I generate a set of colors that is already used by the neighbors of that node by iterating over all of its edge nodes and grabbing their color from the node color array. Then, I just have to increment color from $0$ until it does not exist in the search space set and I have the color to assign to the node.
         \par
-        Since the smallest-last odering is used, each time I check to see if a node is adjacent to the current node, I am searching nodes with fewer and fewer edges. This means that the nodes with the most neighbors are searched first, when the number of other nodes to check is lowest, and the nodes with the festest neighbors are searched last, when we have the most nodes to check if they share an edge with the current node. All together, this implementation runs in $\Theta(1.5|V| + |E|)$ time and $\Theta(|V|)$ space because we need a new array for the colors assigned to each of the nodes.
+        Since the smallest-last odering is used, each time I check to see if a node is adjacent to the current node, I am searching nodes with fewer and fewer edges. This means that the nodes with the most neighbors are searched first, when the number of other nodes to check is lowest, and the nodes with the festest neighbors are searched last, when we have the most nodes to check if they share an edge with the current node. All together, this implementation runs in $\Theta(|V| + 2|E|)$ time and $\Theta(|V|)$ space because we need a new array for the colors assigned to each of the nodes.
 
     \subsection{Verification}
 
@@ -179,32 +179,7 @@ A report on implementing algorithms to partition a random geometric graph into b
         \par
         For the second metric, I held the number of nodes constant at 32,000 and varied the desired average degree from 2 to 32 in steps of 2. The graph is given in Figure \ref{varavgdeg}. The cell method clearly grows linearly, but the sweep method is harder to gauge. Since varying the desired average degree should only change the node radius, I would expect this to grow linearly as well. However, because each graph is randomly generated, some graphs can have nodes that are closer to sorted order than others. This can effect the measured runtime. It would be easier to gauge the trend if it I ran the data collection multiple times and averaged the results.
 
-        % \begin{center}
-        %     \begin{table}
-        %         \centering
-        %         \begin{tabular}{|c|c|c|c|c|}
-        %             \hline
-        %             Benchmark \# & Num. Nodes & Avg. Degree & Distribution & Run Time (s)\\
-        %             \hline
-        %             1 & 1000 & 32 & Square & 0.430 \\
-        %             2 & 8000 & 64 & Square & 2.157 \\
-        %             3 & 16000 & 32 & Square & 1.926 \\
-        %             4 & 64000 & 64 & Square & 9.960 \\
-        %             5 & 64000 & 128 & Square & 14.543 \\
-        %             6 & 128000 & 64 & Square & 17.258 \\
-        %             7 & 128000 & 128 & Square & 28.460 \\
-        %             8 & 8000 & 64 & Disk & 1.402 \\
-        %             9 & 64000 & 64 & Disk & 8.908 \\
-        %             10 & 64000 & 128 & Disk & 18.700 \\
-        %             11 & 16000 & 64 & Sphere & 22.627 \\
-        %             12 & 32000 & 128 & Sphere & 86.638 \\
-        %             13 & 64000 & 128 & Sphere & 177.856 \\
-        %             \hline
-        %         \end{tabular}
-        %         \caption{Benchmark Data and Run Times}
-        %         \label{tab1}
-        %     \end{table}
-        % \end{center}
+        \subsubsection{Graph Coloring}
 
 % \section{Results Summary}
 

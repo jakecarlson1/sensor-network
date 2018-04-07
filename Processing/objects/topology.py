@@ -55,7 +55,7 @@ class Topology(object):
                 if i != j and self._distance(n, m) <= self.node_r:
                     self.edges[n].append(j)
 
-    # sweep edge detection (2D)
+    # sweep edge detection
     def _sweepFindEdges(self):
         self.nodes.sort(key=lambda x: x[0])
 
@@ -71,7 +71,7 @@ class Topology(object):
                     self.edges[n].append(j)
                     self.edges[self.nodes[j]].append(i)
 
-    # cell edge detection (2D)
+    # cell edge detection
     def _cellFindEdges(self):
         num_cells = int(1/self.node_r) + 1
         cells = []
@@ -93,7 +93,7 @@ class Topology(object):
                         if self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r and n_i != m_i:
                             self.edges[self.nodes[n_i]].append(m_i)
 
-    # cell edge detection helper function (2D)
+    # cell edge detection helper function
     def _findAdjCells(self, i, j, n):
         adj_cells = [(1,-1), (0,1), (1,1), (1,0)]
         return (((i+x[0])%n,(j+x[1])%n) for x in adj_cells)
