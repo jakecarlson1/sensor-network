@@ -17,6 +17,7 @@
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{1,1,1}
+\definecolor{gray}{rgb}{0.75, 0.75, 0.75}
 
 \lstdefinestyle{codestyle}{
     backgroundcolor=\color{backcolour},
@@ -65,13 +66,21 @@ A report on implementing algorithms to partition a random geometric graph into b
     \par
     The different geometries were implemented in a stand alone Python file and imported into the Processing.py script or the data generation script depending on what was being run. These classes can then be used directly by Processing or the data generation script. Because there is no intermediary file to hold the generated nodes and edges, there is no additional disk space needed to run the simulation. Everything can be done in system memory managed by Processing.
 
-    % TODO: Wrap table/reformat
     \begin{center}
         \begin{table}
             \centering
-            \csvautotabular{./data/benchmark-data.csv}
-            \caption{Benchmarks for Generating and Coloring RGGs}
+            \csvautotabular{./data/benchmark-data-1.csv}
+            \caption{Benchmarks for Generating RGGs}
             \label{tab1}
+        \end{table}
+    \end{center}
+
+    \begin{center}
+        \begin{table}
+            \centering
+            \csvautotabular{./data/benchmark-data-2.csv}
+            \caption{Benchmarks for Coloring RGGs}
+            \label{tab2}
         \end{table}
     \end{center}
 
@@ -205,6 +214,21 @@ A report on implementing algorithms to partition a random geometric graph into b
     \textit{Linear-Time Computation of High-Converage Backbones for Wireless Sensor Networks} \\
     \texttt{https://github.com/ianjjohnson/SensorNetwork/blob/master/Report/Report.pdf}
 
+    \bibitem{dictresize}
+    Rees, Gareth
+    \textit{Python's underlying hash data structure for dictionaries}
+    \texttt{https://stackoverflow.com/questions/4279358/pythons-underlying-hash-data-structure-for-dictionaries}
+
+    \bibitem{tupletiming}
+    Thomas, Alec
+    \textit{Why is tuple faster than list?}
+    \texttt{https://stackoverflow.com/questions/3340539/why-is-tuple-faster-than-list}
+
+    \bibitem{fortiming}
+    Kruse, Lars
+    \textit{Python Speed, Performance Tips}
+    \texttt{https://wiki.python.org/moin/PythonSpeed/PerformanceTips}
+
 \end{thebibliography}
 
 \newpage
@@ -248,93 +272,90 @@ A report on implementing algorithms to partition a random geometric graph into b
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.45]{./images/square_0.png}
-    \caption{Square Benchmark Number 1. 1000 Nodes, Average Degree of 32}
-    \label{square0}
+    \includegraphics[scale=0.6]{./graphs/hist_del_deg.png}
+    \caption{Distribution of Degree when Deleted for Square. 32,000 Nodes, Average Degree of 16}
+    \label{deldeg}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.45]{./images/square_1.png}
-    \caption{Square Benchmark Number 2. 8000 Nodes, Average Degree of 64}
-    \label{square1}
+    \includegraphics[scale=0.6]{./graphs/hist_colors.png}
+    \caption{Distribution of Colors for Square. 32,000 Nodes, Average Degree of 16}
+    \label{distcolors}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.45]{./images/square_2.png}
-    \caption{Square Benchmark Number 3. 16000 Nodes, Average Degree of 32}
-    \label{square2}
-\end{figure}
+% square images
 
 \begin{figure}
-    \centering
-    \includegraphics[scale=0.45]{./images/square_3.png}
-    \caption{Square Benchmark Number 4. 64000 Nodes, Average Degree of 64}
-    \label{square3}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/square_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/square_1.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/square_2.png}}
+    \end{minipage}
+    \vskip 0.1in
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/square_3.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/square_4.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/square_5.png}}
+    \end{minipage}
+    \vskip 0.1in
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/square_6.png}}
+    \end{minipage}
+    \hspace{\fill}
+
+    \caption{Square benchmark graphs}
+    \label{squares}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.45]{./images/square_4.png}
-    \caption{Square Benchmark Number 5. 64000 Nodes, Average Degree of 128}
-    \label{square4}
-\end{figure}
+% disk images
 
 \begin{figure}
-    \centering
-    \includegraphics[scale=0.45]{./images/square_5.png}
-    \caption{Square Benchmark Number 6. 128000 Nodes, Average Degree of 64}
-    \label{square5}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/disk_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/disk_1.png}}
+    \end{minipage}
+    \vskip 0.25in
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/disk_2.png}}
+    \end{minipage}
+
+    \caption{Disk benchmark graphs}
+    \label{disks}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.45]{./images/square_6.png}
-    \caption{Square Benchmark Number 7. 128000 Nodes, Average Degree of 128}
-    \label{square6}
-\end{figure}
+% sphere images
 
 \begin{figure}
-    \centering
-    \includegraphics[scale=0.45]{./images/disk_0.png}
-    \caption{Disk Benchmark Number 1. 8000 Nodes, Average Degree of 64}
-    \label{disk0}
-\end{figure}
+\begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/sphere_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/sphere_1.png}}
+    \end{minipage}
+    \vskip 0.25in
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./images/sphere_2.png}}
+    \end{minipage}
 
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.45]{./images/disk_1.png}
-    \caption{Disk Benchmark Number 2. 64000 Nodes, Average Degree of 64}
-    \label{disk1}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.45]{./images/disk_2.png}
-    \caption{Disk Benchmark Number 3. 64000 Nodes, Average Degree of 128}
-    \label{disk2}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.45]{./images/sphere_0.png}
-    \caption{Sphere Benchmark Number 1. 16000 Nodes, Average Degree of 64}
-    \label{sphere0}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.45]{./images/sphere_1.png}
-    \caption{Sphere Benchmark Number 2. 32000 Nodes, Average Degree of 128}
-    \label{sphere1}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.45]{./images/sphere_2.png}
-    \caption{Sphere Benchmark Number 3. 64000 Nodes, Average Degree of 128}
-    \label{sphere2}
+    \caption{Sphere benchmark graphs}
+    \label{spheres}
 \end{figure}
 
 \newpage

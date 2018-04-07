@@ -189,14 +189,13 @@ def validateIndepSets():
     # check that the color sets are independent
     for i in topology.s_last:
         colors = [topology.node_colors[j] for j in topology.edges[topology.nodes[i]]]
-            # colors = [topology.node_colors[topology.s_last.index(j)]]
         if topology.node_colors[i] in colors:
             print "Node shares color with neighbor"
 
 def plotDistributionOfDegreesWhenDel():
     topology = Square()
-    topology.num_nodes = 16000
-    topology.avg_deg = 32
+    topology.num_nodes = 32000
+    topology.avg_deg = 16
 
     topology.generateNodes()
     topology.findEdges(method="cell")
@@ -221,8 +220,8 @@ def plotDistributionOfDegreesWhenDel():
 
 def plotDistributionOfColors():
     topology = Square()
-    topology.num_nodes = 16000
-    topology.avg_deg = 32
+    topology.num_nodes = 32000
+    topology.avg_deg = 16
 
     topology.generateNodes()
     topology.findEdges(method="cell")
@@ -240,32 +239,35 @@ def plotDistributionOfColors():
     plt.show()
 
 def runBenchmarks():
-    with open("./report/data/benchmark-data.csv", "w+") as f:
-        f.write("Benchmark,Order,Avg Deg,Topology,r,Size,Realized Avg Deg,Max Deg,Min Deg,Max Deg Deleted,Color Sets,Largest Color Set,Terminal Clique Size,Run Time (s)\n")
-        n = 0
-        tops = {
-            'Square': (Square, SQUARE_BENCHMARKS),
-            'Disk': (Disk, DISK_BENCHMARKS),
-            'Sphere': (Sphere, SPHERE_BENCHMARKS)
-        }
-        for t in ['Square', 'Disk', 'Sphere']:
-            for i in range(len(tops[t][1])):
-                n += 1
-                topology = tops[t][0]()
-                topology.prepBenchmark(i)
-                print "nodes: {} | deg: {}".format(topology.num_nodes, topology.avg_deg)
-                run_time = time.clock()
-                topology.generateNodes()
-                topology.findEdges(method="cell")
-                topology.colorGraph()
-                run_time = time.clock() - run_time
-                color_cnt = Counter(topology.node_colors)
-                f.write("{},{},{},{},".format(n, tops[t][1][i][0], tops[t][1][i][1], t))
-                f.write("{0:.3f},".format(topology.node_r))
-                f.write("{},{},{},{},".format(topology.findNumEdges(), topology.findAvgDegree(), topology.getMaxDegree(), topology.getMinDegree()))
-                f.write("{},{},{},{},".format(max(topology.deg_when_del.values()), len(set(topology.node_colors)), color_cnt.most_common(1)[0][1], topology.term_clique_size))
-                f.write("{0:.3f}\n".format(run_time))
-                f.flush()
+    with open("./report/data/benchmark-data-1.csv", "w+") as f1:
+        with open("./report/data/benchmark-data-2.csv", "w+") as f2:
+            f1.write("Benchmark,Order,A,Topology,r,Size,Realized A,Max Deg,Min Deg,Run Time (s)\n")
+            f2.write("Benchmark,Max Deg Deleted,Color Sets,Largest Color Set,Terminal Clique Size\n")
+            n = 0
+            tops = {
+                'Square': (Square, SQUARE_BENCHMARKS),
+                'Disk': (Disk, DISK_BENCHMARKS),
+                'Sphere': (Sphere, SPHERE_BENCHMARKS)
+            }
+            for t in ['Square', 'Disk', 'Sphere']:
+                for i in range(len(tops[t][1])):
+                    n += 1
+                    topology = tops[t][0]()
+                    topology.prepBenchmark(i)
+                    print "nodes: {} | deg: {}".format(topology.num_nodes, topology.avg_deg)
+                    run_time = time.clock()
+                    topology.generateNodes()
+                    topology.findEdges(method="cell")
+                    topology.colorGraph()
+                    run_time = time.clock() - run_time
+                    color_cnt = Counter(topology.node_colors)
+                    f1.write("{},{},{},{},".format(n, tops[t][1][i][0], tops[t][1][i][1], t))
+                    f1.write("{0:.3f},".format(topology.node_r))
+                    f1.write("{},{},{},{},".format(topology.findNumEdges(), topology.findAvgDegree(), topology.getMaxDegree(), topology.getMinDegree()))
+                    f1.write("{0:.3f}\n".format(run_time))
+                    f2.write("{},{},{},{},{}\n".format(n, max(topology.deg_when_del.values()), len(set(topology.node_colors)), color_cnt.most_common(1)[0][1], topology.term_clique_size))
+                    f1.flush()
+                    f2.flush()
 
 def main():
     # runForVarNodes()
