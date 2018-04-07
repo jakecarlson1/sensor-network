@@ -7,8 +7,8 @@ from objects.topology import Square, Disk, Sphere
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 1000
-AVG_DEG = 32
+NUM_NODES = 100
+AVG_DEG = 10
 
 MAX_NODES_TO_DRAW_EDGES = 8000
 
@@ -23,9 +23,9 @@ def draw():
 
 def main():
     global topology
-    topology = Square()
+    # topology = Square()
     # topology = Disk()
-    # topology = Sphere()
+    topology = Sphere()
     
     topology.num_nodes = NUM_NODES
     topology.avg_deg = AVG_DEG
@@ -45,6 +45,7 @@ def main():
     print "Average degree: {}".format(topology.findAvgDegree())
     print "Min degree: {}".format(topology.getMinDegree())
     print "Max degree: {}".format(topology.getMaxDegree())
+    print "Num edges: {}".format(topology.findNumEdges())
     print "Terminal clique size: {}".format(topology.term_clique_size)
     print "Number of colors: {}".format(len(set(topology.node_colors)))
     print "Max degree when deleted: {}".format(max(topology.deg_when_del.values()))

@@ -86,15 +86,17 @@ class Topology(object):
                 for n_i in cells[i][j]:
                     for c in self._findAdjCells(i, j, num_cells):
                         for m_i in cells[c[0]][c[1]]:
-                            if self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r and n_i != m_i:
+                            if self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r:
                                 self.edges[self.nodes[n_i]].append(m_i)
+                                self.edges[self.nodes[m_i]].append(n_i)
+                    for m_i in cells[i][j]:
+                        if self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r and n_i != m_i:
+                            self.edges[self.nodes[n_i]].append(m_i)
 
     # cell edge detection helper function (2D)
     def _findAdjCells(self, i, j, n):
-        # TODO: Only look forward
-        xRange = [(i-1)%n, i, (i+1)%n]
-        yRange = [(j-1)%n, j, (j+1)%n]
-        return ((x,y) for x in xRange for y in yRange)
+        adj_cells = [(1,-1), (0,1), (1,1), (1,0)]
+        return (((i+x[0])%n,(j+x[1])%n) for x in adj_cells)
 
     # function for finding the radius needed for the desired average degree
     # must be subclassed
@@ -332,20 +334,21 @@ class Sphere(Topology):
                     for n_i in cells[i][j][k]:
                         for c in self._findAdjCells(i, j, k, num_cells):
                             for m_i in cells[c[0]][c[1]][c[2]]:
-                                if self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r and n_i != m_i:
+                                if self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r:
                                     self.edges[self.nodes[n_i]].append(m_i)
+                                    self.edges[self.nodes[m_i]].append(n_i)
+                        for m_i in cells[i][j][k]:
+                            if self._distance(self.nodes[n_i], self.nodes[m_i]) <= self.node_r and n_i != m_i:
+                                self.edges[self.nodes[n_i]].append(m_i)
 
     # overrides adjacent cell finding for 3x3 surrounding buckets
     def _findAdjCells(self, i, j, k, n):
-        # TODO: Only look forward
-        xRange = [(i-1)%n, i, (i+1)%n]
-        yRange = [(j-1)%n, j, (j+1)%n]
-        zRange = [(k-1)%n, k, (k+1)%n]
-        return ((x,y,z) for x in xRange for y in yRange for z in zRange)
+        adj_cells = [(-1,-1,1), (0,-1,1), (1,-1,1), (-1,0,1), (0,0,1), (1,0,1), (-1,1,1), (0,1,1), (1,1,1), (1,-1,0), (1,0,0), (1,1,0), (0,1,0)]
+        return (((i+x[0])%n, (j+x[1])%n, (k+x[2])%n) for x in adj_cells)
 
     # calculates the radius needed for the requested average degree in a unit sphere
     def _getRadiusForAverageDegree(self):
-            self.node_r = math.sqrt((self.avg_deg + 0.0)/self.num_nodes)*2
+        self.node_r = math.sqrt((self.avg_deg + 0.0)/self.num_nodes)*2
 
     # calculates the distance between two nodes (3D)
     def _distance(self, n, m):
