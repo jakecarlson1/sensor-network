@@ -41,7 +41,7 @@
 
 \title{Backbone Determination in a Wireless Sensor Network}
 \author{Jake Carlson}
-\date{February 18, 2018}
+\date{April 7, 2018}
 \maketitle
 
 \abstract
@@ -58,25 +58,25 @@ A report on implementing algorithms to partition a random geometric graph into b
     Random geometric graphs (RGGs) are useful for simulating wireless sensor networks placed in different topologies. This project examines three different geometries: Square, Disk, and Sphere. The user supplies parameters for how many nodes they want in the network and how many connections they want for each node. Then, the simulation finds the average radius needed for that number of connections, finds multiple backbones for the RGG, and displays the results graphically.
 
     \subsection{Environment Description}
-    The data structures and topologies for this simulation are implemented in Python2.7. The graphics are done using Processing.py. All development and benchmarking has been done on a 2014 MackBook Pro with a 3 GHz Intel Core i7 processor and 16 GB of DDR3 RAM running macOS High Sierra 10.13.3.
+    The data structures and topologies for this simulation are implemented in Python2.7. The graphics are generated using Processing.py \cite{processing}. All development and benchmarking has been done on a 2014 MackBook Pro with a 3 GHz Intel Core i7 processor and 16 GB of DDR3 RAM running macOS High Sierra 10.13.3.
     \par
-    I elected to use Processing because of the simple API used to draw and render shapes in two- and three-dimensional space. I choose to use Processing.py over Java Processing because of my familiarity and comfort with the Python programming language. I could have writen the graph generation, coloring, and backbone determination in another langague and saved the data to a file for loading in processing, but since I intend to implement all of the algorithms in linear time, I don't think there will be a performance issue with using an interpreted language instead of a compiled one.
+    Processing offers an easy to use API for drawing and rendering shapes two- and three-dimensions. The Processing.py implementation allows the entire use of the Python programming languages and libraries.
     \par
-    A separate data generation script was used to generate the summary table and graphs using matplotlib. This library, and a variety of others, could not be imported into Processing.py because the jython interpreter used by Processing only accepts libraries written in raw Python.
+    A separate data generation script was used to generate the summary tables \ref{tab1}\ref{tab2}. The figures were genetared using the matplotlib library \cite{matplotlib}. This library, and a variety of others, could not be imported into Processing.py because the jython interpreter used by Processing only accepts libraries written in raw Python.
     \par
     The different geometries were implemented in a stand alone Python file and imported into the Processing.py script or the data generation script depending on what was being run. These classes can then be used directly by Processing or the data generation script. Because there is no intermediary file to hold the generated nodes and edges, there is no additional disk space needed to run the simulation. Everything can be done in system memory managed by Processing.
 
     \begin{center}
-        \begin{table}
+        \begin{table}[h]
             \centering
             \csvautotabular{./data/benchmark-data-1.csv}
-            \caption{Benchmarks for Generating RGGs}
+            \caption{Benchmarks for Generating RGGs. A: input average degree, r: node connection radius}
             \label{tab1}
         \end{table}
     \end{center}
 
     \begin{center}
-        \begin{table}
+        \begin{table}[h]
             \centering
             \csvautotabular{./data/benchmark-data-2.csv}
             \caption{Benchmarks for Coloring RGGs}
@@ -195,39 +195,32 @@ A report on implementing algorithms to partition a random geometric graph into b
 \newpage
 
 \begin{thebibliography}{10}
-    \bibitem{spherepoints}
-    Weisstein, Eric W., Wolfram MathWorld \\
-    \textit{Sphere Point Picking} \\
-    \texttt{http://mathworld.wolfram.com/SpherePointPicking.html}
-
-    \bibitem{listsort}
-    Peters, Tim \\
-    \textit{Timsort} \\
-    \texttt{http://svn.python.org/projects/python/trunk/Objects/listsort.txt}
-
     \bibitem{slv}
-    Matula, David and Beck, Leland \\
-    \textit{Smallest-Last Ordering and Clustering and Graph Coloring Algorithms}
+    Matula, David; Beck, Leland, Smallest-Last Ordering and Clustering and Graph Coloring Algorithms, 1983
 
     \bibitem{ian}
-    Johnson, Ian \\
-    \textit{Linear-Time Computation of High-Converage Backbones for Wireless Sensor Networks} \\
-    \texttt{https://github.com/ianjjohnson/SensorNetwork/blob/master/Report/Report.pdf}
+    Johnson, Ian, Linear-Time Computation of High-Converage Backbones for Wireless Sensor Networks, https://github.com/ianjjohnson/SensorNetwork/blob/master/Report/Report.pdf, 2016
+
+    \bibitem{processing}
+    Fry, Ben; Reas Casey, Processing, https://processing.org, 2018 v3.3.7
+
+    \bibitem{matplotlib}
+    The Matplotlib Development, matplotlib, https://matplotlib.org, 2018
+
+    \bibitem{spherepoints}
+    Weisstein, Eric W., Wolfram MathWorld Sphere Point Picking, http://mathworld.wolfram.com/SpherePointPicking.html
+
+    \bibitem{listsort}
+        Peters, Tim, Timsort, http://svn.python.org/projects/python/trunk/Objects/listsort.txt
 
     \bibitem{dictresize}
-    Rees, Gareth
-    \textit{Python's underlying hash data structure for dictionaries}
-    \texttt{https://stackoverflow.com/questions/4279358/pythons-underlying-hash-data-structure-for-dictionaries}
+    Rees, Gareth, Python's underlying hash data structure for dictionaries, https://stackoverflow.com/questions/4279358/pythons-underlying-hash-data-structure-for-dictionaries, 2010
 
     \bibitem{tupletiming}
-    Thomas, Alec
-    \textit{Why is tuple faster than list?}
-    \texttt{https://stackoverflow.com/questions/3340539/why-is-tuple-faster-than-list}
+    Thomas, Alec, Why is tuple faster than list?, https://stackoverflow.com/questions/3340539/why-is-tuple-faster-than-list, 2010
 
     \bibitem{fortiming}
-    Kruse, Lars
-    \textit{Python Speed, Performance Tips}
-    \texttt{https://wiki.python.org/moin/PythonSpeed/PerformanceTips}
+    Kruse, Lars, Python Speed, Performance Tips, https://wiki.python.org/moin/PythonSpeed/PerformanceTips, 2016
 
 \end{thebibliography}
 
