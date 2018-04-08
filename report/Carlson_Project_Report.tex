@@ -101,11 +101,13 @@ A report on implementing algorithms to partition a random geometric graph into b
         For the Disk, a similar method is used. The coordinates for nodes are randomly sampled from a uniform distribution; however, if a node has a distance from the center of the Disk greater than the radius of 1, the coordinates for that node are resampled.
         \par
         For the Sphere a different method must be used so that all of the nodes are placed on the surface of the Sphere and the volume is vacant. For this geometry, I used the following equations:
+
         \begin{align}
             x &= \sqrt{1-u^2}\cos\theta \\
             y &= \sqrt{1-u^2}\sin\theta \\
             z &= u
         \end{align}
+
         where $\theta \in [0,2\pi]$ and $u \in [-1,1]$. This is guaranteed to uniformly distribute nodes on the surface area of the sphere \cite{spherepoints}.
         \par
         All of these algorithms can be solved in $\Theta\left(|V|\right)$ where because each node only needs to be assigned a position once.
@@ -123,12 +125,14 @@ A report on implementing algorithms to partition a random geometric graph into b
         Two algorithms are used for coloring the graphs. The first is smallest-last vertex ordering, which sorts the verticies based on the number of degrees they have. The second is the greedy graph coloring algorithm.
         \par
         Smallest-last vertex ordering is used to order the nodes for coloring. The steps to this algorithm are as follows \cite{slv}:
+
         \begin{enumerate}
             \item Initialize a representation of your target graph
             \item Find the vertex $v_j$ of minimum degree in your representation
             \item Update your representation to simulate deleting $v_j$
             \item If there are still verticies in the representation, return to step 1, otherwise terminate with the sequence of verticies removed
         \end{enumerate}
+
         This algorithm is linear if each of the above steps is linear. Step 1 is linear if we can build a represenation of the graph in linear time. For this, we can use an array of buckets, where each bucket holds the verticies that have the same number of edges as the position of the bucket in the array of buckets. To build this data structure, each node only needs to be visited once, making this linear in both space and time. Next, finding the vertex of minimum degree simply requires finding the lowest index bucket that has a node. This is bounded by the number of buckets, which is bounded by the number of nodes, making Step 2 linear. Next, we have to update the representation of the graph. To do this, we have to look at each node that shares an edge with $v_j$ and move it to the bucket for nodes with one fewer degree. This requires traversing the list of edges for $v_j$ which means Step 3 is linear. Since this is repeated for each node, the runtime of this program is $\Theta\left(|E| + |V|\right)$ and the space needed is $\Theta(|V|)$.
         \par
         After this, a single traversal of the smallest-last vertex ordering is needed to color the graph. As we traverse this list, we check to see if the nodes before it (that are already colored) share an edge with the current node. The node can then be colored with any color it does not share an edge with or, if it shares an edge with all currently used colors, it is assigned a new color. This algorithm is also linear. Each node needs to be visited once and when a node is visited, all previous nodes are checked to see if they are in the edge list of the current node. Because we used smallest last vertex ordering, as we have to check more and more nodes, we get to check fewer and fewer edges. This makes the greedy coloring algorithm $O(|V| + |E|)$.
@@ -139,9 +143,11 @@ A report on implementing algorithms to partition a random geometric graph into b
         It is easy to implement the algorithms for placing nodes in the different geometries using Python's math library. This library offers functions for sampling points on a uniform distribution. For the Square, sampling on a range $[0,1]$ is sufficient for all of the nodes. Since each node only needs to be placed once, this runs at $\Theta(|V|)$ where.
         \par
         For the Disk, the node needs to be resampled if it is too far from the center. To do this, the distance function is used to find the distance between the node and the center. If the node is further than $1$ from the center, node generation falls into a while loop which iterates until the node is within the unit circle. Since nodes are taken from a uniform distribution, the number of nodes that will need to be resampled is approximately equal to the ratio of the area of the square that circumscribes the unit circle which falls outside of the unit circle to the total area of the square. This is given by:
+
         \begin{align}
             \frac{(2r)^2-\pi r^2}{(2r)^2} = \frac{4-\pi}{4} = 0.2146
         \end{align}
+
         Since the placement algorithm for each node of the Disk will iterate until the node falls within the unit circle, the total number of iterations $N$ can be found as the sum of the geometric series:
         \begin{align}
             N = \sum_{k=0}^{\infty} n (0.2146)^k = \frac{n}{1-0.2146} = 1.273n
@@ -158,9 +164,10 @@ A report on implementing algorithms to partition a random geometric graph into b
         The cell method implementation works in linear time. In the first step of the method, the cells are initialized as a list of empty lists. There are $(1/r + 1)^2$ cells. The nodes are then iterated over and assigned a cell by dividing their x and y coordinates by the node radius. At this point, the cells are iterated over and, for each node in the cell, the nodes in the current cell and the four forward adjacent cells and the are checked to see if they fall within the node radius of the current node. All together, this implementation runs at $O\left(n + n + 5nr^2\right) = O\left((2 + 5r^2)n\right)$ where $n = |V|$. The amount of additional space needed is equal to the number of nodes because they are coppied into their respective cells. This places the space complexity at $\Theta(n)$.
 
         \subsubsection{Graph Coloring}
-        Implementing the smallest-last coloring algorithm involves implementing the smallest-last vertex ordering algorithm and the greedy graph coloring algorithm. For smallest-last vertex ordering, the first thing to do is build the data structure used to represent the graph with deleted nodes. The number of sets needed is equal to the maximum degree of the nodes. Then, the index of each node is placed in the set corresponding to the number of edges it has then the RGG. Simultaneously, a dictionary is created that maps each node to the number of degrees it has in the graph with deletions. Each value starts at the number of edges the corresponding node has in the RGG. At this point, we have iterated over all of the nodes once and allocated space for twice the number of nodes by copying them into the sets and using them as the keys for the degrees dictionary.
+        Implementing the smallest-last coloring algorithm involves implementing the smallest-last vertex ordering algorithm and the greedy graph coloring algorithm. For smallest-last vertex ordering, the first thing to do is build the data structure used to represent the graph with deleted nodes. This can be done with a list of sets, where each the index in the list represents the degree of the nodes in that set. The number of sets needed is equal to the maximum degree of the nodes. The index of each node is placed in the set corresponding to the number of edges it has then the RGG. Simultaneously, a dictionary is created that maps each node to the number of degrees it has in the graph with deletions. Each value starts at the number of edges the corresponding node has in the RGG. At this point, we have iterated over all of the nodes once and allocated space for twice the number of nodes by copying them into the sets and using them as the keys for the degrees dictionary.
         \par
         Because Python dictionaries resize at specific numbers of entries, we can determine the number of additional insertions caused by rehashing while the degrees dictionary is built. Python dictionaries start out with space for 8 entries and quadruple in size until the number of entries is above 50,000, at which point it begins to double in size. Clearly the dictionary grows at a logarithmic rate, but the total number of insertions $I$ for an input size of $n$ is given by:
+
         \begin{align}
             I =
             \begin{cases}
@@ -168,15 +175,16 @@ A report on implementing algorithms to partition a random geometric graph into b
                 n + 8\sum_{k=1}^{6}4^k + 32768\sum_{k=1}^{\log_2\lceil n/32768\rceil}2^k & n > 50,000
             \end{cases}
         \end{align}
+
         Fortunately, because the entire dictionary is built before it is used by the smallest-last vertex ordering algorithm, it will never again be resized once the algorithm starts. Unfortunately, the sets resize at a similar rate and it is more difficult to predict how large the sets will need to be when performing smallest-last vertex ordering. The degree dictionary will also be used to index into the sets, so we gain a speed up here by not having to iterate over all of the edges for a node and determining if the node it shares an edge with are in the remaining graph each time we want to sift nodes down to lower set.
         \par
-        Next, the smallest-last vertex ordering algorithm is run until every node has been removed from the sets. For each node, I iterate over the sets from lowest degree to highest degree to find the first non-empty set. This set must contain the next node to remove becuase it contains all nodes with smallest degree. Before deleting the node from the graph and moving all adjacent nodes down a set, I check to see if the current set has all remaining nodes. If this is the case, the terminal clique has been found, and the size of the terminal clique must be saved. After this check, a node is popped from the end of the current set, and appended to the smallest-last ordering result. Then, for all the adjacent nodes to the popped node in the original graph, I check if the node is in the set with its degree. If it is, the number of degrees for that node can be decremented and the node can be placed into the correct set for its new degree.
+        After setting up the graph representation, the smallest-last vertex ordering algorithm runs until every node has been removed from the representation. To delete a node, the first non-empty set is selected. This set must contain the next node to remove becuase it contains all nodes with smallest degree. Before deleting the node from the graph, and moving all adjacent nodes down a set, I check to see if the current set has all remaining nodes. If this is the case, the terminal clique has been found, and the size of the terminal clique must be saved. After this check, a node is popped from the end of the current set, and appended to the smallest-last ordering result. Then, for all the adjacent nodes to the popped node in the original graph, I check if the node is in the set with its degree. If it is, the number of degrees for that node can be decremented and the node can be placed into the correct set for its new degree.
         \par
         The last step is to reverse the order of the smallest-last ordering result because it was built in the opposite order (smallest-first). All together, excluding the initialization of accessory data structures, this implementation runs in $\Theta(2|V| + 2|E|)$ time and $\Theta(2|V|)$ space since nodes are removed from the buckets and added to the result.
         \par
         After this the graph needs to be colored. For this I initially assign each node a color of $-1$ in a node color array that is parallel to the original list of nodes. I iterate over all of the nodes in the smallest-last vertex ordering. At each node, I generate a set of colors that is already used by the neighbors of that node by iterating over all of its edge nodes and grabbing their color from the node color array. Then, I just have to increment color from $0$ until it does not exist in the search space set and I have the color to assign to the node.
         \par
-        Since the smallest-last odering is used, each time I check to see if a node is adjacent to the current node, I am searching nodes with fewer and fewer edges. This means that the nodes with the most neighbors are searched first, when the number of other nodes to check is lowest, and the nodes with the festest neighbors are searched last, when we have the most nodes to check if they share an edge with the current node. All together, this implementation runs in $\Theta(|V| + 2|E|)$ time and $\Theta(|V|)$ space because we need a new array for the colors assigned to each of the nodes.
+        Since the smallest-last odering is used, each time I check to see if a node is adjacent to the current node, I am searching nodes with fewer and fewer edges. This means that the nodes with the most neighbors are searched first, when the number of other nodes to check is lowest, and the nodes with the fewest neighbors are searched last, when we have the most nodes to check if they share an edge with the current node. All together, this implementation runs in $\Theta(|V| + 2|E|)$ time and $\Theta(|V|)$ space because we need a new array for the colors assigned to each of the nodes.
 
     \subsection{Verification}
 
