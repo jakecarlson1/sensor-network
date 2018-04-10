@@ -19,13 +19,30 @@ def setup():
     background(0)
 
 def draw():
-    # topology.drawGraph(MAX_NODES_TO_DRAW_EDGES)
-    topology.drawColoring()
-    toggleLooping()
+    global curr_vis
+    
+    if curr_vis == 0:
+        topology.drawGraph(MAX_NODES_TO_DRAW_EDGES)
+    elif curr_vis == 1:
+        topology.drawSlvo()
+        # toggleLooping()
+    # elif curr_vis == 2:
+    #     topology.drawColoring()
+    #     toggleLooping()
 
 def keyPressed():
     if key == ' ':
         toggleLooping()
+    elif key == 'l':
+        incrementVis()
+        topology.mightResetCurrNode()
+    elif key == 'h':
+        decrementVis()
+        topology.mightResetCurrNode()
+    elif key == 'k':
+        topology.incrementCurrNode()
+    elif key == 'j':
+        topology.decrementCurrNode()
 
 def toggleLooping():
     global is_looping
@@ -36,9 +53,23 @@ def toggleLooping():
         loop()
         is_looping = True
 
+def incrementVis():
+    global curr_vis
+    if curr_vis < 2:
+        curr_vis += 1
+    background(0)
+
+def decrementVis():
+    global curr_vis
+    if curr_vis > 0:
+        curr_vis -= 1
+    background(0)
+
 def main():
     global is_looping
+    global curr_vis
     is_looping = True
+    curr_vis = 0
     
     global topology
     topology = Square()

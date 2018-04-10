@@ -245,11 +245,26 @@ class Topology(object):
         return colors
 
     # draw nodes as they are removed in smallest-last vertex ordering
-    def drawColoring(self):
+    def drawSlvo(self):
         l = [self.nodes[i] for i in self.slvo[0:self.curr_node]]
         self._drawNodes(l)
         self._drawEdges(l)
-        self.curr_node += 1
+
+    def incrementCurrNode(self):
+        if self.curr_node < self.num_nodes:
+            self.curr_node += 1
+
+    def decrementCurrNode(self):
+        if self.curr_node > 0:
+            self.curr_node -= 1
+            background(0)
+
+    def mightResetCurrNode(self):
+        print self.curr_node
+        print self.num_nodes
+        if self.curr_node == self.num_nodes:
+            curr_node = 0
+            background(0)
 
 
 """
