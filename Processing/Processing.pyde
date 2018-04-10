@@ -19,7 +19,9 @@ def setup():
     background(0)
 
 def draw():
-    topology.drawGraph(MAX_NODES_TO_DRAW_EDGES)
+    # topology.drawGraph(MAX_NODES_TO_DRAW_EDGES)
+    topology.drawColoring()
+    toggleLooping()
 
 def keyPressed():
     if key == ' ':
