@@ -185,6 +185,8 @@ A report on implementing algorithms to partition a random geometric graph into b
         After this the graph needs to be colored. For this I initially assign each node a color of $-1$ in a node color array that is parallel to the original list of nodes. I iterate over all of the nodes in the smallest-last vertex ordering. At each node, I generate a set of colors that is already used by the neighbors of that node by iterating over all of its edge nodes and grabbing their color from the node color array. Then, I just have to increment color from $0$ until it does not exist in the search space set and I have the color to assign to the node.
         \par
         Since the smallest-last odering is used, each time I check to see if a node is adjacent to the current node, I am searching nodes with fewer and fewer edges. This means that the nodes with the most neighbors are searched first, when the number of other nodes to check is lowest, and the nodes with the fewest neighbors are searched last, when we have the most nodes to check if they share an edge with the current node. All together, this implementation runs in $\Theta(|V| + 2|E|)$ time and $\Theta(|V|)$ space because we need a new array for the colors assigned to each of the nodes.
+        \par
+        A setp-by-step walkthough of the smallest-last coloring algorithm is provided to further visualize this algorithm. For this walkthrough, a unit square topology is used with 20 nodes and a node connection radius of 0.4.
 
     \subsection{Verification}
 
@@ -197,6 +199,7 @@ A report on implementing algorithms to partition a random geometric graph into b
         For the second metric, I held the number of nodes constant at 32,000 and varied the desired average degree from 2 to 32 in steps of 2. The graph is given in Figure \ref{varavgdeg}. The cell method clearly grows linearly, but the sweep method is harder to gauge. Since varying the desired average degree should only change the node radius, I would expect this to grow linearly as well. However, because each graph is randomly generated, some graphs can have nodes that are closer to sorted order than others. This can effect the measured runtime. It would be easier to gauge the trend if it I ran the data collection multiple times and averaged the results.
 
         \subsubsection{Graph Coloring}
+        % talk about graphs and why they are correct
 
 % \section{Results Summary}
 

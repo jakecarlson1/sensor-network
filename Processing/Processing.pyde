@@ -7,7 +7,7 @@ from objects.topology import Square, Disk, Sphere
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 100
+NUM_NODES = 20
 AVG_DEG = 10
 
 MAX_NODES_TO_DRAW_EDGES = 8000
@@ -21,11 +21,27 @@ def setup():
 def draw():
     topology.drawGraph(MAX_NODES_TO_DRAW_EDGES)
 
+def keyPressed():
+    if key == ' ':
+        toggleLooping()
+
+def toggleLooping():
+    global is_looping
+    if is_looping:
+        noLoop()
+        is_looping = False
+    else:
+        loop()
+        is_looping = True
+
 def main():
+    global is_looping
+    is_looping = True
+    
     global topology
-    # topology = Square()
+    topology = Square()
     # topology = Disk()
-    topology = Sphere()
+    # topology = Sphere()
     
     topology.num_nodes = NUM_NODES
     topology.avg_deg = AVG_DEG
@@ -46,6 +62,7 @@ def main():
     print "Min degree: {}".format(topology.getMinDegree())
     print "Max degree: {}".format(topology.getMaxDegree())
     print "Num edges: {}".format(topology.findNumEdges())
+    print "Node r: {0:.3f}".format(topology.node_r)
     print "Terminal clique size: {}".format(topology.term_clique_size)
     print "Number of colors: {}".format(len(set(topology.node_colors)))
     print "Max degree when deleted: {}".format(max(topology.deg_when_del.values()))

@@ -240,6 +240,13 @@ class Topology(object):
 
         return colors
 
+    # # draw nodes as they are removed in smallest-last vertex ordering
+    # def drawColoring(self):
+    #
+    #     self._drawNodesFromList()
+    #     self._drawEdgesFromList()
+
+
 """
 Square - inherits from Topology, overloads generateNodes and _getRadiusForAverageDegree
 for a unit square topology
