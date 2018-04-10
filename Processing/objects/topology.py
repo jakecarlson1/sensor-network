@@ -193,6 +193,7 @@ class Topology(object):
     def colorGraph(self):
         self.slvo, self.deg_when_del = self._smallestLastVertexOrdering()
         self.node_colors = self._assignNodeColors(self.slvo)
+        self.color_map = self._mapColorsToRGB(self.node_colors)
 
     # constructs a degree structure and determines the smallest last vertex ordering
     def _smallestLastVertexOrdering(self):
@@ -244,28 +245,55 @@ class Topology(object):
 
         return colors
 
+    def _mapColorsToRGB(self, color_list):
+        s = set(color_list)
+        color_map = {}
+        while len(s) > 0:
+            c = s.pop()
+            color_map[c] = (random.randint(0,255), random.randint(0,255), random.randint(0,255))
+
+        return color_map
+
     # draw nodes as they are removed in smallest-last vertex ordering
     def drawSlvo(self):
-        l = [self.nodes[i] for i in self.slvo[0:self.curr_node]]
+        l = [self.nodes[i] for i in self.slvo[0:self.num_nodes - self.curr_node]]
         self._drawNodes(l)
         self._drawEdges(l)
 
+    # increments curr_node, used to limit the number of nodes drawn
     def incrementCurrNode(self):
         if self.curr_node < self.num_nodes:
             self.curr_node += 1
+            background(0)
 
+    # decrements curr_node, used to limit the number of nodes drawn
     def decrementCurrNode(self):
         if self.curr_node > 0:
             self.curr_node -= 1
             background(0)
 
+    # used to reset curr node if all nodes have been drawn and the method changes
     def mightResetCurrNode(self):
-        print self.curr_node
-        print self.num_nodes
         if self.curr_node == self.num_nodes:
             curr_node = 0
             background(0)
 
+    def drawColoring(self):
+        l = [self.nodes[i] for i in self.slvo[0:self.curr_node]]
+        self._drawNodes(l)
+        self._applyColors(self.slvo[0:self.curr_node])
+        self._drawEdges(l)
+
+    def _applyColors(self, node_i_list):
+        strokeWeight(5)
+
+        num_colors = max(self.node_colors)
+
+        for n_i in node_i_list:
+            c = self.color_map[self.node_colors[n_i]]
+            stroke(c[0], c[1], c[2])
+            fill(c[0], c[1], c[2])
+            ellipse(self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height, 5, 5)
 
 """
 Square - inherits from Topology, overloads generateNodes and _getRadiusForAverageDegree

@@ -158,49 +158,29 @@ def plotForVarAvgDeg():
     plt.legend(loc=2)
     plt.show()
 
-def plotDistributionOfDegrees():
-    topology = Square()
-    topology.num_nodes = 32000
-    topology.avg_deg = 16
-
-    topology.generateNodes()
-    topology.findEdges(method="cell")
-
+def plotDistributionOfDegrees(topology, top=None, sep=5):
     c = Counter([len(v) for v in topology.edges.values()])
     labels = [x[0] for x in c.items()]
     values = [x[1] for x in c.items()]
     indexes = np.arange(len(labels))
     plt.bar(indexes, values)
-    plt.xticks(indexes + 0.5, labels)
+    plt.xticks(indexes[::sep] + 0.5, labels[::sep])
     plt.xlabel("Degree")
     plt.ylabel("Number of Occurances")
-    plt.title("Distribution of Degrees of Nodes, Square")
+    plt.title("Distribution of Degrees of Nodes{}".format(", {}, |V| = {}, A = {}".format(top, topology.num_nodes, topology.avg_deg) if top != None else ""))
     plt.show()
 
-def validateIndepSets():
-    topology = Square()
-    topology.num_nodes = 1000
-    topology.avg_deg = 16
-
-    topology.generateNodes()
-    topology.findEdges(method="cell")
-    topology.colorGraph()
-
+def validateIndepSets(topology):
     # check that the color sets are independent
-    for i in topology.s_last:
+    valid = True
+    for i in topology.slvo:
         colors = [topology.node_colors[j] for j in topology.edges[topology.nodes[i]]]
         if topology.node_colors[i] in colors:
-            print "Node shares color with neighbor"
+            valid = False
 
-def plotDistributionOfDegreesWhenDel():
-    topology = Square()
-    topology.num_nodes = 32000
-    topology.avg_deg = 16
+    print "Valid coloring" if valid else "Node shares color with neighbor"
 
-    topology.generateNodes()
-    topology.findEdges(method="cell")
-    topology.colorGraph()
-
+def plotDistributionOfDegreesWhenDel(topology, top=None, sep=5):
     c_orig = Counter([len(v) for v in topology.edges.values()])
     c_del = Counter([topology.deg_when_del[n] for n in topology.nodes])
     labels_orig = [x[0] for x in c_orig.items()]
@@ -208,37 +188,29 @@ def plotDistributionOfDegreesWhenDel():
     labels = list(set(labels_orig) | set(labels_del))
     orig_deg = [c_orig[l] for l in labels]
     del_deg = [c_del[l] for l in labels]
-    indexes = np.arange(len(labels), step=5)
+    indexes = np.arange(len(labels), step=sep)
     plt.bar(np.arange(len(labels)), orig_deg, color='b', label="Original Degree")
     plt.bar(np.arange(len(labels)), del_deg, color='r', label="Degree when Deleted in SLVO")
-    plt.xticks(indexes + 0.1, labels[::5])
+    plt.xticks(indexes + 0.1, labels[::sep])
     plt.xlabel("Degree")
     plt.ylabel("Number of Occurances")
-    plt.title("Distribution of Degrees of Nodes, Square")
+    plt.title("Distribution of Degrees of Nodes{}".format(", {}, |V| = {}, A = {}".format(top, topology.num_nodes, topology.avg_deg) if top != None else ""))
     plt.legend()
     plt.show()
 
-def plotDistributionOfColors():
-    topology = Square()
-    topology.num_nodes = 32000
-    topology.avg_deg = 16
-
-    topology.generateNodes()
-    topology.findEdges(method="cell")
-    topology.colorGraph()
-
+def plotDistributionOfColors(topology, top=None, sep=5):
     c = Counter(topology.node_colors)
     labels = [x[0] for x in c.items()]
     values = [x[1] for x in c.items()]
     indexes = np.arange(len(labels))
     plt.bar(indexes, values)
-    plt.xticks(indexes + 0.5, indexes)
+    plt.xticks(indexes[::sep] + 0.5, indexes[::sep])
     plt.xlabel("Color")
     plt.ylabel("Frequency")
-    plt.title("Distribution of Colors, Square")
+    plt.title("Distribution of Colors{}".format(", {}, |V| = {}, A = {}".format(top, topology.num_nodes, topology.avg_deg) if top != None else ""))
     plt.show()
 
-def runBenchmarks():
+def runBenchmarks(graphs=False):
     with open("./report/data/benchmark-data-1.csv", "w+") as f1:
         with open("./report/data/benchmark-data-2.csv", "w+") as f2:
             f1.write("Benchmark,Order,A,Topology,r,Size,Realized A,Max Deg,Min Deg,Run Time (s)\n")
@@ -254,13 +226,19 @@ def runBenchmarks():
                     n += 1
                     topology = tops[t][0]()
                     topology.prepBenchmark(i)
+
                     print "nodes: {} | deg: {}".format(topology.num_nodes, topology.avg_deg)
+
                     run_time = time.clock()
+
                     topology.generateNodes()
                     topology.findEdges(method="cell")
                     topology.colorGraph()
+
                     run_time = time.clock() - run_time
+
                     color_cnt = Counter(topology.node_colors)
+
                     f1.write("{},{},{},{},".format(n, tops[t][1][i][0], tops[t][1][i][1], t))
                     f1.write("{0:.3f},".format(topology.node_r))
                     f1.write("{},{},{},{},".format(topology.findNumEdges(), topology.findAvgDegree(), topology.getMaxDegree(), topology.getMinDegree()))
@@ -269,15 +247,33 @@ def runBenchmarks():
                     f1.flush()
                     f2.flush()
 
+                    validateIndepSets(topology)
+
+                    if graphs:
+                        sep = 5
+                        if topology.avg_deg >= 128:
+                            sep = 25
+                        plotDistributionOfDegrees(topology, t, sep)
+                        plotDistributionOfDegreesWhenDel(topology, t, sep)
+                        plotDistributionOfColors(topology, t)
+
 def main():
+    # topology = Square()
+    # topology.num_nodes = 32000
+    # topology.avg_deg = 16
+    #
+    # topology.generateNodes()
+    # topology.findEdges(method="cell")
+    # topology.colorGraph()
+
     # runForVarNodes()
     # runForVarAvgDeg()
     # plotForVarNodes()
     # plotForVarAvgDeg()
-    # plotDistributionOfDegrees()
-    # plotDistributionOfDegreesWhenDel()
-    # validateIndepSets()
-    # plotDistributionOfColors()
+    # plotDistributionOfDegrees(topology)
+    # plotDistributionOfDegreesWhenDel(topology)
+    # validateIndepSets(topology)
+    # plotDistributionOfColors(topology)
     runBenchmarks()
 
 main()

@@ -26,9 +26,9 @@ def draw():
     elif curr_vis == 1:
         topology.drawSlvo()
         # toggleLooping()
-    # elif curr_vis == 2:
-    #     topology.drawColoring()
-    #     toggleLooping()
+    elif curr_vis == 2:
+        topology.drawColoring()
+        # toggleLooping()
 
 def keyPressed():
     if key == ' ':
@@ -43,6 +43,9 @@ def keyPressed():
         topology.incrementCurrNode()
     elif key == 'j':
         topology.decrementCurrNode()
+    elif key == 'y':
+        global curr_vis
+        saveFrame("../report/images/{}-{}.png".format("slvo" if curr_vis == 1 else "color", topology.curr_node))
 
 def toggleLooping():
     global is_looping
