@@ -278,12 +278,14 @@ class Topology(object):
             curr_node = 0
             background(0)
 
+    # used to draw the graph with the nodes colored
     def drawColoring(self):
         l = [self.nodes[i] for i in self.slvo[0:self.curr_node]]
         self._drawNodes(l)
         self._applyColors(self.slvo[0:self.curr_node])
         self._drawEdges(l)
 
+    # places colors on the nodes
     def _applyColors(self, node_i_list):
         strokeWeight(5)
 
@@ -442,5 +444,41 @@ class Sphere(Topology):
                     # draws line from origin to neighboring node
                     line(0,0,0, (e[0] - n[0])*self.canvas_width, (e[1] - n[1])*self.canvas_height, (e[2] - n[2])*self.canvas_width)
                 stroke(255)
+
+            popMatrix()
+
+    # draw nodes as they are removed in smallest-last vertex ordering
+    def drawSlvo(self):
+        l = [self.nodes[i] for i in self.slvo[0:self.num_nodes - self.curr_node]]
+        self._drawNodesAndEdges(l)
+
+    # used to draw the graph with the nodes colored
+    def drawColoring(self):
+        l = [self.nodes[i] for i in self.slvo[0:self.curr_node]]
+        self._drawNodesAndEdges(l)
+        self._applyColors(self.slvo[0:self.curr_node])
+
+    # places colors on the nodes
+    def _applyColors(self, node_i_list):
+        strokeWeight(5)
+
+        num_colors = max(self.node_colors)
+
+        for n_i in node_i_list:
+            c = self.color_map[self.node_colors[n_i]]
+            stroke(c[0], c[1], c[2])
+            fill(c[0], c[1], c[2])
+
+            pushMatrix()
+
+            # sets new rotation
+            rotateZ(self.rot[2])
+            rotateY(-1*self.rot[1])
+
+            # sets drawing origin to current node
+            translate(self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height, self.nodes[n_i][2]*self.canvas_width)
+
+            # places ellipse at origin
+            ellipse(0, 0, 10, 10)
 
             popMatrix()

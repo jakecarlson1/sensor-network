@@ -7,7 +7,7 @@ from objects.topology import Square, Disk, Sphere
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 20
+NUM_NODES = 80
 AVG_DEG = 10
 
 MAX_NODES_TO_DRAW_EDGES = 8000
@@ -45,7 +45,8 @@ def keyPressed():
         topology.decrementCurrNode()
     elif key == 'y':
         global curr_vis
-        saveFrame("../report/images/{}-{}.png".format("slvo" if curr_vis == 1 else "color", topology.curr_node))
+        saveFrame("../report/images/{}-{}.png".format(
+                  "slvo" if curr_vis == 1 else "color", topology.curr_node))
 
 def toggleLooping():
     global is_looping
@@ -75,9 +76,9 @@ def main():
     curr_vis = 0
     
     global topology
-    topology = Square()
+    # topology = Square()
     # topology = Disk()
-    # topology = Sphere()
+    topology = Sphere()
     
     topology.num_nodes = NUM_NODES
     topology.avg_deg = AVG_DEG
