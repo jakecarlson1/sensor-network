@@ -27,7 +27,9 @@ class Topology(object):
         self.slvo = []
         self.deg_when_del = {}
         self.node_colors = []
+        self.backbones = []
         self.curr_node = 0
+        self.curr_backbone = 0
 
     # public funciton for generating nodes of the graph, must be subclassed
     def generateNodes(self):
@@ -245,6 +247,7 @@ class Topology(object):
 
         return colors
 
+    # generates random color codes for each color set and returns them in a dictionary
     def _mapColorsToRGB(self, color_list):
         s = set(color_list)
         color_map = {}
@@ -284,6 +287,18 @@ class Topology(object):
             curr_node = 0
             background(0)
 
+    # increments curr_backbone, used to draw different backbones
+    def incrementCurrBackbone(self):
+        if self.curr_backbone < len(self.backbones) - 1:
+            self.curr_backbone += 1
+            background(0)
+
+    # decrements curr_backbone, used to draw different backbones
+    def decrementCurrBackbone(self):
+        if self.curr_backbone > 0:
+            self.curr_backbone -= 1
+            background(0)
+
     # used to draw the graph with the nodes colored
     def drawColoring(self):
         l = [self.nodes[i] for i in self.slvo[0:self.curr_node]]
@@ -302,6 +317,38 @@ class Topology(object):
             stroke(c[0], c[1], c[2])
             fill(c[0], c[1], c[2])
             ellipse(self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height, 5, 5)
+
+    # public function for pairing the independent sets and picking the largest backbones
+    def generateBackbones(self):
+        # pair four largest independent sets
+        pairs = self._pairIndependentSets(self.node_colors)
+        self.backbones = pairs
+
+        # delete minor components and tails
+
+        # pick two backbones of largest size
+
+        # calculate domination
+
+    # pairs the four largest independent color sets
+    def _pairIndependentSets(self, color_list):
+        # the first four color sets should be the largest (slvo)
+        indep_sets = [set() for _ in range(4)]
+
+        for i, n in enumerate(self.nodes):
+            if self.node_colors[i] < 4:
+                indep_sets[self.node_colors[i]].add(i)
+
+        # return combinations of sets (union)
+        return [s1 | s2 for i, s1 in enumerate(indep_sets) for s2 in indep_sets[i+1:]]
+
+
+    # public function for drawing the node backbones
+    def drawBackbones(self):
+        l = [self.nodes[i] for i in list(self.backbones[self.curr_backbone])]
+        self._drawNodes(l)
+        self._applyColors(list(self.backbones[self.curr_backbone]))
+        self._drawEdges(l)
 
 """
 Square - inherits from Topology, overloads generateNodes and _getRadiusForAverageDegree
@@ -466,7 +513,7 @@ class Sphere(Topology):
 
     # places colors on the nodes
     def _applyColors(self, node_i_list):
-        strokeWeight(5)
+        strokeWeight(2)
 
         num_colors = max(self.node_colors)
 
@@ -488,3 +535,9 @@ class Sphere(Topology):
             ellipse(0, 0, 10, 10)
 
             popMatrix()
+
+    # public function for drawing the node backbones
+    def drawBackbones(self):
+        l = [self.nodes[i] for i in list(self.backbones[self.curr_backbone])]
+        self._drawNodesAndEdges(l)
+        self._applyColors(list(self.backbones[self.curr_backbone]))

@@ -7,8 +7,8 @@ from objects.topology import Square, Disk, Sphere
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 80
-AVG_DEG = 10
+NUM_NODES = 512
+AVG_DEG = 16
 
 MAX_NODES_TO_DRAW_EDGES = 8000
 
@@ -27,6 +27,8 @@ def draw():
         topology.drawSlvo()
     elif curr_vis == 2:
         topology.drawColoring()
+    elif curr_vis == 3:
+        topology.drawBackbones()
 
 def keyPressed():
     global curr_vis
@@ -41,14 +43,26 @@ def keyPressed():
         decrementVis()
         topology.mightResetCurrNode()
     elif key == 'k':
-        topology.incrementCurrNode(step_size)
+        if curr_vis == 3:
+            topology.incrementCurrBackbone()
+        else:
+            topology.incrementCurrNode(step_size)
     elif key == 'j':
-        topology.decrementCurrNode(step_size)
+        if curr_vis == 3:
+            topology.decrementCurrBackbone()
+        else:
+            topology.decrementCurrNode(step_size)
     elif key == 'y':
         saveFrame("../report/images/{}-{}.png".format(
                   "slvo" if curr_vis == 1 else "color", topology.curr_node))
     elif key >= '0' and key <= '9':
         step_size = 2**int(key)
+        print "New step size:", step_size
+    elif key == ']':
+        step_size = int(2**(math.log(step_size, 2) + 1))
+        print "New step size:", step_size
+    elif key == '[':
+        step_size = int(2**(math.log(step_size, 2) - 1))
         print "New step size:", step_size
     elif key == 'm':
         print "\n---- Help Menu ----"
@@ -68,7 +82,7 @@ def toggleLooping():
 
 def incrementVis():
     global curr_vis
-    if curr_vis < 2:
+    if curr_vis < 3:
         curr_vis += 1
     background(0)
 
@@ -105,6 +119,7 @@ def main():
     topology.generateNodes()
     topology.findEdges(method="cell")
     topology.colorGraph()
+    topology.generateBackbones()
     
     print "Average degree: {}".format(topology.findAvgDegree())
     print "Min degree: {}".format(topology.getMinDegree())
