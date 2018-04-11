@@ -261,15 +261,21 @@ class Topology(object):
         self._drawEdges(l)
 
     # increments curr_node, used to limit the number of nodes drawn
-    def incrementCurrNode(self):
-        if self.curr_node < self.num_nodes:
-            self.curr_node += 1
+    def incrementCurrNode(self, s):
+        if self.curr_node + s <= self.num_nodes:
+            self.curr_node += s
+            background(0)
+        elif self.curr_node != self.num_nodes:
+            self.curr_node = self.num_nodes
             background(0)
 
     # decrements curr_node, used to limit the number of nodes drawn
-    def decrementCurrNode(self):
-        if self.curr_node > 0:
-            self.curr_node -= 1
+    def decrementCurrNode(self, s):
+        if self.curr_node - s >= 0:
+            self.curr_node -= s
+            background(0)
+        elif self.curr_node != 0:
+            self.curr_node = 0
             background(0)
 
     # used to reset curr node if all nodes have been drawn and the method changes

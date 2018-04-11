@@ -25,12 +25,13 @@ def draw():
         topology.drawGraph(MAX_NODES_TO_DRAW_EDGES)
     elif curr_vis == 1:
         topology.drawSlvo()
-        # toggleLooping()
     elif curr_vis == 2:
         topology.drawColoring()
-        # toggleLooping()
 
 def keyPressed():
+    global curr_vis
+    global step_size
+    
     if key == ' ':
         toggleLooping()
     elif key == 'l':
@@ -40,13 +41,21 @@ def keyPressed():
         decrementVis()
         topology.mightResetCurrNode()
     elif key == 'k':
-        topology.incrementCurrNode()
+        topology.incrementCurrNode(step_size)
     elif key == 'j':
-        topology.decrementCurrNode()
+        topology.decrementCurrNode(step_size)
     elif key == 'y':
-        global curr_vis
         saveFrame("../report/images/{}-{}.png".format(
                   "slvo" if curr_vis == 1 else "color", topology.curr_node))
+    elif key >= '0' and key <= '9':
+        step_size = 2**int(key)
+        print "New step size:", step_size
+    elif key == 'm':
+        print "\n---- Help Menu ----"
+        print "Use 'hjkl' to move between visualizations"
+        print "Press space to pause rotation of the sphere"
+        print "Press 'y' to take a screenshot of the current frame"
+        print "Entering a number n between 0 and 9 will set the step size to 2^n nodes"
 
 def toggleLooping():
     global is_looping
@@ -72,8 +81,10 @@ def decrementVis():
 def main():
     global is_looping
     global curr_vis
+    global step_size
     is_looping = True
     curr_vis = 0
+    step_size = 1
     
     global topology
     # topology = Square()
