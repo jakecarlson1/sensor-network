@@ -39,13 +39,13 @@
 
 \begin{document}
 
-\title{Backbone Determination in a Wireless Sensor Network}
+\title{Linear Backbone Determination in a Wireless Sensor Network}
 \author{Jake Carlson}
-\date{April 7, 2018}
+\date{April 10, 2018}
 \maketitle
 
 \abstract
-A report on implementing algorithms to partition a random geometric graph into bipartite subgraphs. Three different graph geometries are explored: unit square, unit disk, and unit sphere. Nodes are uniformly distributed in the geometry. Then the edges are determined and the verticies are colored using smallest-last vertex ordering.
+A report on implementing algorithms to partition a random geometric graph into bipartite subgraphs. Three different graph geometries are explored: unit square, unit disk, and unit sphere. Nodes are uniformly distributed in the geometry. Then the edges are determined and the verticies are colored using smallest-last vertex ordering and greedy graph coloring. All algorithms used in this report are implemented to run in linear time.
 \newpage
 
 \tableofcontents
@@ -87,9 +87,9 @@ A report on implementing algorithms to partition a random geometric graph into b
 \section{Reduction to Practice}
 
     \subsection{Data Structure Design}
-    The primary data structure used for this project is an adjacency list. However, to allow for constant time lookup of edges of a node, I used a Python dictionary where the keys are nodes and the values are a list of indicies of adjacent nodes in the original list of nodes. The space needed by the adjacency list is $\Theta(|V| + 2|E|)$. Two entries are used for each edge because they are undirected. This is superior to the adjacency matrix data structure which would require $\Theta(|E|^2)$ space.
+    The primary data structure used for this project is an adjacency list. However, to allow for constant time lookup of edges of a node, a Python dictionary is used where the keys are nodes and the values are a list of indicies of adjacent nodes in the original list of nodes. The space needed by the adjacency list is $\Theta(|V| + 2|E|)$. Two entries are used for each edge because they are undirected. This is superior to the adjacency matrix data structure which would require $\Theta(|E|^2)$ space.
     \par
-    In order to make this project maintainable as it is developed along the semester, I used the object-oriented capabilities Python has to offer to design the different geometries. I start with a base Topology class that creates the interface Processing uses to draw the graphs. This base class implements all of the methods needed for node placement and edge detection in 2D graphs. Then, I create three subclasses: Square, Disk, and Sphere.
+    In order to make this project maintainable as it is developed along the semester, the object-oriented capabilities of Python are used to design the different geometries. First, a Topology class is defined that creates the interface Processing uses to draw the graphs. This base class implements all of the methods needed for node placement and edge detection in 2D graphs. Then, three subclasses are created: Square, Disk, and Sphere.
     \par
     The Square and Disk topologies simply need to override the methods for generating nodes and calculating the node radius needed for the desired average degree. The Sphere subclass needs to override a few additional functions because it exists in a 3D space. Other than the methods for generating nodes and calculating the node radius, it also needs to override the function used to draw the graph so that Processing will render the graph properly in 3D.
 
@@ -100,7 +100,7 @@ A report on implementing algorithms to partition a random geometric graph into b
         \par
         For the Disk, a similar method is used. The coordinates for nodes are randomly sampled from a uniform distribution; however, if a node has a distance from the center of the Disk greater than the radius of 1, the coordinates for that node are resampled.
         \par
-        For the Sphere a different method must be used so that all of the nodes are placed on the surface of the Sphere and the volume is vacant. For this geometry, I used the following equations:
+        For the Sphere a different method must be used so that all of the nodes are placed on the surface of the Sphere and the volume is vacant. For this geometry, the following equations are used:
 
         \begin{align}
             x &= \sqrt{1-u^2}\cos\theta \\
@@ -113,6 +113,38 @@ A report on implementing algorithms to partition a random geometric graph into b
         All of these algorithms can be solved in $\Theta\left(|V|\right)$ where because each node only needs to be assigned a position once.
 
         \subsubsection{Edge Determination}
+        To calculate the node connection radius needed to acheive the desired average connection, the ratio of node coverage to the total area can be used. This ratio must equal the ratio of the total number of nodes to the average degree, or:
+
+        \begin{align}
+            \frac{A_{geometry}}{A_{node}}= \frac{Num\,Nodes}{Avg\,Deg}
+        \end{align}
+
+        Applying this to each geometry only requires filling in the equation for the area of the geometry and the connection area. This is straight forward for the square and disk. The geometry areas are given by $R^2 = 1$ and $\pi R^2 = \pi$ respectively since these are the unit square and circle. The sphere is slightly more complicated. Since nodes should only be able to connect over the surface of the sphere (following arcs), the connection area is to be taken as the surface area of the spherical cap such that the arc of the cap is twice the length of the connection distance. In other words, a node placed on the surface of the sphere in the center of a spherical cap can connect to any other node that falls in that spherical cap. The equation for the area of the spherical cap is given by
+
+        \begin{align}
+            S_{cap} = \pi (a^2 + h^2)
+        \end{align}
+
+        where $a$ is the distance from the midpoint of the base of the cap to the edge of the base, and $h$ is the distance from the midpoint of the base to the top of the cap (where the node would be) \cite{spherecap}. If we connect these points with a third variable, $x$, such that $x$ is the actual distance from the node to the edge of its connection area, the Pythagorean theorem can be used to substitute in $x^2$ for $a^2 + h^2$. The equation for the node connection radius of the unit sphere then looks identical to that of the unit circle. The final list of equations used to calculate node connection radius for a desired average degree are given in Table \ref{tab4}.
+
+        \begin{center}
+            \begin{table}[h]
+                \centering
+                \begin{tabular}{|c|c|c|c|}
+                    \hline
+                    Geometry & Geometry Area & Node Area & r \\
+                    \hline
+                    Square & 1 & $\pi r^2$ & $r = \sqrt{\frac{Average\,Deg}{\pi \times Num\,Nodes}}$ \\
+                    Disk & $\pi$ & $\pi r^2$ & $r = \sqrt{\frac{Average\,Deg}{Num\,Nodes}}$ \\
+                    Sphere & $4\pi$ & $\pi r^2$ & $r = 2 \times \sqrt{\frac{Average\,Deg}{Num\,Nodes}}$ \\
+                    \hline
+                \end{tabular}
+
+                \caption{Equations for node conneciton radius}
+                \label{tab4}
+            \end{table}
+        \end{center}
+
         There are several methods for finding the edges in the graph. The brute force method checks every node, and for each node checks all other nodes to see if they are close enough to form an edge. The brute force method is $\Theta\left(|V|^2\right)$.
         \par
         The second method to find the edges is the sweep method. This method first sorts the nodes along the x-axis. Then, for any node, we only need to search left and right until the distance along the x-axis is greater than the connection radius for the nodes. This dramatically reduces the search space. The sweep method is $O\left(n lg(n) + 2rn^2\right)$ where $n = |V|$ an $r$ is the connection radius. The $n lg(n)$ portion is for the sorting and the $2rn^2$ portion is for measuring the distance between nodes in a sweep step.
@@ -178,28 +210,215 @@ A report on implementing algorithms to partition a random geometric graph into b
 
         Fortunately, because the entire dictionary is built before it is used by the smallest-last vertex ordering algorithm, it will never again be resized once the algorithm starts. Unfortunately, the sets resize at a similar rate and it is more difficult to predict how large the sets will need to be when performing smallest-last vertex ordering. The degree dictionary will also be used to index into the sets, so we gain a speed up here by not having to iterate over all of the edges for a node and determining if the node it shares an edge with are in the remaining graph each time we want to sift nodes down to lower set.
         \par
-        After setting up the graph representation, the smallest-last vertex ordering algorithm runs until every node has been removed from the representation. To delete a node, the first non-empty set is selected. This set must contain the next node to remove becuase it contains all nodes with smallest degree. Before deleting the node from the graph, and moving all adjacent nodes down a set, I check to see if the current set has all remaining nodes. If this is the case, the terminal clique has been found, and the size of the terminal clique must be saved. After this check, a node is popped from the end of the current set, and appended to the smallest-last ordering result. Then, for all the adjacent nodes to the popped node in the original graph, I check if the node is in the set with its degree. If it is, the number of degrees for that node can be decremented and the node can be placed into the correct set for its new degree.
+        After setting up the graph representation, the smallest-last vertex ordering algorithm runs until every node has been removed from the representation. To delete a node, the first non-empty set is selected. This set must contain the next node to remove becuase it contains all nodes with smallest degree. Before deleting the node from the graph, and moving all adjacent nodes down a set, the current set is checked to see if it has all remaining nodes. If this is the case, the terminal clique has been found, and the size of the terminal clique must be saved. After this check, a node is popped from the end of the current set, and appended to the smallest-last ordering result. Then, all nodes adjacent to the popped node in the original graph are checked to see if they are in the set with its current degree. If it is, the number of degrees for that node can be decremented and the node can be placed into the correct set for its new degree.
         \par
         The last step is to reverse the order of the smallest-last ordering result because it was built in the opposite order (smallest-first). All together, excluding the initialization of accessory data structures, this implementation runs in $\Theta(2|V| + 2|E|)$ time and $\Theta(2|V|)$ space since nodes are removed from the buckets and added to the result.
         \par
-        After this the graph needs to be colored. For this I initially assign each node a color of $-1$ in a node color array that is parallel to the original list of nodes. I iterate over all of the nodes in the smallest-last vertex ordering. At each node, I generate a set of colors that is already used by the neighbors of that node by iterating over all of its edge nodes and grabbing their color from the node color array. Then, I just have to increment color from $0$ until it does not exist in the search space set and I have the color to assign to the node.
+        After this the graph needs to be colored. For this, initially each node is assigned a color of $-1$ in a node color array that is parallel to the original list of nodes. Then, all of the nodes in the smallest-last vertex ordering are iterated over. At each node, a set of colors that is already used by the neighbors of that node is created by iterating over all of its edge nodes and grabbing their color from the node color array. Then, color just has to be incremented from $0$ until it does not exist in the search space set and the color has been determined to assign to the node.
         \par
-        Since the smallest-last odering is used, each time I check to see if a node is adjacent to the current node, I am searching nodes with fewer and fewer edges. This means that the nodes with the most neighbors are searched first, when the number of other nodes to check is lowest, and the nodes with the fewest neighbors are searched last, when we have the most nodes to check if they share an edge with the current node. All together, this implementation runs in $\Theta(|V| + 2|E|)$ time and $\Theta(|V|)$ space because we need a new array for the colors assigned to each of the nodes.
+        Since the smallest-last odering is used, each time the edges need to be traversed to see if a node is adjacent to the current node, nodes with fewer and fewer edges are being searched. This means that the nodes with the most neighbors are searched first, when the number of other nodes to check is lowest, and the nodes with the fewest neighbors are searched last, when we have the most nodes to check if they share an edge with the current node. All together, this implementation runs in $\Theta(|V| + 2|E|)$ time and $\Theta(|V|)$ space because we need a new array for the colors assigned to each of the nodes.
         \par
-        A setp-by-step walkthough of the smallest-last coloring algorithm is provided to further visualize this algorithm. For this walkthrough, a unit square topology is used with 20 nodes and a node connection radius of 0.4.
+        A setp-by-step walkthough of the smallest-last coloring algorithm is provided to further visualize this algorithm. For this walkthrough, a unit square topology is used with 20 nodes and a node connection radius of 0.4. The smallest-last vertex ordering deletion process is shown in Figure \ref{slvodel}. The coloring phase is shown in Figure \ref{slvocolor}. In the deletion process, the minimum degree node is removed at each step. If there are multiple nodes with the same minimum degree, one is choosen randomly. Once all nodes have been removed, the smallest-last vertex ordering has been detemrined. In the coloring phase, the node that was removed last is assigned a color first. As the smallest-last vertex ordering is traversed, each node's neighbors are checked to see if they have been assigned a color. The first color that has not been used by a neighbor is assigned to the node. To complete this walkthrough, the distribution of the color set sizes and the degrees of nodes when deleted is given in Figure \ref{histwt}.
+
+        \begin{figure}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-0.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-1.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-2.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-3.png}}
+            \end{minipage}
+            \vskip 0.1in
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-4.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-5.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-6.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-7.png}}
+            \end{minipage}
+            \vskip 0.1in
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-8.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-9.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-10.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-11.png}}
+            \end{minipage}
+            \vskip 0.1in
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-12.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-13.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-14.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-15.png}}
+            \end{minipage}
+            \vskip 0.1in
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-16.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-17.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-18.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/slvo-19.png}}
+            \end{minipage}
+
+            \caption{Smallest-last vertex ordering deletion process}
+            \label{slvodel}
+        \end{figure}
+
+        \begin{figure}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-1.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-2.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-3.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-4.png}}
+            \end{minipage}
+            \vskip 0.1in
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-5.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-6.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-7.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-8.png}}
+            \end{minipage}
+            \vskip 0.1in
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-9.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-10.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-11.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-12.png}}
+            \end{minipage}
+            \vskip 0.1in
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-13.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-14.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-15.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-16.png}}
+            \end{minipage}
+            \vskip 0.1in
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-17.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-18.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-19.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.2\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/color-20.png}}
+            \end{minipage}
+
+            \caption{Smallest-last vertex ordering coloring process}
+            \label{slvocolor}
+        \end{figure}
+
+        \begin{figure}
+            \begin{minipage}{0.45\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_wt.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.45\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_wt.png}}
+            \end{minipage}
+
+            \caption{Distribution of degree when deleted and color set size for the 20 node walkthrough}
+            \label{histwt}
+        \end{figure}
 
     \subsection{Verification}
 
         \subsubsection{Node Placement}
-        The nodes can be verified to be distributed uniformly if the distribution of degrees follows a normal distribution. To show that the distribution of degrees for each of my geometries are following a normal distribution, I plotted degree histograms for each of the geometries with 32,000 nodes and an average degree of 16. The histrogram for Square is given in Figure \ref{squaredeghist}, Disk is given in Figure \ref{diskdeghist}, and Sphere is given in Figure \ref{spheredeghist}. These histograms clearly follow a normal distribution.
+        The nodes can be verified to be distributed uniformly if the degrees follow a normal distribution. To show that the distribution of degrees for each of the geometries are following a normal distribution, the degree histograms are plotted for each of the benchmarks. The histrograms for Square are given in Figure \ref{squaredeghists}, Disk are given in Figure \ref{diskdeghists}, and Sphere are given in Figure \ref{spheredeghists}. These histograms clearly follow a normal distribution, so the nodes must be placed uniformly.
 
         \subsubsection{Edge Determination}
-        The runtime for the edge detection methods can be varified by varying the number of nodes and measuring the runtime of each algorithm. By looking at how the runtime grows, we can calculate the trendline that best fits the growth rate. For the first comparison, I vary the number of nodes from 4,000 to 64,000 in steps of 4,000, while holding the desired average dgree constant at 16. As we can see in Figure \ref{avgdeg}, the growth rates of the brute force and sweep methods are quadratic, while the growth rate of the cell method. The trendline functions are given on the graph.
+        The runtime for the edge detection methods can be verified by varying the number of nodes and measuring the runtime of each algorithm. By looking at how the runtime grows, we can calculate the trendline that best fits the growth rate. For the first comparison, the number of nodes is varied from 4,000 to 64,000 in steps of 4,000, while holding the desired average dgree constant at 16. As we can see in Figure \ref{avgdeg}, the growth rates of the brute force and sweep methods are quadratic, while the growth rate of the cell method. The trendline functions are given on the graph.
         \par
-        For the second metric, I held the number of nodes constant at 32,000 and varied the desired average degree from 2 to 32 in steps of 2. The graph is given in Figure \ref{varavgdeg}. The cell method clearly grows linearly, but the sweep method is harder to gauge. Since varying the desired average degree should only change the node radius, I would expect this to grow linearly as well. However, because each graph is randomly generated, some graphs can have nodes that are closer to sorted order than others. This can effect the measured runtime. It would be easier to gauge the trend if it I ran the data collection multiple times and averaged the results.
+        For the second metric, the number of nodes is held constant at 32,000 and varied the desired average degree from 2 to 32 in steps of 2. The graph is given in Figure \ref{avgdeg}. The cell method clearly grows linearly, but the sweep method is harder to gauge. Since varying the desired average degree should only change the node radius, this should grow linearly as well. However, because each graph is randomly generated, some graphs can have nodes that are closer to sorted order than others. This can effect the measured runtime.
 
         \subsubsection{Graph Coloring}
-        % talk about graphs and why they are correct
+        Smallest-last vertex ordering can be verified by looking at the distribution of the degrees of nodes when deleted. Since this algorithm repeatedly removes the node with the fewest connections, and because the removal of that node will cause the fewest number of nodes to move to the next lowest bucket, we would expect the bulk of the nodes to have a large degree when they are deleted. This would be indicated by a negative skew in the distribution of degrees when deleted. Additionally, since the nodes are only removed when they satisfy the criteria of being the node with the minimum degree, we should see the standard deviation of the distribution of nodes to be much smaller than in the original distribution of degrees. Both of these features can be found in Figures \ref{squaredegdelhists}, \ref{diskdegdelhists}, and \ref{spheredegdelhists} which plot the original distribution of degrees alongside the distribution of degrees when deleted. We see that the distribution of degrees when deleted follows a normal distrbution with a negative skew and a relatively small standard deviation compared to the original distribution of degrees.
+        \par
+        The color sets can be verified by looking at the distribution of colors used to color the graph. The number of items in each color should follow a trend where the first colors used have the most members, and the last colors have the fewest items because they are used to accommodate nodes where the earlier colors are all used by a node's neighbors. This trend is shown in Figures \ref{squarecolorhists}, \ref{diskcolorhists}, and \ref{spherecolorshists}.
+        \par
+        To further verify the accuracy of the smallest-last coloring implementation additional code was used to verify that the coloring result was correct while running benchmarks. All of the nodes in the smallest-last vertex ordering are traversed, and for each node, the edges are visited to see if any adjacent nodes have the same color as the node being checked. If any of these neighbors have the same color, the coloring is not correct and our independent sets cannot be used for backbone determination. All of the benchmarks ran and returned valid colorings.
 
 % \section{Results Summary}
 
@@ -221,8 +440,11 @@ A report on implementing algorithms to partition a random geometric graph into b
     \bibitem{spherepoints}
     Weisstein, Eric W., Wolfram MathWorld Sphere Point Picking, http://mathworld.wolfram.com/SpherePointPicking.html
 
+    \bibitem{spherecap}
+    Weisstein, Eric W., Wolfram MathWorld Spherical Cap, http://mathworld.wolfram.com/SphericalCap.html
+
     \bibitem{listsort}
-        Peters, Tim, Timsort, http://svn.python.org/projects/python/trunk/Objects/listsort.txt
+    Peters, Tim, Timsort, http://svn.python.org/projects/python/trunk/Objects/listsort.txt
 
     \bibitem{dictresize}
     Rees, Gareth, Python's underlying hash data structure for dictionaries, https://stackoverflow.com/questions/4279358/pythons-underlying-hash-data-structure-for-dictionaries, 2010
@@ -240,52 +462,220 @@ A report on implementing algorithms to partition a random geometric graph into b
 \section{Appendix A - Figures}
 
 \begin{figure}[h]
-    \centering
-        \includegraphics[scale=0.6]{./graphs/hist_deg_square.png}
-        \caption{Distribution of Degree counts for Square. 32,000 Nodes, Average Degree of 16}
-        \label{squaredeghist}
-\end{figure}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/run_time_avg_deg_16.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/run_time_var_avg_deg.png}}
+    \end{minipage}
 
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.6]{./graphs/hist_deg_disk.png}
-    \caption{Distribution of Degree counts for Disk. 32,000 Nodes, Average Degree of 16}
-    \label{diskdeghist}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.6]{./graphs/hist_deg_sphere.png}
-    \caption{Distribution of Degree counts for Sphere. 32,000 Nodes, Average Degree of 16}
-    \label{spheredeghist}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.6]{./graphs/run_time_avg_deg_16.png}
-    \caption{Runtime for Each Edge Detection Method, Average Degree of 16}
+    \caption{Runtime for edge detection methods. left: constant average degree of 16, right: variable average degree}
     \label{avgdeg}
 \end{figure}
 
 \begin{figure}
-    \centering
-    \includegraphics[scale=0.6]{./graphs/run_time_var_avg_deg.png}
-    \caption{Runtime for Cell and Sweep Edge Detection, Variable Average Degree}
-    \label{varavgdeg}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_square_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_square_1.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_square_2.png}}
+    \end{minipage}
+    \vskip 0.1in
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_square_3.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_square_4.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_square_5.png}}
+    \end{minipage}
+    \vskip 0.1in
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_square_6.png}}
+    \end{minipage}
+    \hspace{\fill}
+
+    \caption{Square benchmarks distribution of degree graphs}
+    \label{squaredeghists}
 \end{figure}
 
 \begin{figure}
-    \centering
-    \includegraphics[scale=0.6]{./graphs/hist_del_deg.png}
-    \caption{Distribution of Degree when Deleted for Square. 32,000 Nodes, Average Degree of 16}
-    \label{deldeg}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_disk_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_disk_1.png}}
+    \end{minipage}
+    \vskip 0.25in
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_disk_2.png}}
+    \end{minipage}
+
+    \caption{Disk benchmarks distribution of degree graphs}
+    \label{diskdeghists}
 \end{figure}
 
 \begin{figure}
-    \centering
-    \includegraphics[scale=0.6]{./graphs/hist_colors.png}
-    \caption{Distribution of Colors for Square. 32,000 Nodes, Average Degree of 16}
-    \label{distcolors}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_sphere_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_sphere_1.png}}
+    \end{minipage}
+    \vskip 0.25in
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_sphere_2.png}}
+    \end{minipage}
+
+    \caption{Sphere benchmarks distribution of degree graphs}
+    \label{spheredeghists}
+\end{figure}
+
+\begin{figure}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_square_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_square_1.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_square_2.png}}
+    \end{minipage}
+    \vskip 0.1in
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_square_3.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_square_4.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_square_5.png}}
+    \end{minipage}
+    \vskip 0.1in
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_square_6.png}}
+    \end{minipage}
+    \hspace{\fill}
+
+    \caption{Square benchmarks distribution of degree when deleted graphs}
+    \label{squaredegdelhists}
+\end{figure}
+
+\begin{figure}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_disk_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_disk_1.png}}
+    \end{minipage}
+    \vskip 0.25in
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_disk_2.png}}
+    \end{minipage}
+
+    \caption{Disk benchmarks distribution of degree when deleted graphs}
+    \label{diskdegdelhists}
+\end{figure}
+
+\begin{figure}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_sphere_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_sphere_1.png}}
+    \end{minipage}
+    \vskip 0.25in
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_deg_del_sphere_2.png}}
+    \end{minipage}
+
+    \caption{Sphere benchmarks distribution of degree when deleted graphs}
+    \label{spheredegdelhists}
+\end{figure}
+
+\begin{figure}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_square_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_square_1.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_square_2.png}}
+    \end{minipage}
+    \vskip 0.1in
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_square_3.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_square_4.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_square_5.png}}
+    \end{minipage}
+    \vskip 0.1in
+    \begin{minipage}{0.3\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_square_6.png}}
+    \end{minipage}
+    \hspace{\fill}
+
+    \caption{Square benchmarks distribution of colors graphs}
+    \label{squarecolorhists}
+\end{figure}
+
+\begin{figure}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_disk_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_disk_1.png}}
+    \end{minipage}
+    \vskip 0.25in
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_disk_2.png}}
+    \end{minipage}
+
+    \caption{Disk benchmarks distribution of colors graphs}
+    \label{diskcolorhists}
+\end{figure}
+
+\begin{figure}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_sphere_0.png}}
+    \end{minipage}
+    \hspace{\fill}
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_sphere_1.png}}
+    \end{minipage}
+    \vskip 0.25in
+    \begin{minipage}{0.45\textwidth}
+    \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/hist_colors_sphere_2.png}}
+    \end{minipage}
+
+    \caption{Sphere benchmarks distribution of colors graphs}
+    \label{spherecolorshists}
 \end{figure}
 
 % square images
@@ -346,7 +736,7 @@ A report on implementing algorithms to partition a random geometric graph into b
 % sphere images
 
 \begin{figure}
-\begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.45\textwidth}
     \colorbox{gray}{\includegraphics[width=\linewidth]{./images/sphere_0.png}}
     \end{minipage}
     \hspace{\fill}
