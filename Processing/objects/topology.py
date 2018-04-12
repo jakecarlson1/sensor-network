@@ -27,9 +27,15 @@ class Topology(object):
         self.slvo = []
         self.deg_when_del = {}
         self.node_colors = []
+        self.pairs = []
+        self.clean_pairs = []
         self.backbones = []
         self.curr_node = 0
+        self.curr_pair = 0
         self.curr_backbone = 0
+
+        self.color_bg = 0
+        self.color_fg = 255
 
     # public funciton for generating nodes of the graph, must be subclassed
     def generateNodes(self):
@@ -160,8 +166,8 @@ class Topology(object):
     # responsible for drawing the nodes in the canvas
     def _drawNodes(self, node_list):
         strokeWeight(2)
-        stroke(255)
-        fill(255)
+        stroke(self.color_fg)
+        fill(self.color_fg)
 
         for n in node_list:
             ellipse(n[0]*self.canvas_width, n[1]*self.canvas_height, 5, 5)
@@ -170,7 +176,7 @@ class Topology(object):
     def _drawEdges(self, node_list):
         strokeWeight(1)
         stroke(245)
-        fill(255)
+        fill(self.color_fg)
 
         s = set(node_list)
 
@@ -182,12 +188,12 @@ class Topology(object):
     # responsible for drawing the edges of the min and max degree nodes
     def _drawMinMaxDegNodes(self):
         strokeWeight(1)
-        stroke(0,255,0)
-        fill(255)
+        stroke(0,self.color_fg,0)
+        fill(self.color_fg)
         for n_i in self.edges[self.minDeg]:
             line(self.minDeg[0]*self.canvas_width, self.minDeg[1]*self.canvas_height, self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height)
 
-        stroke(0,0,255)
+        stroke(0,0,self.color_fg)
         for n_i in self.edges[self.maxDeg]:
             line(self.maxDeg[0]*self.canvas_width, self.maxDeg[1]*self.canvas_height, self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height)
 
@@ -267,37 +273,53 @@ class Topology(object):
     def incrementCurrNode(self, s):
         if self.curr_node + s <= self.num_nodes:
             self.curr_node += s
-            background(0)
+            background(self.color_bg)
         elif self.curr_node != self.num_nodes:
             self.curr_node = self.num_nodes
-            background(0)
+            background(self.color_bg)
 
     # decrements curr_node, used to limit the number of nodes drawn
     def decrementCurrNode(self, s):
         if self.curr_node - s >= 0:
             self.curr_node -= s
-            background(0)
+            background(self.color_bg)
         elif self.curr_node != 0:
             self.curr_node = 0
-            background(0)
+            background(self.color_bg)
 
     # used to reset curr node if all nodes have been drawn and the method changes
     def mightResetCurrNode(self):
         if self.curr_node == self.num_nodes:
             curr_node = 0
-            background(0)
+            background(self.color_bg)
+
+    # increments curr_backbone, used to draw different backbones
+    def incrementCurrPair(self):
+        if self.curr_pair < len(self.pairs) - 1:
+            self.curr_pair += 1
+            background(self.color_bg)
+
+    # decrements curr_backbone, used to draw different backbones
+    def decrementCurrPair(self):
+        if self.curr_pair > 0:
+            self.curr_pair -= 1
+            background(self.color_bg)
 
     # increments curr_backbone, used to draw different backbones
     def incrementCurrBackbone(self):
         if self.curr_backbone < len(self.backbones) - 1:
             self.curr_backbone += 1
-            background(0)
+            background(self.color_bg)
 
     # decrements curr_backbone, used to draw different backbones
     def decrementCurrBackbone(self):
         if self.curr_backbone > 0:
             self.curr_backbone -= 1
-            background(0)
+            background(self.color_bg)
+
+    # switch foreground and background colors
+    def switchFgBg(self):
+        self.color_fg, self.color_bg = self.color_bg, self.color_fg
 
     # used to draw the graph with the nodes colored
     def drawColoring(self):
@@ -321,10 +343,10 @@ class Topology(object):
     # public function for pairing the independent sets and picking the largest backbones
     def generateBackbones(self):
         # pair four largest independent sets
-        pairs = self._pairIndependentSets(self.node_colors)
-        self.backbones = pairs
+        self.pairs = self._pairIndependentSets(self.node_colors)
 
         # delete minor components and tails
+        # self.clean_pairs = self._cleanPairs(self.pairs)
 
         # pick two backbones of largest size
 
@@ -342,13 +364,22 @@ class Topology(object):
         # return combinations of sets (union)
         return [s1 | s2 for i, s1 in enumerate(indep_sets) for s2 in indep_sets[i+1:]]
 
+    # # removes the minor components and tails from the bipartite subgraphs
+    # def _cleanPairs(self, bipartites):
 
-    # public function for drawing the node backbones
-    def drawBackbones(self):
-        l = [self.nodes[i] for i in list(self.backbones[self.curr_backbone])]
-        self._drawNodes(l)
-        self._applyColors(list(self.backbones[self.curr_backbone]))
-        self._drawEdges(l)
+
+    # public function for drawing the color set pairs
+    def drawPairs(self, mode=0):
+        if mode == 0:
+            l = [self.nodes[i] for i in list(self.pairs[self.curr_pair])]
+            self._drawNodes(l)
+            self._applyColors(list(self.pairs[self.curr_pair]))
+            self._drawEdges(l)
+        elif mode == 1:
+            l = [self.nodes[i] for i in list(self.clean_pairs[self.curr_pair])]
+            self._drawNodes(l)
+            self._applyColors(list(self.clean_pairs[self.curr_pair]))
+            self._drawEdges(l)
 
 """
 Square - inherits from Topology, overloads generateNodes and _getRadiusForAverageDegree
@@ -454,10 +485,10 @@ class Sphere(Topology):
         # updates rotation
         self.rot = (self.rot[0], self.rot[1]-math.pi/100, self.rot[2])
 
-        background(0)
+        background(self.color_bg)
         strokeWeight(2)
-        stroke(255)
-        fill(255)
+        stroke(self.color_fg)
+        fill(self.color_fg)
 
         s = set(node_list)
 
@@ -483,20 +514,20 @@ class Sphere(Topology):
                         line(0,0,0, (e[0] - n[0])*self.canvas_width, (e[1] - n[1])*self.canvas_height, (e[2] - n[2])*self.canvas_width)
             # draw edges for min degree node
             elif n == self.minDeg:
-                stroke(0,255,0)
+                stroke(0,self.color_fg,0)
                 for e_i in self.edges[n]:
                     e = self.nodes[e_i]
                     # draws line from origin to neighboring node
                     line(0,0,0, (e[0] - n[0])*self.canvas_width, (e[1] - n[1])*self.canvas_height, (e[2] - n[2])*self.canvas_width)
-                stroke(255)
+                stroke(self.color_fg)
             # draw edges for max degree node
             elif n == self.maxDeg:
-                stroke(0,0,255)
+                stroke(0,0,self.color_fg)
                 for e_i in self.edges[n]:
                     e = self.nodes[e_i]
                     # draws line from origin to neighboring node
                     line(0,0,0, (e[0] - n[0])*self.canvas_width, (e[1] - n[1])*self.canvas_height, (e[2] - n[2])*self.canvas_width)
-                stroke(255)
+                stroke(self.color_fg)
 
             popMatrix()
 
@@ -536,8 +567,13 @@ class Sphere(Topology):
 
             popMatrix()
 
-    # public function for drawing the node backbones
-    def drawBackbones(self):
-        l = [self.nodes[i] for i in list(self.backbones[self.curr_backbone])]
-        self._drawNodesAndEdges(l)
-        self._applyColors(list(self.backbones[self.curr_backbone]))
+    # public function for drawing the color set pairs
+    def drawPairs(self, mode=0):
+        if mode == 0:
+            l = [self.nodes[i] for i in list(self.pairs[self.curr_pair])]
+            self._drawNodesAndEdges(l)
+            self._applyColors(list(self.pairs[self.curr_pair]))
+        elif mode == 1:
+            l = [self.nodes[i] for i in list(self.clean_pairs[self.curr_pair])]
+            self._drawNodesAndEdges(l)
+            self._applyColors(list(self.clean_pairs[self.curr_pair]))

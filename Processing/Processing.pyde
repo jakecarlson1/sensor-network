@@ -28,7 +28,11 @@ def draw():
     elif curr_vis == 2:
         topology.drawColoring()
     elif curr_vis == 3:
-        topology.drawBackbones()
+        topology.drawPairs(0)
+    elif curr_vis == 4:
+        topology.drawPairs(1)
+    # elif curr_vis == 5:
+    #     topology.drawBackbone()
 
 def keyPressed():
     global curr_vis
@@ -36,6 +40,8 @@ def keyPressed():
     
     if key == ' ':
         toggleLooping()
+    elif key == 'i':
+        topology.switchFgBg()
     elif key == 'l':
         incrementVis()
         topology.mightResetCurrNode()
@@ -44,12 +50,16 @@ def keyPressed():
         topology.mightResetCurrNode()
     elif key == 'k':
         if curr_vis == 3:
-            topology.incrementCurrBackbone()
+            topology.incrementCurrPair()
+        # elif curr_vis == 5:
+        #     topology.incrementCurrBackbone()
         else:
             topology.incrementCurrNode(step_size)
     elif key == 'j':
         if curr_vis == 3:
-            topology.decrementCurrBackbone()
+            topology.decrementCurrPair()
+        # elif curr_vis == 5:
+        #     topology.decrementCurrBackbone()
         else:
             topology.decrementCurrNode(step_size)
     elif key == 'y':
@@ -67,6 +77,7 @@ def keyPressed():
     elif key == 'm':
         print "\n---- Help Menu ----"
         print "Use 'hjkl' to move between visualizations"
+        print "Press 'i' to invert the color scheme"
         print "Press space to pause rotation of the sphere"
         print "Press 'y' to take a screenshot of the current frame"
         print "Entering a number n between 0 and 9 will set the step size to 2^n nodes"
@@ -82,15 +93,17 @@ def toggleLooping():
 
 def incrementVis():
     global curr_vis
+    global topology
     if curr_vis < 3:
         curr_vis += 1
-    background(0)
+    background(topology.color_bg)
 
 def decrementVis():
     global curr_vis
+    global topology
     if curr_vis > 0:
         curr_vis -= 1
-    background(0)
+    background(topology.color_bg)
 
 def main():
     global is_looping
