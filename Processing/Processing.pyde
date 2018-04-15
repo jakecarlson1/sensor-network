@@ -31,7 +31,9 @@ def draw():
         topology.drawPairs(0)
     elif curr_vis == 4:
         topology.drawPairs(1)
-    # elif curr_vis == 5:
+    elif curr_vis == 5:
+        topology.drawPairs(2)
+    # elif curr_vis == 6:
     #     topology.drawBackbone()
 
 def keyPressed():
@@ -49,16 +51,16 @@ def keyPressed():
         decrementVis()
         topology.mightResetCurrNode()
     elif key == 'k':
-        if curr_vis == 3:
+        if curr_vis == 3 or curr_vis == 4 or curr_vis == 5:
             topology.incrementCurrPair()
-        # elif curr_vis == 5:
+        # elif curr_vis == 6:
         #     topology.incrementCurrBackbone()
         else:
             topology.incrementCurrNode(step_size)
     elif key == 'j':
-        if curr_vis == 3:
+        if curr_vis == 3 or curr_vis == 4 or curr_vis == 5:
             topology.decrementCurrPair()
-        # elif curr_vis == 5:
+        # elif curr_vis == 6:
         #     topology.decrementCurrBackbone()
         else:
             topology.decrementCurrNode(step_size)
@@ -82,6 +84,10 @@ def keyPressed():
         print "Press 'y' to take a screenshot of the current frame"
         print "Entering a number n between 0 and 9 will set the step size to 2^n nodes"
 
+# def mouseDragged():
+#     global topology
+#     topology.updateRotation(mouseX, mouseY)
+
 def toggleLooping():
     global is_looping
     if is_looping:
@@ -94,7 +100,7 @@ def toggleLooping():
 def incrementVis():
     global curr_vis
     global topology
-    if curr_vis < 3:
+    if curr_vis < 5:
         curr_vis += 1
     background(topology.color_bg)
 
@@ -148,5 +154,7 @@ def main():
     
     run_time = time.clock() - run_time
     print "Run time: {0:.3f} s".format(run_time)
+    
+    print "\nPress 'm' for the menu"
 
 main()
