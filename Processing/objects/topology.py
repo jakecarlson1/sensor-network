@@ -30,6 +30,7 @@ class Topology(object):
         self.node_colors = []
         self.pairs = []
         self.no_tails = []
+        self.major_comps = []
         self.clean_pairs = []
         self.backbones = []
         self.curr_node = 0
@@ -358,7 +359,7 @@ class Topology(object):
         self.pairs = self._pairIndependentSets(self.node_colors)
 
         # delete minor components and tails
-        self.no_tails, self.clean_pairs = self._cleanPairs(self.pairs)
+        self.no_tails, self.major_comps, self.clean_pairs = self._cleanPairs(self.pairs)
 
         # pick two backbones of largest size
 
@@ -379,6 +380,7 @@ class Topology(object):
     # removes the minor components and tails from the bipartite subgraphs
     def _cleanPairs(self, bipartites):
         no_tails = []
+        major_comps = []
         results = []
         for b in bipartites:
             # remove the tails and save the graph for visualization
@@ -387,13 +389,19 @@ class Topology(object):
 
             # use BFS to get the major component
             major_comp = self._bfs(b)
-            results.append(major_comp)
+            major_comps.append(major_comp)
 
-        return no_tails, results
+            # use DFS to remove bridges
+            backbone = self._removeBridges(major_comp)
+            results.append(backbone)
+
+
+        return no_tails, major_comps, results
 
     # remove tails from bipartite, very similar to smallest-last vertex ordering
     def _removeTails(self, bipartite):
         bipartite = bipartite.copy()
+        # build graph representation
         points = list(bipartite)
         deg_sets = {l:set() for l in range(len(self.edges[self.maxDeg])+1)}
         deg_map = {n_i:len([e_i for e_i in self.edges[self.nodes[n_i]] if e_i in bipartite]) for n_i in points}
@@ -402,6 +410,7 @@ class Topology(object):
             if i in bipartite:
                 deg_sets[deg_map[i]].add(i)
 
+        # remove nodes with zero or one edge until there are no tails
         while len(deg_sets[0]) > 0 or len(deg_sets[1]) > 0:
             to_remove = deg_sets[0] | deg_sets[1]
             deg_sets[0] = set()
@@ -419,9 +428,11 @@ class Topology(object):
         return bipartite
 
     # use BFS to find the major component
-    def _bfs(self, bipartite):
+    def _bfs(self, bipartite, rm_edges=None):
         points = list(bipartite)
+        # used to index into the points array
         index_to_local = {n_i:i for i, n_i in enumerate(points)}
+        # used to index into the nodes array
         index_to_global = {i:n_i for i, n_i in enumerate(points)}
         visited = [0 for _ in points]
         visits = []
@@ -434,39 +445,80 @@ class Topology(object):
             root = visited.index(0)
             queue.append(root)
             visited[root] = 1
+            # builds a set for the points in each component
             components.append(set([index_to_global[root]]))
 
             while len(queue) > 0:
                 curr = queue.pop()
 
                 for e in [index_to_local[e] for e in self.edges[self.nodes[points[curr]]] if e in bipartite]:
+                    if rm_edges != None and (e in rm_edges and curr in rm_edges):
+                        continue
                     if visited[e] == 0:
                         visit += 1
                         queue.append(e)
                         components[-1].add(index_to_global[e])
                         visited[e] = 1
 
-                visited[curr] = visit
             visits.append(visit)
+
         return components[visits.index(max(visits))]
+
+    # removes all bridges and minor blocks from major component
+    # algorithm: https://e-maxx-eng.appspot.com/graph/bridge-searching.html
+    def _removeBridges(self, major_comp):
+        points = list(major_comp)
+        # used to index into the points array
+        index_to_local = {n_i:i for i, n_i in enumerate(points)}
+        # used to index into the nodes array
+        index_to_global = {i:n_i for i, n_i in enumerate(points)}
+        visited = [0 for _ in points]
+        bridge_nodes = set()
+        tin = [-1 for _ in points]
+        fup = [-1 for _ in points]
+        visit = 0
+
+        for i, p in enumerate(points):
+            if visited[i] == 0:
+                self._dfs(major_comp, points, i, p, index_to_local, visited, bridge_nodes, tin, fup, visit)
+
+        return self._bfs(major_comp, bridge_nodes)
+
+    # use DFS to find bridges
+    def _dfs(self, comp, points, i, p, index_to_local, visited, bridge_nodes, tin, fup, visit, to=-1):
+        visited[i] = 1
+        tin[i] = visit
+        fup[i] = visit
+        visit += 1
+        for e in [index_to_local[e] for e in self.edges[self.nodes[p]] if e in comp]:
+            if e == to:
+                continue
+            if visited[e] == 1:
+                fup[i] = min(fup[i], tin[e])
+            else:
+                self._dfs(comp, points, e, points[e], index_to_local, visited, bridge_nodes, tin, fup, visit, to=i)
+                fup[i] = min(fup[i], fup[e])
+                if fup[e] > tin[i]:
+                    if i not in bridge_nodes:
+                        bridge_nodes.add(i)
+                    if e not in bridge_nodes:
+                        bridge_nodes.add(e)
 
     # public function for drawing the color set pairs
     def drawPairs(self, mode=0):
+        l_i = []
         if mode == 0:
-            l = [self.nodes[i] for i in list(self.pairs[self.curr_pair])]
-            self._drawNodes(l)
-            self._applyColors(list(self.pairs[self.curr_pair]))
-            self._drawEdges(l)
+            l_i = list(self.pairs[self.curr_pair])
         elif mode == 1:
-            l = [self.nodes[i] for i in list(self.no_tails[self.curr_pair])]
-            self._drawNodes(l)
-            self._applyColors(list(self.no_tails[self.curr_pair]))
-            self._drawEdges(l)
+            l_i = list(self.no_tails[self.curr_pair])
         elif mode == 2:
-            l = [self.nodes[i] for i in list(self.clean_pairs[self.curr_pair])]
-            self._drawNodes(l)
-            self._applyColors(list(self.clean_pairs[self.curr_pair]))
-            self._drawEdges(l)
+            l_i = list(self.major_comp[self.curr_pair])
+        elif mode == 3:
+            l_i = list(self.clean_pairs[self.curr_pair])
+        l_n = [self.nodes[i] for i in l_i]
+        self._drawNodes(l_n)
+        self._applyColors(l_i)
+        self._drawEdges(l_n)
 
 """
 Square - inherits from Topology, overloads generateNodes and _getRadiusForAverageDegree
@@ -656,15 +708,15 @@ class Sphere(Topology):
 
     # public function for drawing the color set pairs
     def drawPairs(self, mode=0):
+        l_i = []
         if mode == 0:
-            l = [self.nodes[i] for i in list(self.pairs[self.curr_pair])]
-            self._drawNodesAndEdges(l)
-            self._applyColors(list(self.pairs[self.curr_pair]))
+            l_i = list(self.pairs[self.curr_pair])
         elif mode == 1:
-            l = [self.nodes[i] for i in list(self.no_tails[self.curr_pair])]
-            self._drawNodesAndEdges(l)
-            self._applyColors(list(self.no_tails[self.curr_pair]))
+            l_i = list(self.no_tails[self.curr_pair])
         elif mode == 2:
-            l = [self.nodes[i] for i in list(self.clean_pairs[self.curr_pair])]
-            self._drawNodesAndEdges(l)
-            self._applyColors(list(self.clean_pairs[self.curr_pair]))
+            l_i = list(self.major_comps[self.curr_pair])
+        elif mode == 3:
+            l_i = list(self.clean_pairs[self.curr_pair])
+        l_n = [self.nodes[i] for i in l_i]
+        self._drawNodesAndEdges(l_n)
+        self._applyColors(l_i)

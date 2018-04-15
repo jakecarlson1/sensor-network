@@ -33,7 +33,9 @@ def draw():
         topology.drawPairs(1)
     elif curr_vis == 5:
         topology.drawPairs(2)
-    # elif curr_vis == 6:
+    elif curr_vis == 6:
+        topology.drawPairs(3)
+    # elif curr_vis == 7:
     #     topology.drawBackbone()
 
 def keyPressed():
@@ -51,16 +53,16 @@ def keyPressed():
         decrementVis()
         topology.mightResetCurrNode()
     elif key == 'k':
-        if curr_vis == 3 or curr_vis == 4 or curr_vis == 5:
+        if curr_vis == 3 or curr_vis == 4 or curr_vis == 5 or curr_vis == 6:
             topology.incrementCurrPair()
-        # elif curr_vis == 6:
+        # elif curr_vis == 7:
         #     topology.incrementCurrBackbone()
         else:
             topology.incrementCurrNode(step_size)
     elif key == 'j':
-        if curr_vis == 3 or curr_vis == 4 or curr_vis == 5:
+        if curr_vis == 3 or curr_vis == 4 or curr_vis == 5 or curr_vis == 6:
             topology.decrementCurrPair()
-        # elif curr_vis == 6:
+        # elif curr_vis == 7:
         #     topology.decrementCurrBackbone()
         else:
             topology.decrementCurrNode(step_size)
@@ -100,7 +102,7 @@ def toggleLooping():
 def incrementVis():
     global curr_vis
     global topology
-    if curr_vis < 5:
+    if curr_vis < 6:
         curr_vis += 1
     background(topology.color_bg)
 
