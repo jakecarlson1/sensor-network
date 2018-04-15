@@ -7,7 +7,7 @@ from objects.topology import Square, Disk, Sphere
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 512
+NUM_NODES = 8000
 AVG_DEG = 16
 
 MAX_NODES_TO_DRAW_EDGES = 8000
@@ -36,7 +36,7 @@ def draw():
     elif curr_vis == 6:
         topology.drawPairs(3)
     # elif curr_vis == 7:
-    #     topology.drawBackbone()
+    #     topology.drawBackbones()
 
 def keyPressed():
     global curr_vis
@@ -73,10 +73,10 @@ def keyPressed():
         step_size = 2**int(key)
         print "New step size:", step_size
     elif key == ']':
-        step_size = int(2**(math.log(step_size, 2) + 1))
+        step_size = 2*step_size
         print "New step size:", step_size
     elif key == '[':
-        step_size = int(2**(math.log(step_size, 2) - 1))
+        step_size = step_size/2
         print "New step size:", step_size
     elif key == 'm':
         print "\n---- Help Menu ----"
@@ -85,6 +85,7 @@ def keyPressed():
         print "Press space to pause rotation of the sphere"
         print "Press 'y' to take a screenshot of the current frame"
         print "Entering a number n between 0 and 9 will set the step size to 2^n nodes"
+        print "Using ']' will double the step size, '[' will half it"
 
 # def mouseDragged():
 #     global topology
@@ -122,8 +123,8 @@ def main():
     step_size = 1
     
     global topology
-    # topology = Square()
-    # topology = Disk()
+    topology = Square()
+    topology = Disk()
     topology = Sphere()
     
     topology.num_nodes = NUM_NODES

@@ -395,7 +395,6 @@ class Topology(object):
             backbone = self._removeBridges(major_comp)
             results.append(backbone)
 
-
         return no_tails, major_comps, results
 
     # remove tails from bipartite, very similar to smallest-last vertex ordering
@@ -512,9 +511,10 @@ class Topology(object):
         elif mode == 1:
             l_i = list(self.no_tails[self.curr_pair])
         elif mode == 2:
-            l_i = list(self.major_comp[self.curr_pair])
+            l_i = list(self.major_comps[self.curr_pair])
         elif mode == 3:
             l_i = list(self.clean_pairs[self.curr_pair])
+
         l_n = [self.nodes[i] for i in l_i]
         self._drawNodes(l_n)
         self._applyColors(l_i)
@@ -717,6 +717,7 @@ class Sphere(Topology):
             l_i = list(self.major_comps[self.curr_pair])
         elif mode == 3:
             l_i = list(self.clean_pairs[self.curr_pair])
+
         l_n = [self.nodes[i] for i in l_i]
         self._drawNodesAndEdges(l_n)
         self._applyColors(l_i)
