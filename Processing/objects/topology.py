@@ -637,6 +637,7 @@ class Sphere(Topology):
         self.rot = (0,math.pi/4,0) # this may move to Topology if rotation is given to the 2D shapes
         # used to control _drawNodes functionality
         self.n_limit = 8000
+        self.num_faces = []
 
     # places nodes in a unit cube and projects them onto the surface of the sphere
     def generateNodes(self):
@@ -759,6 +760,29 @@ class Sphere(Topology):
             ellipse(0, 0, 10, 10)
 
             popMatrix()
+
+    # public function for pairing the independent sets and picking the largest backbones
+    def generateBackbones(self):
+        # pair four largest independent sets
+        self.pairs = self._pairIndependentSets(self.node_colors)
+
+        # delete minor components and tails
+        self.no_tails, self.major_comps, self.clean_pairs = self._cleanPairs(self.pairs)
+
+        # pick two backbones of largest size
+        self.backbones, self.backbones_meta = self._getLargestBackbones(self.clean_pairs)
+
+        # calculate domination
+        self.backbones_meta = self._getDonimations(self.backbones, self.backbones_meta)
+
+        # calculate faces
+        self.num_faces = self._countFaces(self.backbones_meta)
+
+    # calcualtes the number of faces in the backbones of sphere topology
+    def _countFaces(self, b_meta):
+        # Euler's polyhedral formula
+        # http://mathworld.wolfram.com/PolyhedralFormula.html
+        return [2 - m[0] + m[1] for m in b_meta]
 
     # public function for drawing the color set pairs
     def drawPairs(self, mode=0):
