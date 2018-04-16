@@ -763,17 +763,8 @@ class Sphere(Topology):
 
     # public function for pairing the independent sets and picking the largest backbones
     def generateBackbones(self):
-        # pair four largest independent sets
-        self.pairs = self._pairIndependentSets(self.node_colors)
-
-        # delete minor components and tails
-        self.no_tails, self.major_comps, self.clean_pairs = self._cleanPairs(self.pairs)
-
-        # pick two backbones of largest size
-        self.backbones, self.backbones_meta = self._getLargestBackbones(self.clean_pairs)
-
-        # calculate domination
-        self.backbones_meta = self._getDonimations(self.backbones, self.backbones_meta)
+        # uses base class method for generating backbones and meta data
+        super(Sphere, self).generateBackbones()
 
         # calculate faces
         self.num_faces = self._countFaces(self.backbones_meta)
