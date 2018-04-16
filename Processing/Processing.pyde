@@ -41,7 +41,6 @@ def draw():
 def keyPressed():
     global curr_vis
     global step_size
-    print curr_vis
     
     if key == ' ':
         toggleLooping()

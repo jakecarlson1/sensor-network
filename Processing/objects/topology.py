@@ -33,6 +33,7 @@ class Topology(object):
         self.major_comps = []
         self.clean_pairs = []
         self.backbones = []
+        self.backbones_meta = []
         self.curr_node = 0
         self.curr_pair = 0
         self.curr_backbone = 0
@@ -362,9 +363,10 @@ class Topology(object):
         self.no_tails, self.major_comps, self.clean_pairs = self._cleanPairs(self.pairs)
 
         # pick two backbones of largest size
-        self.backbones = self._getLargestBackbones(self.clean_pairs)
+        self.backbones, self.backbones_meta = self._getLargestBackbones(self.clean_pairs)
 
         # calculate domination
+        self.backbones_meta = self._getDonimations(self.backbones, self.backbones_meta)
 
     # pairs the four largest independent color sets
     def _pairIndependentSets(self, color_list):
@@ -523,20 +525,22 @@ class Topology(object):
 
     # returns the two major components with the largest size
     def _getLargestBackbones(self, c_pairs):
-        largest = [0, 0]
+        sizes = [0, 0]
         result = [None, None]
         for p in c_pairs:
-            print len(p)
             size = self._calcSize(p)
-            print "\t", size
-            if size > min(largest):
-                min_i = largest.index(min(largest))
-                largest[min_i] = size
+
+            if size > min(sizes):
+                min_i = sizes.index(min(sizes))
+                sizes[min_i] = size
                 result[min_i] = p
 
-        print largest
-        # print result
-        return result
+        # saves backbone meta data (order, size)
+        meta = [(len(result[i]), sizes[i]) for i in range(len(result))]
+        if sizes[1] > sizes[0]:
+            return result[::-1], meta[::-1]
+
+        return result, meta
 
     # calculates the size of a graph
     def _calcSize(self, graph):
@@ -545,7 +549,22 @@ class Topology(object):
             size += len([e for e in self.edges[self.nodes[n_i]] if e in graph])
 
         return size
-        # return len([e for e in self.edges[self.nodes[n_i]] if e in graph for n_i in list(graph)])
+
+    # calculates the percentage of nodes covered by each backbone
+    def _getDonimations(self, b_bones, meta):
+        for i, b in enumerate(b_bones):
+            # find the number of nodes that do not share an edge with a backbone node
+            # search all nodes not in backbone
+            search_space = set(range(self.num_nodes)) - b
+            for n_i in list(search_space):
+                for e in self.edges[self.nodes[n_i]]:
+                    if e in b:
+                        search_space.remove(n_i)
+                        break
+
+            meta[i] = (meta[i][0], meta[i][1], (self.num_nodes - len(search_space) + 0.0)/self.num_nodes)
+
+        return meta
 
     # public function for drawing the backbones
     def drawBackbones(self):
