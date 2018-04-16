@@ -7,7 +7,7 @@ from objects.topology import Square, Disk, Sphere
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 8000
+NUM_NODES = 4000
 AVG_DEG = 16
 
 MAX_NODES_TO_DRAW_EDGES = 8000
@@ -35,12 +35,13 @@ def draw():
         topology.drawPairs(2)
     elif curr_vis == 6:
         topology.drawPairs(3)
-    # elif curr_vis == 7:
-    #     topology.drawBackbones()
+    elif curr_vis == 7:
+        topology.drawBackbones()
 
 def keyPressed():
     global curr_vis
     global step_size
+    print curr_vis
     
     if key == ' ':
         toggleLooping()
@@ -53,17 +54,17 @@ def keyPressed():
         decrementVis()
         topology.mightResetCurrNode()
     elif key == 'k':
-        if curr_vis == 3 or curr_vis == 4 or curr_vis == 5 or curr_vis == 6:
+        if curr_vis > 2 and curr_vis < 7:
             topology.incrementCurrPair()
-        # elif curr_vis == 7:
-        #     topology.incrementCurrBackbone()
+        elif curr_vis == 7:
+            topology.incrementCurrBackbone()
         else:
             topology.incrementCurrNode(step_size)
     elif key == 'j':
-        if curr_vis == 3 or curr_vis == 4 or curr_vis == 5 or curr_vis == 6:
+        if curr_vis > 2 and curr_vis < 7:
             topology.decrementCurrPair()
-        # elif curr_vis == 7:
-        #     topology.decrementCurrBackbone()
+        elif curr_vis == 7:
+            topology.decrementCurrBackbone()
         else:
             topology.decrementCurrNode(step_size)
     elif key == 'y':
@@ -103,7 +104,7 @@ def toggleLooping():
 def incrementVis():
     global curr_vis
     global topology
-    if curr_vis < 6:
+    if curr_vis < 7:
         curr_vis += 1
     background(topology.color_bg)
 
@@ -123,8 +124,8 @@ def main():
     step_size = 1
     
     global topology
-    topology = Square()
-    topology = Disk()
+    # topology = Square()
+    # topology = Disk()
     topology = Sphere()
     
     topology.num_nodes = NUM_NODES

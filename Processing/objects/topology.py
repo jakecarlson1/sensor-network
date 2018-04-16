@@ -362,6 +362,7 @@ class Topology(object):
         self.no_tails, self.major_comps, self.clean_pairs = self._cleanPairs(self.pairs)
 
         # pick two backbones of largest size
+        self.backbones = self._getLargestBackbones(self.clean_pairs)
 
         # calculate domination
 
@@ -515,6 +516,40 @@ class Topology(object):
         elif mode == 3:
             l_i = list(self.clean_pairs[self.curr_pair])
 
+        l_n = [self.nodes[i] for i in l_i]
+        self._drawNodes(l_n)
+        self._applyColors(l_i)
+        self._drawEdges(l_n)
+
+    # returns the two major components with the largest size
+    def _getLargestBackbones(self, c_pairs):
+        largest = [0, 0]
+        result = [None, None]
+        for p in c_pairs:
+            print len(p)
+            size = self._calcSize(p)
+            print "\t", size
+            if size > min(largest):
+                min_i = largest.index(min(largest))
+                largest[min_i] = size
+                result[min_i] = p
+
+        print largest
+        # print result
+        return result
+
+    # calculates the size of a graph
+    def _calcSize(self, graph):
+        size = 0
+        for n_i in list(graph):
+            size += len([e for e in self.edges[self.nodes[n_i]] if e in graph])
+
+        return size
+        # return len([e for e in self.edges[self.nodes[n_i]] if e in graph for n_i in list(graph)])
+
+    # public function for drawing the backbones
+    def drawBackbones(self):
+        l_i = list(self.backbones[self.curr_backbone])
         l_n = [self.nodes[i] for i in l_i]
         self._drawNodes(l_n)
         self._applyColors(l_i)
@@ -718,6 +753,13 @@ class Sphere(Topology):
         elif mode == 3:
             l_i = list(self.clean_pairs[self.curr_pair])
 
+        l_n = [self.nodes[i] for i in l_i]
+        self._drawNodesAndEdges(l_n)
+        self._applyColors(l_i)
+
+    # public function for drawing the backbones
+    def drawBackbones(self):
+        l_i = list(self.backbones[self.curr_backbone])
         l_n = [self.nodes[i] for i in l_i]
         self._drawNodesAndEdges(l_n)
         self._applyColors(l_i)
