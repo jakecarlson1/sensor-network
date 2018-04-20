@@ -700,7 +700,7 @@ class Sphere(Topology):
             ellipse(0, 0, 10, 10)
 
             # draw all edges
-            if self.num_nodes <= self.n_limit:
+            if len(node_list) <= self.n_limit:
                 for e_i in self.edges[n]:
                     if self.nodes[e_i] in s:
                         e = self.nodes[e_i]

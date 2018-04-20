@@ -1,3 +1,4 @@
+import sys
 import time
 import matplotlib.pyplot as plt
 import numpy as np
@@ -213,49 +214,54 @@ def plotDistributionOfColors(topology, top=None, sep=5):
 def runBenchmarks(graphs=False):
     with open("./report/data/benchmark-data-1.csv", "w+") as f1:
         with open("./report/data/benchmark-data-2.csv", "w+") as f2:
-            f1.write("Benchmark,Order,A,Topology,r,Size,Realized A,Max Deg,Min Deg,Run Time (s)\n")
-            f2.write("Benchmark,Max Deg Deleted,Color Sets,Largest Color Set,Terminal Clique Size\n")
-            n = 0
-            tops = {
-                'Square': (Square, SQUARE_BENCHMARKS),
-                'Disk': (Disk, DISK_BENCHMARKS),
-                'Sphere': (Sphere, SPHERE_BENCHMARKS)
-            }
-            for t in ['Square', 'Disk', 'Sphere']:
-                for i in range(len(tops[t][1])):
-                    n += 1
-                    topology = tops[t][0]()
-                    topology.prepBenchmark(i)
+            with open("./report/data/benchmark-data-3.csv", "w+") as f3:
+                f1.write("Benchmark,Order,A,Topology,r,Size,Realized A,Max Deg,Min Deg,Run Time (s)\n")
+                f2.write("Benchmark,Max Deg Deleted,Color Sets,Largest Color Set,Terminal Clique Size\n")
+                f3.write("Benchmark,B1 Order,B1 Size,B1 Domination,B1 Faces,B2 Order,B2 Size,B2 Domination,B2 Faces\n")
+                n = 0
+                tops = {
+                    'Square': (Square, SQUARE_BENCHMARKS),
+                    'Disk': (Disk, DISK_BENCHMARKS),
+                    'Sphere': (Sphere, SPHERE_BENCHMARKS)
+                }
+                for t in ['Square', 'Disk', 'Sphere']:
+                    for i in range(len(tops[t][1])):
+                        n += 1
+                        topology = tops[t][0]()
+                        topology.prepBenchmark(i)
 
-                    print "nodes: {} | deg: {}".format(topology.num_nodes, topology.avg_deg)
+                        print "nodes: {} | deg: {}".format(topology.num_nodes, topology.avg_deg)
 
-                    run_time = time.clock()
+                        run_time = time.clock()
 
-                    topology.generateNodes()
-                    topology.findEdges(method="cell")
-                    topology.colorGraph()
+                        topology.generateNodes()
+                        topology.findEdges(method="cell")
+                        topology.colorGraph()
+                        topology.generateBackbones()
 
-                    run_time = time.clock() - run_time
+                        run_time = time.clock() - run_time
 
-                    color_cnt = Counter(topology.node_colors)
+                        color_cnt = Counter(topology.node_colors)
 
-                    f1.write("{},{},{},{},".format(n, tops[t][1][i][0], tops[t][1][i][1], t))
-                    f1.write("{0:.3f},".format(topology.node_r))
-                    f1.write("{},{},{},{},".format(topology.findNumEdges(), topology.findAvgDegree(), topology.getMaxDegree(), topology.getMinDegree()))
-                    f1.write("{0:.3f}\n".format(run_time))
-                    f2.write("{},{},{},{},{}\n".format(n, max(topology.deg_when_del.values()), len(set(topology.node_colors)), color_cnt.most_common(1)[0][1], topology.term_clique_size))
-                    f1.flush()
-                    f2.flush()
+                        f1.write("{},{},{},{},".format(n, tops[t][1][i][0], tops[t][1][i][1], t))
+                        f1.write("{0:.3f},".format(topology.node_r))
+                        f1.write("{},{},{},{},".format(topology.findNumEdges(), topology.findAvgDegree(), topology.getMaxDegree(), topology.getMinDegree()))
+                        f1.write("{0:.3f}\n".format(run_time))
+                        f2.write("{},{},{},{},{}\n".format(n, max(topology.deg_when_del.values()), len(set(topology.node_colors)), color_cnt.most_common(1)[0][1], topology.term_clique_size))
+                        f3.write("{},{},{},{},{},{},{},{},{}\n".format(n, topology.backbones_meta[0][0], topology.backbones_meta[0][1], topology.backbones_meta[0][2], topology.num_faces[0] if t == "Sphere" else "-", topology.backbones_meta[1][0], topology.backbones_meta[1][1], topology.backbones_meta[1][2], topology.num_faces[1] if t == "Sphere" else "-"))
+                        f1.flush()
+                        f2.flush()
+                        f3.flush()
 
-                    validateIndepSets(topology)
+                        validateIndepSets(topology)
 
-                    if graphs:
-                        sep = 5
-                        if topology.avg_deg >= 128:
-                            sep = 25
-                        plotDistributionOfDegrees(topology, t, sep)
-                        plotDistributionOfDegreesWhenDel(topology, t, sep)
-                        plotDistributionOfColors(topology, t)
+                        if graphs:
+                            sep = 5
+                            if topology.avg_deg >= 128:
+                                sep = 25
+                            plotDistributionOfDegrees(topology, t, sep)
+                            plotDistributionOfDegreesWhenDel(topology, t, sep)
+                            plotDistributionOfColors(topology, t)
 
 def main():
     # topology = Square()
@@ -274,6 +280,7 @@ def main():
     # plotDistributionOfDegreesWhenDel(topology)
     # validateIndepSets(topology)
     # plotDistributionOfColors(topology)
+    sys.setrecursionlimit(8000)
     runBenchmarks()
 
 main()

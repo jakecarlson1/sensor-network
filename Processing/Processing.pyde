@@ -1,4 +1,5 @@
 import random
+import sys
 import time
 import math
 from collections import Counter
@@ -7,7 +8,7 @@ from objects.topology import Square, Disk, Sphere
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 4000
+NUM_NODES = 1000
 AVG_DEG = 16
 
 MAX_NODES_TO_DRAW_EDGES = 8000
@@ -115,6 +116,8 @@ def decrementVis():
     background(topology.color_bg)
 
 def main():
+    # sys.setrecursionlimit(32000)
+    
     global is_looping
     global curr_vis
     global step_size
@@ -133,7 +136,7 @@ def main():
     topology.canvas_width = CANVAS_WIDTH
     
     if RUN_BENCHMARK:
-        n_benchmark = 0
+        n_benchmark = 1
         topology.prepBenchmark(n_benchmark)
     
     run_time = time.clock()
