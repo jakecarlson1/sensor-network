@@ -408,9 +408,8 @@ class Topology(object):
         deg_sets = {l:set() for l in range(len(self.edges[self.maxDeg])+1)}
         deg_map = {n_i:len([e_i for e_i in self.edges[self.nodes[n_i]] if e_i in bipartite]) for n_i in points}
 
-        for i, n in enumerate(self.nodes):
-            if i in bipartite:
-                deg_sets[deg_map[i]].add(i)
+        for i in points:
+            deg_sets[deg_map[i]].add(i)
 
         # remove nodes with zero or one edge until there are no tails
         while len(deg_sets[0]) > 0 or len(deg_sets[1]) > 0:
