@@ -248,7 +248,7 @@ def runBenchmarks(graphs=False):
                         f1.write("{},{},{},{},".format(topology.findNumEdges(), topology.findAvgDegree(), topology.getMaxDegree(), topology.getMinDegree()))
                         f1.write("{0:.3f}\n".format(run_time))
                         f2.write("{},{},{},{},{}\n".format(n, max(topology.deg_when_del.values()), len(set(topology.node_colors)), color_cnt.most_common(1)[0][1], topology.term_clique_size))
-                        f3.write("{},{},{},{},{},{},{},{},{}\n".format(n, topology.backbones_meta[0][0], topology.backbones_meta[0][1], topology.backbones_meta[0][2], topology.num_faces[0] if t == "Sphere" else "-", topology.backbones_meta[1][0], topology.backbones_meta[1][1], topology.backbones_meta[1][2], topology.num_faces[1] if t == "Sphere" else "-"))
+                        f3.write("{},{},{},{},{},{},{},{},{}\n".format(n, topology.backbones_meta[0][0], topology.backbones_meta[0][1], topology.backbones_meta[0][2], topology.num_faces[0] if t == "Sphere" else "", topology.backbones_meta[1][0], topology.backbones_meta[1][1], topology.backbones_meta[1][2], topology.num_faces[1] if t == "Sphere" else ""))
                         f1.flush()
                         f2.flush()
                         f3.flush()

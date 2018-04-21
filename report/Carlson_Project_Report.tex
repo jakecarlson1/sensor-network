@@ -39,13 +39,13 @@
 
 \begin{document}
 
-\title{Linear Backbone Determination in a Wireless Sensor Network}
+\title{Linear Time Backbone Determination in a Wireless Sensor Network}
 \author{Jake Carlson}
-\date{April 10, 2018}
+\date{April 21, 2018}
 \maketitle
 
 \abstract
-A report on implementing algorithms to partition a random geometric graph into bipartite subgraphs. Three different graph geometries are explored: unit square, unit disk, and unit sphere. Nodes are uniformly distributed in the geometry. Then the edges are determined and the verticies are colored using smallest-last vertex ordering and greedy graph coloring. All algorithms used in this report are implemented to run in linear time.
+A report on implementing algorithms to partition a random geometric graph into bipartite subgraphs. Three different graph geometries are explored: unit square, unit disk, and unit sphere. Nodes are uniformly distributed in the geometry. Then the edges are determined and the verticies are colored using smallest-last vertex ordering and greedy graph coloring. Once coloring has been used to determine the independent color sets, the combinations of the largest are processed to find the largest backbone. All algorithms used in this report are implemented to run in linear time.
 \newpage
 
 \tableofcontents
@@ -55,22 +55,30 @@ A report on implementing algorithms to partition a random geometric graph into b
 \section{Executive Summary}
 
     \subsection{Introduction}
-    Random geometric graphs (RGGs) are useful for simulating wireless sensor networks placed in different topologies. This project examines three different geometries: Square, Disk, and Sphere. The user supplies parameters for how many nodes they want in the network and how many connections they want for each node. Then, the simulation finds the average radius needed for that number of connections, finds multiple backbones for the RGG, and displays the results graphically.
+    Random geometric graphs (RGGs) are useful for simulating wireless sensor networks placed in different topologies. This project examines three different geometries: Square, Disk, and Sphere. The user supplies parameters for how many nodes they want in the network and how many connections they want for each node. Then, the simulation finds the average radius needed for that number of connections, determines the edges in the graph, colors the graph to find independent sets, pairs the four largest independent sets to find the largest bipartite subgraphs, and cleans these bipartites to find the major component, or backbone, of each bipartite. The cleaning ensures that there are no singular points of failure that could cause the network to become disconnected. In other words, each backbone exists so that there are multiple paths between any two nodes in the backbone.
+    \par
+    This creates network backbones from the random geometric graphs that are highly reliable and allow the largest number of wireless sensors to connect to it in only one hop. Additionally, the linear time implementation of this simulation ensures efficient running time regardless of the input size. The organization of the code base also makes it easy to implement new topologies by subclassing the main Topology class that implements all of the algorithms needed to determine the backbone.
+    \par
+    All of the code used for this project, including the graphical display of the generated graphs at each stage in the backbone determination process, can be found here:
+
+    \begin{center}
+        \texttt{https://github.com/jakecarlson1/sensor-network}
+    \end{center}
 
     \subsection{Environment Description}
     The data structures and topologies for this simulation are implemented in Python2.7. The graphics are generated using Processing.py \cite{processing}. All development and benchmarking has been done on a 2014 MackBook Pro with a 3 GHz Intel Core i7 processor and 16 GB of DDR3 RAM running macOS High Sierra 10.13.3.
     \par
     Processing offers an easy to use API for drawing and rendering shapes two- and three-dimensions. The Processing.py implementation allows the entire use of the Python programming languages and libraries.
     \par
-    A separate data generation script was used to generate the summary tables \ref{tab1}\ref{tab2}. The figures were genetared using the matplotlib library \cite{matplotlib}. This library, and a variety of others, could not be imported into Processing.py because the jython interpreter used by Processing only accepts libraries written in raw Python.
+    A separate data generation script was used to generate the summary tables (Tables \ref{tab1}, \ref{tab2}, \ref{tab3}). Because these benchmarks were run in a separate script, the timing does not measure the time required to draw the graphs using Processing. The figures were genetared using the matplotlib library \cite{matplotlib}. This library, and a variety of others, could not be imported into Processing.py because the jython interpreter used by Processing only accepts libraries written in raw Python.
     \par
-    The different geometries were implemented in a stand alone Python file and imported into the Processing.py script or the data generation script depending on what was being run. These classes can then be used directly by Processing or the data generation script. Because there is no intermediary file to hold the generated nodes and edges, there is no additional disk space needed to run the simulation. Everything can be done in system memory managed by Processing.
+    The different geometries were implemented in a stand alone Python file and imported into the Processing.py script or the data generation script, depending on what was being run. These classes can then be used directly by Processing or the data generation script. Because there is no intermediary file to hold the generated nodes and edges, there is no additional disk space needed to run the simulation. Everything can be done in system memory managed by Processing.
 
     \begin{center}
         \begin{table}[h]
             \centering
             \csvautotabular{./data/benchmark-data-1.csv}
-            \caption{Benchmarks for Generating RGGs. A: input average degree, r: node connection radius}
+            \caption{Benchmarks for generating RGGs. A: input average degree, r: node connection radius}
             \label{tab1}
         \end{table}
     \end{center}
@@ -79,8 +87,17 @@ A report on implementing algorithms to partition a random geometric graph into b
         \begin{table}[h]
             \centering
             \csvautotabular{./data/benchmark-data-2.csv}
-            \caption{Benchmarks for Coloring RGGs}
+            \caption{Benchmarks for coloring RGGs}
             \label{tab2}
+        \end{table}
+    \end{center}
+
+    \begin{center}
+        \begin{table}[h]
+            \centering
+            \csvautotabular{./data/benchmark-data-3.csv}
+            \caption{Benchmarks for backbone determination}
+            \label{tab3}
         \end{table}
     \end{center}
 
@@ -168,6 +185,47 @@ A report on implementing algorithms to partition a random geometric graph into b
         This algorithm is linear if each of the above steps is linear. Step 1 is linear if we can build a represenation of the graph in linear time. For this, we can use an array of buckets, where each bucket holds the verticies that have the same number of edges as the position of the bucket in the array of buckets. To build this data structure, each node only needs to be visited once, making this linear in both space and time. Next, finding the vertex of minimum degree simply requires finding the lowest index bucket that has a node. This is bounded by the number of buckets, which is bounded by the number of nodes, making Step 2 linear. Next, we have to update the representation of the graph. To do this, we have to look at each node that shares an edge with $v_j$ and move it to the bucket for nodes with one fewer degree. This requires traversing the list of edges for $v_j$ which means Step 3 is linear. Since this is repeated for each node, the runtime of this program is $\Theta\left(|E| + |V|\right)$ and the space needed is $\Theta(|V|)$.
         \par
         After this, a single traversal of the smallest-last vertex ordering is needed to color the graph. As we traverse this list, we check to see if the nodes before it (that are already colored) share an edge with the current node. The node can then be colored with any color it does not share an edge with or, if it shares an edge with all currently used colors, it is assigned a new color. This algorithm is also linear. Each node needs to be visited once and when a node is visited, all previous nodes are checked to see if they are in the edge list of the current node. Because we used smallest last vertex ordering, as we have to check more and more nodes, we get to check fewer and fewer edges. This makes the greedy coloring algorithm $O(|V| + |E|)$.
+
+        \subsubsection{Backbone Determination}
+        Several algorithms are needed for determining the most suitable backbones for the wireless sensor network. First, the four largest independent sets are paired with each other to generate the largest bipartite subgraphs for the random geometric graph. These bipartites are bound to have minor components that are not connected to the major component, and blocks that are only connected by bridges. These nodes need to be removed in order for the backbone to be considered reliable. Once all of these nodes have been removed from the bipartite, the backbone has been determined. Then, the two backbones with the largest size are selected and their domination (ratio of nodes connected to the backbone) and number of faces (for the sphere topology) are calculated.
+        \par
+        The largest independent sets are the largest color sets given by smallest-last vertex coloring. These will be the first four color sets when greedy coloring is used on a sequence of nodes sorted in smallest-last order. The combination of these four independent sets must be taken to find the six largest bipartite subgraphs.
+        \par
+        The bipartite subgraphs need to be cleaned up in order to measure the size and coverage area of the backbone. This can be done by first removing all of the tails in the graph, which are sequences of nodes coming off of a component where the end node has degree one, and all nodes in between have degree two. Then, the major component needs to be determined, which is the component with the largest order. Once the largest component is determined, the minor blocks and the bridges connecting them to the major component need to be removed. A bridge is simiar to a tail; it is a chain of edges that, if removed from the graph would increase the number of connected components. These features need to be removed because they do not provide reliability to the wireless sensor network. If a single one of these node were to fail, a portion of the graph would become disconnected from the remaining backbone. This creates a single point of failure that should not occur in a network backbone.
+        \par
+        Each of these algorithms can be implemented in linear time. Taking the combinations of the four largest independent color sets can be done by building a bipartite subgraph for each combination where the nodes are copied from the two color sets that make up the bipartite. Each bipartite will then be built in $\Theta(2|V|)$ time and $\Theta(2|V|)$ space where $|V|$ is the number of nodes in each color set. Since there are six ways to choose two items from a set of 4, this runs six times, resulting in $\Theta(12|V|)$ space and time usage for building all of the bipartites.
+        \par
+        The tails then need to be removed. This can be done by repeatedly removing all nodes with a degree of one. This will repeatedly remove the last node in the tail until the only remaining node is the node that connected the tail to its component. This will also remove any minor components that consist of a thin chain of nodes with no cycles. This is similar to smallest-last vertex ordering, except the deletion of nodes from the graph stops when there are no more nodes in the bucket for degree one. Since this algorithm is based off of smallest-last vertex ordering, and slvo ran in $\Theta\left(|E| + |V|\right)$, this is bounded above by smallest-last vertex ordering, $O\left(|E| + |V|\right)$. However, since the bipartite could have no tails in it, the lower bound of the runtime is $\Omega(|V|)$ which is the amount of time needed to place nodes in their respective buckets based on how many edges they have in the bipartite. Regardless, this will require $\Theta(|V|)$ space to create a representation of the bipartite that can be deleted from.
+        \par
+        Next, the major component needs to be determined. This can be done with breadth-first seach. BFS will traverse the entire graph, counting the number of nodes that can be reached from some start node. If an entire component has been explored from some start node, and there are still unvisited nodes in the graph, BFS will pick a new start node and begin searching from there. By counting the number of nodes connected to each start node, the size of each component can be determined. The major component can be determined by taking the max of these sizes. BFS works with a queue of nodes to search. At the start of an iteration, the current node is removed from the front of the queue, and all of its neighbors are added to the queue, if they have not already been visited. Since each node is only visited once, the runtime for BFS is $\Theta(|V| + |E|)$. BFS operates in-place on the graph, but a parallel array to the array of nodes is needed to remember if a node has been visited or not. This requires $\Theta(|V|)$ space and time to initialize. All together, this algorithm runs $Theta(2|V| + |E|)$ time.
+        \par
+        Next, the bridges need to be removed from the major components. This can be done by modifying depth-first search to check for back-edges to nodes. If some node and its edges are being searched, it is a bridge if and only if none of the decendents of the nodes connected to the current node have a back-edge to the current node or any of its ancestors. Back-edges can be checked by maintaining a list of visit times given by the DFS algorithm (tin), and a list of the minimum entry time of any ancestor (fup). If the current node's neighbors have ancestors with earlier entry times, then they must have a back-edge to that node. If they have a back-edge with the current node, the minimum entry time of the ancestors would be the current time. If the miniumum entry time of the neghbor's ancestors is greater than the current time, it must be a bridge. This is codified in the folowing formula \cite{bridges}:
+
+        \begin{align}
+            fup[v] = min
+            \begin{cases}
+                tin[v] \\
+                tin[p]\,\text{for all $p$ for which $(v,\,p)$ is a back edge} \\
+                fup[to]\,\text{for all $to$ for which $(v,\,to)$ is a tree edge}
+            \end{cases}
+        \end{align}
+
+        Given this formula, the current edge $(v,\,to)$ is a bridge if and only if $fup[to] > tin[v]$ in the DFS tree. DFS runs in $\Theta(|V| + |E|)$ and the book-keeping data structures add a total space requirement of $\Theta(2|V|)$.
+        \par
+        Once the bridges have been found, the graph needs to be simulated to have them removed, and the resulting connected components need to be searched again for the major component. BFS can be used again, where if an edge is encountered that is in the set of bridge edges, the neighbors to the current node are not pushed into the queue. Using BFS again has a time and space requirements $Theta(2|V| + |E|)$ time and $\Theta(|V|)$ space.
+        \par
+        With the bridges removed, the major component in each graph has been determined and all single points of failure that could result in the disconnection of backbone nodes have been removed. It is then time to determine the two largest backbones for further evaluation. The size of the backbones (the number of edges) can be detemined in linear time by traversing all of the nodes in the backbone and counting the edges that are shared with other nodes in the backbone. This runs in-place on the backbone representation in $\Theta(|V| + |E|)$ time for each backbone that needs to have its size calculated.
+        \par
+        The domination of the two largest backbones needs to be calculated. Finding the number of nodes connected directly to the backbone is equivalent to finding the number of nodes that are not connected to the backbone. This can be done by traversing all nodes that are not part of the backbone and, for each of their edges, seeing if the adjacent node is a backbone node. This algorithm requires $\Theta(|V|)$ space and $\Theta(|V| + |E|)$ time to run where $|V|$ is the number of nodes not in the backbone.
+        \par
+        Finally, if the topology is a sphere, the number of faces can be determined by using Euler's Polyhedral Formula \cite{euler}, which is given by:
+
+        \begin{align}
+            2 = V + F - E \\
+            F = 2 - V + E
+        \end{align}
+
+        Where $V$ is the number of verticies, $E$ is the number of edges, and $F$ is the number of faces.
 
     \subsection{Algorithm Engineering}
 
@@ -403,6 +461,9 @@ A report on implementing algorithms to partition a random geometric graph into b
             \label{histwt}
         \end{figure}
 
+        \subsubsection{Backbone Determination}
+
+
     \subsection{Verification}
 
         \subsubsection{Node Placement}
@@ -442,6 +503,12 @@ A report on implementing algorithms to partition a random geometric graph into b
 
     \bibitem{spherecap}
     Weisstein, Eric W., Wolfram MathWorld Spherical Cap, http://mathworld.wolfram.com/SphericalCap.html
+
+    \bibitem{euler}
+    Weisstein, Eric W., Wolfram MathWorld Polyhedral Formula, http://mathworld.wolfram.com/PolyhedralFormula.html
+
+    \bibitem{bridges}
+    Kogler, Jakob, Finding bridges in a graph in $O(N + M)$, https://e-maxx-eng.appspot.com/graph/bridge-searching.html, 2018
 
     \bibitem{listsort}
     Peters, Tim, Timsort, http://svn.python.org/projects/python/trunk/Objects/listsort.txt
