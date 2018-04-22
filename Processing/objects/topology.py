@@ -1,7 +1,11 @@
 import random
 import math
 import time
+import sys
 from collections import deque
+
+# increase recursion limit for DFS
+sys.setrecursionlimit(8000)
 
 # benchmarks (num_nodes, avg_deg)
 SQUARE_BENCHMARKS = [(1000,32), (8000,64), (16000,32), (64000,64), (64000,128),
@@ -530,10 +534,10 @@ class Topology(object):
 
     # returns the two major components with the largest size
     def _getLargestBackbones(self, c_pairs):
-        sizes = [-1]
-        result = [None]
-        # sizes = [-1, -1]
-        # result = [None, None]
+        # sizes = [-1]
+        # result = [None]
+        sizes = [-1, -1]
+        result = [None, None]
         for p in c_pairs:
             size = self._calcSize(p)
 

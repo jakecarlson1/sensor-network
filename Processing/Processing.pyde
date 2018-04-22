@@ -13,7 +13,7 @@ AVG_DEG = 10
 
 MAX_NODES_TO_DRAW_EDGES = 8000
 
-RUN_BENCHMARK = False
+RUN_BENCHMARK = True
 
 def setup():
     size(CANVAS_WIDTH, CANVAS_HEIGHT, P3D)
@@ -130,7 +130,7 @@ def decrementVis():
     background(topology.color_bg)
 
 def main():
-    # sys.setrecursionlimit(32000)
+    sys.setrecursionlimit(8000)
     
     global is_looping
     global draw_domination
@@ -144,9 +144,9 @@ def main():
     vis_names = ["rgg", "slvo", "color", "bipartite", "no-tails", "major-comp", "no-bridge", "backbone"]
     
     global topology
-    topology = Square()
+    # topology = Square()
     # topology = Disk()
-    # topology = Sphere()
+    topology = Sphere()
     
     topology.num_nodes = NUM_NODES
     topology.avg_deg = AVG_DEG
@@ -154,7 +154,7 @@ def main():
     topology.canvas_width = CANVAS_WIDTH
     
     if RUN_BENCHMARK:
-        n_benchmark = 1
+        n_benchmark = 0
         topology.prepBenchmark(n_benchmark)
     
     run_time = time.clock()
@@ -163,6 +163,8 @@ def main():
     topology.findEdges(method="cell")
     topology.colorGraph()
     topology.generateBackbones()
+    
+    run_time = time.clock() - run_time
     
     print "Average degree: {}".format(topology.findAvgDegree())
     print "Min degree: {}".format(topology.getMinDegree())
@@ -173,10 +175,23 @@ def main():
     print "Number of colors: {}".format(len(set(topology.node_colors)))
     print "Max degree when deleted: {}".format(max(topology.deg_when_del.values()))
     color_cnt = Counter(topology.node_colors)
-    print "Max color set size: {}  color: {}".format(color_cnt.most_common(1)[0][1],
-                                                     color_cnt.most_common(1)[0][0])
+    print "Max color set size: {} \t color: {}".format(color_cnt.most_common(1)[0][1],
+                                                       color_cnt.most_common(1)[0][0])
+    print "Backbone 1 order: {} \t size: {} \t coverage: {}".format(topology.backbones_meta[0][0],
+                                                                    topology.backbones_meta[0][1],
+                                                                    topology.backbones_meta[0][2])
+    print "Backbone 2 order: {} \t size: {} \t coverage: {}".format(topology.backbones_meta[1][0],
+                                                                    topology.backbones_meta[1][1],
+                                                                    topology.backbones_meta[1][2])
+    b1_colors = list(set([topology.node_colors[i] for i in list(topology.backbones[0])]))
+    print "Backbone 1 colors: {} {}".format(b1_colors[0], b1_colors[1])
+    b2_colors = list(set([topology.node_colors[i] for i in list(topology.backbones[1])]))
+    print "Backbone 2 colors: {} {}".format(b2_colors[0], b2_colors[1])
     
-    run_time = time.clock() - run_time
+    if isinstance(topology, Sphere):
+        print "Backbone 1 faces: {}".format(topology.num_faces[0])
+        print "Backbone 2 faces: {}".format(topology.num_faces[1])
+    
     print "Run time: {0:.3f} s".format(run_time)
     
     print "\nPress 'm' for the menu"
