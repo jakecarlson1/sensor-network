@@ -21,6 +21,7 @@ def setup():
 
 def draw():
     global curr_vis
+    global draw_domination
     
     if curr_vis == 0:
         topology.drawGraph(MAX_NODES_TO_DRAW_EDGES)
@@ -37,7 +38,7 @@ def draw():
     elif curr_vis == 6:
         topology.drawPairs(3)
     elif curr_vis == 7:
-        topology.drawBackbones()
+        topology.drawBackbones(draw_domination)
 
 def keyPressed():
     global curr_vis
@@ -45,6 +46,9 @@ def keyPressed():
     
     if key == ' ':
         toggleLooping()
+    elif key == 'c':
+        if curr_vis == 7:
+            toggleDrawDomination()
     elif key == 'i':
         topology.switchFgBg()
     elif key == 'l':
@@ -83,10 +87,11 @@ def keyPressed():
         print "\n---- Help Menu ----"
         print "Use 'hjkl' to move between visualizations"
         print "Press 'i' to invert the color scheme"
-        print "Press space to pause rotation of the sphere"
         print "Press 'y' to take a screenshot of the current frame"
+        print "Press 'c' to show the coverage of the backbone"
         print "Entering a number n between 0 and 9 will set the step size to 2^n nodes"
         print "Using ']' will double the step size, '[' will half it"
+        print "Press space to pause rotation of the sphere"
 
 # def mouseDragged():
 #     global topology
@@ -100,6 +105,13 @@ def toggleLooping():
     else:
         loop()
         is_looping = True
+
+def toggleDrawDomination():
+    global draw_domination
+    if draw_domination:
+        draw_domination = False
+    else:
+        draw_domination = True
 
 def incrementVis():
     global curr_vis
@@ -119,16 +131,18 @@ def main():
     # sys.setrecursionlimit(32000)
     
     global is_looping
+    global draw_domination
     global curr_vis
     global step_size
     is_looping = True
+    draw_domination = False
     curr_vis = 0
     step_size = 1
     
     global topology
-    topology = Square()
+    # topology = Square()
     # topology = Disk()
-    # topology = Sphere()
+    topology = Sphere()
     
     topology.num_nodes = NUM_NODES
     topology.avg_deg = AVG_DEG

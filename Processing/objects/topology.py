@@ -41,6 +41,7 @@ class Topology(object):
         self.rot = (0,0,0)
         self.color_bg = 0
         self.color_fg = 255
+        self.color_fill = 180
 
     # public funciton for generating nodes of the graph, must be subclassed
     def generateNodes(self):
@@ -566,12 +567,25 @@ class Topology(object):
         return meta
 
     # public function for drawing the backbones
-    def drawBackbones(self):
+    def drawBackbones(self, draw_domination=False):
         l_i = list(self.backbones[self.curr_backbone])
         l_n = [self.nodes[i] for i in l_i]
+        if draw_domination:
+            self._drawDomination(l_i)
+        else:
+            background(self.color_bg)
         self._drawNodes(l_n)
         self._applyColors(l_i)
         self._drawEdges(l_n)
+
+    # draws connection radius around backbone nodes
+    def _drawDomination(self, node_i_list):
+        strokeWeight(5)
+        stroke(self.color_fill)
+        fill(self.color_fill)
+
+        for n_i in node_i_list:
+            ellipse(self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height, 2*self.node_r*self.canvas_width, 2*self.node_r*self.canvas_height)
 
 """
 Square - inherits from Topology, overloads generateNodes and _getRadiusForAverageDegree
@@ -736,7 +750,7 @@ class Sphere(Topology):
         self._applyColors(self.slvo[0:self.curr_node])
 
     # places colors on the nodes
-    def _applyColors(self, node_i_list):
+    def _applyColors(self, node_i_list, draw_domination=False):
         strokeWeight(2)
 
         num_colors = max(self.node_colors)
@@ -757,6 +771,12 @@ class Sphere(Topology):
 
             # places ellipse at origin
             ellipse(0, 0, 10, 10)
+
+            if draw_domination:
+                stroke(self.color_fill)
+                fill(self.color_fill, 0.2)
+                # places sphere at origin
+                sphere(self.node_r*self.canvas_width)
 
             popMatrix()
 
@@ -791,8 +811,8 @@ class Sphere(Topology):
         self._applyColors(l_i)
 
     # public function for drawing the backbones
-    def drawBackbones(self):
+    def drawBackbones(self, draw_domination=False):
         l_i = list(self.backbones[self.curr_backbone])
         l_n = [self.nodes[i] for i in l_i]
         self._drawNodesAndEdges(l_n)
-        self._applyColors(l_i)
+        self._applyColors(l_i, draw_domination)
