@@ -498,17 +498,19 @@ A report on implementing algorithms to partition a random geometric graph into b
             \colorbox{gray}{\includegraphics[width=\linewidth]{./images/major-comp-wt.png}}
             \end{minipage}
             \vskip 0.1in
-            \begin{center}
-                \begin{minipage}{0.3\textwidth}
-                \colorbox{gray}{\includegraphics[width=\linewidth]{./images/no-bridge-wt.png}}
-                \end{minipage}
-                \hskip 0.3in
-                \begin{minipage}{0.3\textwidth}
-                \colorbox{gray}{\includegraphics[width=\linewidth]{./images/backbone-wt.png}}
-                \end{minipage}
-            \end{center}
+            \begin{minipage}{0.3\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/no-bridge-wt.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.3\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/backbone-wt.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.3\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/backbone-coverage-wt.png}}
+            \end{minipage}
 
-            \caption{Smallest-last vertex ordering coloring process}
+            \caption{Backbone determination walkthrough for two largest color sets. top left: bipartite subgraph, top center: tails removed, top right: major component, bottom left: bridges and minor blocks removed, bottom center: final backbone, bottom right: coverage area}
             \label{wtbackbone}
         \end{figure}
 
