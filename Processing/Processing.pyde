@@ -8,8 +8,8 @@ from objects.topology import Square, Disk, Sphere
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 1000
-AVG_DEG = 16
+NUM_NODES = 20
+AVG_DEG = 10
 
 MAX_NODES_TO_DRAW_EDGES = 8000
 
@@ -43,6 +43,7 @@ def draw():
 def keyPressed():
     global curr_vis
     global step_size
+    global vis_names
     
     if key == ' ':
         toggleLooping()
@@ -54,9 +55,11 @@ def keyPressed():
     elif key == 'l':
         incrementVis()
         topology.mightResetCurrNode()
+        print vis_names[curr_vis]
     elif key == 'h':
         decrementVis()
         topology.mightResetCurrNode()
+        print vis_names[curr_vis]
     elif key == 'k':
         if curr_vis > 2 and curr_vis < 7:
             topology.incrementCurrPair()
@@ -72,8 +75,7 @@ def keyPressed():
         else:
             topology.decrementCurrNode(step_size)
     elif key == 'y':
-        saveFrame("../report/images/{}-{}.png".format(
-                  "slvo" if curr_vis == 1 else "color", topology.curr_node))
+        saveFrame("../report/images/{}-#####.png".format(vis_names[curr_vis]))
     elif key >= '0' and key <= '9':
         step_size = 2**int(key)
         print "New step size:", step_size
@@ -134,15 +136,17 @@ def main():
     global draw_domination
     global curr_vis
     global step_size
+    global vis_names
     is_looping = True
     draw_domination = False
     curr_vis = 0
     step_size = 1
+    vis_names = ["rgg", "slvo", "color", "bipartite", "no-tails", "major-comp", "no-bridge", "backbone"]
     
     global topology
-    # topology = Square()
+    topology = Square()
     # topology = Disk()
-    topology = Sphere()
+    # topology = Sphere()
     
     topology.num_nodes = NUM_NODES
     topology.avg_deg = AVG_DEG

@@ -264,23 +264,25 @@ def runBenchmarks(graphs=False):
                             plotDistributionOfColors(topology, t)
 
 def main():
-    # topology = Square()
-    # topology.num_nodes = 32000
-    # topology.avg_deg = 16
-    #
+    topology = Square()
+    topology.num_nodes = 20
+    topology.avg_deg = 10
+
     # topology.generateNodes()
-    # topology.findEdges(method="cell")
-    # topology.colorGraph()
+    topology.nodes = [(0.16554748865863744, 0.7428880467195966), (0.40180039932931066, 0.6330074694166272), (0.20846531080904873, 0.056976870021135495), (0.05230791659569578, 0.9513147704390671), (0.6753855534168854, 0.2836279661827944), (0.12988879967745515, 0.9971182165321495), (0.5270550451728433, 0.9258882768247121), (0.6852368199350459, 0.4263736502482848), (0.4716627276644715, 0.6680908261583154), (0.9414075534144307, 0.9560195543397301), (0.9998494395054617, 0.11439600735777367), (0.4438169014087935, 0.5476806758034705), (0.8922261350422642, 0.7623001247624691), (0.3979123852896057, 0.7388906181720541), (0.8653244995985494, 0.8987636303313389), (0.788663594849647, 0.5228652496972744), (0.1049121719335151, 0.32243226738783837), (0.03715162312345044, 0.596803291591099), (0.9248618060552093, 0.6674939956832068), (0.016919752014154743, 0.3738866212674906)]
+    topology.findEdges(method="cell")
+    topology.colorGraph()
+    topology.generateBackbones()
 
     # runForVarNodes()
     # runForVarAvgDeg()
     # plotForVarNodes()
     # plotForVarAvgDeg()
     # plotDistributionOfDegrees(topology)
-    # plotDistributionOfDegreesWhenDel(topology)
+    plotDistributionOfDegreesWhenDel(topology)
     # validateIndepSets(topology)
-    # plotDistributionOfColors(topology)
-    sys.setrecursionlimit(8000)
-    runBenchmarks()
+    plotDistributionOfColors(topology)
+    # sys.setrecursionlimit(8000)
+    # runBenchmarks()
 
 main()

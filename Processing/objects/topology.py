@@ -28,6 +28,7 @@ class Topology(object):
         self.slvo = []
         self.deg_when_del = {}
         self.node_colors = []
+        self.num_color_sets = 4
         self.pairs = []
         self.no_tails = []
         self.major_comps = []
@@ -181,7 +182,7 @@ class Topology(object):
     # responsible for drawing the edges in the canavas
     def _drawEdges(self, node_list):
         strokeWeight(1)
-        stroke(245)
+        stroke(self.color_fg)
         fill(self.color_fg)
 
         s = set(node_list)
@@ -326,6 +327,7 @@ class Topology(object):
     # switch foreground and background colors
     def switchFgBg(self):
         self.color_fg, self.color_bg = self.color_bg, self.color_fg
+        background(self.color_bg)
 
     # # update the rotation of the drawing
     # def updateRotation(self, x, y):
@@ -372,10 +374,10 @@ class Topology(object):
     # pairs the four largest independent color sets
     def _pairIndependentSets(self, color_list):
         # the first four color sets should be the largest (slvo)
-        indep_sets = [set() for _ in range(4)]
+        indep_sets = [set() for _ in range(self.num_color_sets)]
 
         for i, n in enumerate(self.nodes):
-            if self.node_colors[i] < 4:
+            if self.node_colors[i] < self.num_color_sets:
                 indep_sets[self.node_colors[i]].add(i)
 
         # return combinations of sets (union)
@@ -464,7 +466,10 @@ class Topology(object):
 
             visits.append(visit)
 
-        return components[visits.index(max(visits))]
+        if len(components) > 0:
+            return components[visits.index(max(visits))]
+        else:
+            return set()
 
     # removes all bridges and minor blocks from major component
     # algorithm: https://e-maxx-eng.appspot.com/graph/bridge-searching.html
@@ -525,8 +530,10 @@ class Topology(object):
 
     # returns the two major components with the largest size
     def _getLargestBackbones(self, c_pairs):
-        sizes = [0, 0]
-        result = [None, None]
+        sizes = [-1]
+        result = [None]
+        # sizes = [-1, -1]
+        # result = [None, None]
         for p in c_pairs:
             size = self._calcSize(p)
 
@@ -537,7 +544,7 @@ class Topology(object):
 
         # saves backbone meta data (order, size)
         meta = [(len(result[i]), sizes[i]) for i in range(len(result))]
-        if sizes[1] > sizes[0]:
+        if len(result) > 1 and sizes[1] > sizes[0]:
             return result[::-1], meta[::-1]
 
         return result, meta
