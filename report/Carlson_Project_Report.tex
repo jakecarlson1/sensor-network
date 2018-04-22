@@ -480,9 +480,37 @@ A report on implementing algorithms to partition a random geometric graph into b
         \par
         If the topology is a sphere, the number of faces of the backbone can be calculated using Euler's Polyhedral Formula. This formula operates under the assumtion that a graph is connected and can be represented in planar form. The first is guarunteed because the backbone is the major connected component found in a bipartite subgraph. The second is true because the nodes comprising the backbone can be projected onto a plane and there will be no overlapping edges because the edges do not overlap in the original representation. Therefore, the number of faces can be calculated in constant time using the meta data of the backbone generated earlier.
         \par
+        To illustrate this further, the above walkthrough is extended to include the backbone determination stages based on the two largest color sets. These stages are given in Figure \ref{wtbackbone}. With the selected color sets, removing the tails is sufficient for creating the backbone. The other steps yield the same graph, but are necessary for higher-order graphs.
         % - walkthrough
         %       - first two colors
         %       - illustrate domination and planarity
+
+        \begin{figure}
+            \begin{minipage}{0.3\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/bipartite-wt.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.3\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/no-tails-wt.png}}
+            \end{minipage}
+            \hspace{\fill}
+            \begin{minipage}{0.3\textwidth}
+            \colorbox{gray}{\includegraphics[width=\linewidth]{./images/major-comp-wt.png}}
+            \end{minipage}
+            \vskip 0.1in
+            \begin{center}
+                \begin{minipage}{0.3\textwidth}
+                \colorbox{gray}{\includegraphics[width=\linewidth]{./images/no-bridge-wt.png}}
+                \end{minipage}
+                \hskip 0.3in
+                \begin{minipage}{0.3\textwidth}
+                \colorbox{gray}{\includegraphics[width=\linewidth]{./images/backbone-wt.png}}
+                \end{minipage}
+            \end{center}
+
+            \caption{Smallest-last vertex ordering coloring process}
+            \label{wtbackbone}
+        \end{figure}
 
     \subsection{Verification}
 
