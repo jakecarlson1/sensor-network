@@ -42,7 +42,7 @@
 
 \title{Linear Time Backbone Determination in a Wireless Sensor Network}
 \author{Jake Carlson}
-\date{April 21, 2018}
+\date{April 23, 2018}
 \maketitle
 
 \abstract
@@ -521,13 +521,8 @@ A report on implementing algorithms to partition a random geometric graph into b
 
     \subsection{Verification}
 
-        \subsubsection{Node Placement}
+        \subsubsection{Node Placement and Edge Determination}
         The nodes can be verified to be distributed uniformly if the degrees follow a normal distribution. To show that the distribution of degrees for each of the geometries are following a normal distribution, the degree histograms are plotted for each of the benchmarks. The histrograms for Square are given in Figure \ref{squaredeghists}, Disk are given in Figure \ref{diskdeghists}, and Sphere are given in Figure \ref{spheredeghists}. These histograms clearly follow a normal distribution, so the nodes must be placed uniformly.
-
-        \subsubsection{Edge Determination}
-        The runtime for the edge detection methods can be verified by varying the number of nodes and measuring the runtime of each algorithm. By looking at how the runtime grows, we can calculate the trendline that best fits the growth rate. For the first comparison, the number of nodes is varied from 4,000 to 64,000 in steps of 4,000, while holding the desired average degree constant at 16. As we can see in Figure \ref{avgdeg}, the growth rates of the brute force and sweep methods are quadratic, while the growth rate of the cell method. The trendline functions are given on the graph.
-        \par
-        For the second metric, the number of nodes is held constant at 32,000 and varied the desired average degree from 2 to 32 in steps of 2. The graph is given in Figure \ref{avgdeg}. The cell method clearly grows linearly, but the sweep method is harder to gauge. Since varying the desired average degree should only change the node radius, this should grow linearly as well. However, because each graph is randomly generated, some graphs can have nodes that are closer to sorted order than others. This can effect the measured runtime.
 
         \subsubsection{Graph Coloring}
         Smallest-last vertex ordering can be verified by looking at the distribution of the degrees of nodes when deleted. Since this algorithm repeatedly removes the node with the fewest connections, and because the removal of that node will cause the fewest number of nodes to move to the next lowest bucket, we would expect the bulk of the nodes to have a large degree when they are deleted. This would be indicated by a negative skew in the distribution of degrees when deleted. Additionally, since the nodes are only removed when they satisfy the criteria of being the node with the minimum degree, we should see the standard deviation of the distribution of nodes to be much smaller than in the original distribution of degrees. Both of these features can be found in Figures \ref{squaredegdelhists}, \ref{diskdegdelhists}, and \ref{spheredegdelhists} which plot the original distribution of degrees alongside the distribution of degrees when deleted. We see that the distribution of degrees when deleted follows a normal distrbution with a negative skew and a relatively small standard deviation compared to the original distribution of degrees.
@@ -539,6 +534,10 @@ A report on implementing algorithms to partition a random geometric graph into b
         \subsubsection{Backbone Determination}
         % - screen shots of the two backbones for each benchmark
         %       - plus order, size, colors used, domination num faces
+        The runtime for the backbone determination method can be verified by varying the number of nodes and measuring the runtime of the algorithm. By looking at how the runtime grows, we can calculate the trendline that best fits the growth rate. For the first comparison, the number of nodes is varied from 4,000 to 64,000 in steps of 4,000, while holding the desired average degree constant at 16. As we can see in Figure \ref{runtime}, the growth rates of the runtime of backbone determination follow a linear trend for each of the topologies. The trendline functions are given on the graph.
+        \par
+        For the second metric, the number of nodes is held constant at 32,000 and the desired average degree is varied from 2 to 32 in steps of 2. The graph is given in Figure \ref{runtime}. It can be seen that the runtimes for this test follow a linear trend for each of the topologies.
+        
 
 % \section{Results Summary}
 
@@ -588,16 +587,16 @@ A report on implementing algorithms to partition a random geometric graph into b
 \section{Appendix A - Figures}
 
 \begin{figure}[h]
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.48\textwidth}
     \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/run_time_avg_deg_16.png}}
     \end{minipage}
     \hspace{\fill}
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.48\textwidth}
     \colorbox{gray}{\includegraphics[width=\linewidth]{./graphs/run_time_var_avg_deg.png}}
     \end{minipage}
 
-    \caption{Runtime for edge detection methods. left: constant average degree of 16, right: variable average degree}
-    \label{avgdeg}
+    \caption{Runtime for backbone determination. left: constant average degree of 16, right: variable average degree}
+    \label{runtime}
 \end{figure}
 
 \begin{figure}
@@ -854,6 +853,7 @@ A report on implementing algorithms to partition a random geometric graph into b
     \begin{minipage}{0.3\textwidth}
     \colorbox{gray}{\includegraphics[width=\linewidth]{./images/square_3_bb_1.png}}
     \end{minipage}
+
     \caption{Square benchmark graphs and backbones}
     \label{squaresa}
 \end{figure}
@@ -895,7 +895,6 @@ A report on implementing algorithms to partition a random geometric graph into b
     \colorbox{gray}{\includegraphics[width=\linewidth]{./images/square_6_bb_1.png}}
     \end{minipage}
     \vskip 0.1in
-    % \end{adjustbox}
 
     \caption{Square benchmark graphs and backbones}
     \label{squaresb}

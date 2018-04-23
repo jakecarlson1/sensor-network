@@ -6,19 +6,21 @@ import pickle
 from Processing.objects.topology import *
 from collections import Counter
 
-def varryNumNodes(method="cell"):
-    print "-------- {} --------".format(method)
+def varryNumNodes(top=Square):
+    print "-------- {} --------".format(top)
     times = []
     nodes = range(4000,68000,4000)
     for n in nodes:
-        topology = Square()
+        topology = top()
         topology.num_nodes = n
         topology.avg_deg = 16
 
         time_0 = time.clock()
 
         topology.generateNodes()
-        topology.findEdges(method=method)
+        topology.findEdges(method="cell")
+        topology.colorGraph()
+        topology.generateBackbones()
 
         time_0 = time.clock() - time_0
         times.append(time_0)
@@ -30,19 +32,21 @@ def varryNumNodes(method="cell"):
 
     return times, nodes[:len(times)]
 
-def varryAvgDeg(method="cell"):
-    print "-------- {} --------".format(method)
+def varryAvgDeg(top=Square):
+    print "-------- {} --------".format(top)
     times = []
     avg_degs = range(2,34,2)
     for d in avg_degs:
-        topology = Square()
+        topology = top()
         topology.num_nodes = 32000
         topology.avg_deg = d
 
         time_0 = time.clock()
 
         topology.generateNodes()
-        topology.findEdges(method=method)
+        topology.findEdges(method="cell")
+        topology.colorGraph()
+        topology.generateBackbones()
 
         time_0 = time.clock() - time_0
         times.append(time_0)
@@ -55,73 +59,79 @@ def varryAvgDeg(method="cell"):
     return times, avg_degs[:len(times)]
 
 def runForVarNodes():
-    times_cell, nodes_cell = varryNumNodes(method="cell")
-    with open('./report/data/times_cell.pkl', 'w') as f:
-        pickle.dump(times_cell, f)
-    with open('./report/data/nodes_cell.pkl', 'w') as f:
-        pickle.dump(nodes_cell, f)
+    times_square, nodes_square = varryNumNodes(top=Square)
+    with open('./report/data/times_square.pkl', 'w') as f:
+        pickle.dump(times_square, f)
+    with open('./report/data/nodes_square.pkl', 'w') as f:
+        pickle.dump(nodes_square, f)
 
-    times_sweep, nodes_sweep = varryNumNodes(method="sweep")
-    with open('./report/data/times_sweep.pkl', 'w') as f:
-        pickle.dump(times_sweep, f)
-    with open('./report/data/nodes_sweep.pkl', 'w') as f:
-        pickle.dump(nodes_sweep, f)
+    times_disk, nodes_disk = varryNumNodes(top=Disk)
+    with open('./report/data/times_disk.pkl', 'w') as f:
+        pickle.dump(times_disk, f)
+    with open('./report/data/nodes_disk.pkl', 'w') as f:
+        pickle.dump(nodes_disk, f)
 
-    times_brute, nodes_brute = varryNumNodes(method="brute")
-    with open('./report/data/times_brute.pkl', 'w') as f:
-        pickle.dump(times_brute, f)
-    with open('./report/data/nodes_brute.pkl', 'w') as f:
-        pickle.dump(nodes_brute, f)
+    times_sphere, nodes_sphere = varryNumNodes(top=Sphere)
+    with open('./report/data/times_sphere.pkl', 'w') as f:
+        pickle.dump(times_sphere, f)
+    with open('./report/data/nodes_sphere.pkl', 'w') as f:
+        pickle.dump(nodes_sphere, f)
 
 def runForVarAvgDeg():
-    times_cell, avg_degs_cell = varryAvgDeg(method="cell")
-    with open('./report/data/times_cell_deg.pkl', 'w') as f:
-        pickle.dump(times_cell, f)
-    with open('./report/data/avg_degs_cell.pkl', 'w') as f:
-        pickle.dump(avg_degs_cell, f)
+    times_square, avg_degs_square = varryAvgDeg(top=Square)
+    with open('./report/data/square_times_deg.pkl', 'w') as f:
+        pickle.dump(times_square, f)
+    with open('./report/data/square_avg_degs.pkl', 'w') as f:
+        pickle.dump(avg_degs_square, f)
 
-    times_sweep, avg_degs_sweep = varryAvgDeg(method="sweep")
-    with open('./report/data/times_sweep_deg.pkl', 'w') as f:
-        pickle.dump(times_sweep, f)
-    with open('./report/data/avg_degs_sweep.pkl', 'w') as f:
-        pickle.dump(avg_degs_sweep, f)
+    times_disk, avg_degs_disk = varryAvgDeg(top=Disk)
+    with open('./report/data/disk_times_deg.pkl', 'w') as f:
+        pickle.dump(times_disk, f)
+    with open('./report/data/disk_avg_degs.pkl', 'w') as f:
+        pickle.dump(avg_degs_disk, f)
+
+    times_sphere, avg_degs_sphere = varryAvgDeg(top=Sphere)
+    with open('./report/data/sphere_times_deg.pkl', 'w') as f:
+        pickle.dump(times_sphere, f)
+    with open('./report/data/sphere_avg_degs.pkl', 'w') as f:
+        pickle.dump(avg_degs_sphere, f)
 
 def plotForVarNodes():
-    with open('./report/data/times_cell.pkl', 'r') as f:
-        times_cell = pickle.load(f)
-    with open('./report/data/nodes_cell.pkl', 'r') as f:
-        nodes_cell = pickle.load(f)
+    with open('./report/data/times_square.pkl', 'r') as f:
+        times_square = pickle.load(f)
+    with open('./report/data/nodes_square.pkl', 'r') as f:
+        nodes_square = pickle.load(f)
 
-    with open('./report/data/times_sweep.pkl', 'r') as f:
-        times_sweep = pickle.load(f)
-    with open('./report/data/nodes_sweep.pkl', 'r') as f:
-        nodes_sweep = pickle.load(f)
+    with open('./report/data/times_disk.pkl', 'r') as f:
+        times_disk = pickle.load(f)
+    with open('./report/data/nodes_disk.pkl', 'r') as f:
+        nodes_disk = pickle.load(f)
 
-    with open('./report/data/times_brute.pkl', 'r') as f:
-        times_brute = pickle.load(f)
-    with open('./report/data/nodes_brute.pkl', 'r') as f:
-        nodes_brute = pickle.load(f)
+    with open('./report/data/times_sphere.pkl', 'r') as f:
+        times_sphere = pickle.load(f)
+    with open('./report/data/nodes_sphere.pkl', 'r') as f:
+        nodes_sphere = pickle.load(f)
 
-    c = np.polyfit(nodes_cell, times_cell, 1)
-    c_n = np.poly1d(c)
-    s = np.polyfit(nodes_sweep, times_sweep, 2)
-    s_n = np.poly1d(s)
-    b = np.polyfit(nodes_brute, times_brute, 2)
-    b_n = np.poly1d(b)
+    sq = np.polyfit(nodes_square, times_square, 1)
+    sq_n = np.poly1d(sq)
+    d = np.polyfit(nodes_disk, times_disk, 1)
+    d_n = np.poly1d(d)
+    sp = np.polyfit(nodes_sphere, times_sphere, 1)
+    sp_n = np.poly1d(sp)
 
-    print "cell: t = %.6fn + (%.6f)"%(c[0],c[1])
-    print "sweep: t = %.6fn^2 + %.6fn + (%.6f)"%(s[0],s[1],s[2])
-    print "brute: t = %.6fn^2 + %.6fn + (%.6f)"%(b[0],b[1],b[2])
+    print "square: t = %.6fn + (%.6f)"%(sq[0],sq[1])
+    print "disk: t = %.6fn + (%.6f)"%(d[0],d[1])
+    print "sphere: t = %.6fn + (%.6f)"%(sp[0],sp[1])
 
-    plt.plot(nodes_cell, times_cell, 'r-', label="Cell")
-    plt.plot(nodes_cell, c_n(nodes_cell), 'r--')
-    plt.text(42000, 6, '$t_{cell} = %.6fn + (%.6f)$'%(c[0],c[1]))
-    plt.plot(nodes_sweep, times_sweep, 'b-', label="Sweep")
-    plt.plot(nodes_sweep, s_n(nodes_sweep), 'b--')
-    plt.text(28000, 28, '$t_{sweep} = %.6fn^2 + %.6fn + (%.6f)$'%(s[0],s[1],s[2]))
-    plt.plot(nodes_brute, times_brute, 'g-', label="Brute")
-    plt.plot(nodes_brute, b_n(nodes_brute), 'g--')
-    plt.text(17000, 110, '$t_{brute} = %.6fn^2 + %.6fn + (%.6f)$'%(b[0],b[1],b[2]))
+    plt.plot(nodes_square, times_square, 'b-', label="Square")
+    plt.plot(nodes_square, sq_n(nodes_square), 'b--')
+    plt.text(40000, 5, '$t_{square} = %.6fn + (%.6f)$'%(sq[0],sq[1]))
+    plt.plot(nodes_disk, times_disk, 'g-', label="Disk")
+    plt.plot(nodes_disk, d_n(nodes_disk), 'g--')
+    plt.text(40000, 1.5, '$t_{disk} = %.6fn + (%.6f)$'%(d[0],d[1]))
+    plt.plot(nodes_sphere, times_sphere, 'r-', label="Sphere")
+    plt.plot(nodes_sphere, sp_n(nodes_sphere), 'r--')
+    plt.text(14000, 16, '$t_{sphere} = %.6fn + (%.6f)$'%(sp[0],sp[1]))
     plt.xlabel("Num nodes")
     plt.ylabel("Run time (s)")
     plt.title("Run Time for Average Degree = 16")
@@ -129,30 +139,41 @@ def plotForVarNodes():
     plt.show()
 
 def plotForVarAvgDeg():
-    with open('./report/data/times_cell_deg.pkl', 'r') as f:
-        times_cell = pickle.load(f)
-    with open('./report/data/avg_degs_cell.pkl', 'r') as f:
-        avg_degs_cell = pickle.load(f)
+    with open('./report/data/square_times_deg.pkl', 'r') as f:
+        times_square = pickle.load(f)
+    with open('./report/data/square_avg_degs.pkl', 'r') as f:
+        avg_degs_square = pickle.load(f)
 
-    with open('./report/data/times_sweep_deg.pkl', 'r') as f:
-        times_sweep = pickle.load(f)
-    with open('./report/data/avg_degs_sweep.pkl', 'r') as f:
-        avg_degs_sweep = pickle.load(f)
+    with open('./report/data/disk_times_deg.pkl', 'r') as f:
+        times_disk = pickle.load(f)
+    with open('./report/data/disk_avg_degs.pkl', 'r') as f:
+        avg_degs_disk = pickle.load(f)
 
-    c = np.polyfit(avg_degs_cell, times_cell, 1)
-    c_n = np.poly1d(c)
-    s = np.polyfit(avg_degs_sweep, times_sweep, 1)
-    s_n = np.poly1d(s)
+    with open('./report/data/sphere_times_deg.pkl', 'r') as f:
+        times_sphere = pickle.load(f)
+    with open('./report/data/sphere_avg_degs.pkl', 'r') as f:
+        avg_degs_sphere = pickle.load(f)
 
-    print "cell: t = %.6fn + (%.6f)"%(c[0],c[1])
-    print "sweep: t = %.6fn + (%.6f)"%(s[0],s[1])
+    sq = np.polyfit(avg_degs_square, times_square, 1)
+    sq_n = np.poly1d(sq)
+    d = np.polyfit(avg_degs_disk, times_disk, 1)
+    d_n = np.poly1d(d)
+    sp = np.polyfit(avg_degs_sphere, times_sphere, 1)
+    sp_n = np.poly1d(sp)
 
-    plt.plot(avg_degs_cell, times_cell, 'r-', label="Cell")
-    plt.plot(avg_degs_cell, c_n(avg_degs_cell), 'r--')
-    plt.text(20, 6, '$t_{cell} = %.6fn + (%.6f)$'%(c[0],c[1]))
-    plt.plot(avg_degs_sweep, times_sweep, 'b-', label="Sweep")
-    plt.plot(avg_degs_sweep, s_n(avg_degs_sweep), 'b--')
-    plt.text(12, 56, '$t_{sweep} = %.6fn + (%.6f)$'%(s[0],s[1]))
+    print "square: t = %.6fn + (%.6f)"%(sq[0],sq[1])
+    print "disk: t = %.6fn + (%.6f)"%(d[0],d[1])
+    print "sphere: t = %.6fn + (%.6f)"%(sp[0],sp[1])
+
+    plt.plot(avg_degs_square, times_square, 'b-', label="Square")
+    plt.plot(avg_degs_square, sq_n(avg_degs_square), 'b--')
+    plt.text(18, 1, '$t_{square} = %.6fn + (%.6f)$'%(sq[0],sq[1]))
+    plt.plot(avg_degs_disk, times_disk, 'g-', label="Disk")
+    plt.plot(avg_degs_disk, d_n(avg_degs_disk), 'g--')
+    plt.text(18, 4, '$t_{disk} = %.6fn + (%.6f)$'%(d[0],d[1]))
+    plt.plot(avg_degs_sphere, times_sphere, 'r-', label="Sphere")
+    plt.plot(avg_degs_sphere, sp_n(avg_degs_sphere), 'r--')
+    plt.text(8, 15, '$t_{sphere} = %.6fn + (%.6f)$'%(sp[0],sp[1]))
     plt.xlabel("Average Degree")
     plt.ylabel("Run time (s)")
     plt.title("Run Time for |V| = 32,000")
@@ -281,13 +302,13 @@ def main():
 
     # runForVarNodes()
     # runForVarAvgDeg()
-    # plotForVarNodes()
-    # plotForVarAvgDeg()
+    plotForVarNodes()
+    plotForVarAvgDeg()
     # plotDistributionOfDegrees(topology)
     # plotDistributionOfDegreesWhenDel(topology)
     # validateIndepSets(topology)
     # plotDistributionOfColors(topology)
-    sys.setrecursionlimit(8000)
-    runBenchmarks()
+    # sys.setrecursionlimit(8000)
+    # runBenchmarks()
 
 main()
