@@ -173,7 +173,6 @@ class Topology(object):
         self.n_limit = n_limit
         self._drawNodes(self.nodes)
         self._drawEdges(self.nodes)
-        # self._drawMinMaxDegNodes()
 
     # responsible for drawing the nodes in the canvas
     def _drawNodes(self, node_list):
