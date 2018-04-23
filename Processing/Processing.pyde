@@ -130,7 +130,7 @@ def decrementVis():
     background(topology.color_bg)
 
 def main():
-    sys.setrecursionlimit(8000)
+    sys.setrecursionlimit(32000)
     
     global is_looping
     global draw_domination
@@ -141,12 +141,13 @@ def main():
     draw_domination = False
     curr_vis = 0
     step_size = 1
-    vis_names = ["rgg", "slvo", "color", "bipartite", "no-tails", "major-comp", "no-bridge", "backbone"]
+    vis_names = ["rgg", "slvo", "color", "bipartite", "no-tails",
+                 "major-comp", "no-bridge", "backbone"]
     
     global topology
-    # topology = Square()
+    topology = Square()
     # topology = Disk()
-    topology = Sphere()
+    # topology = Sphere()
     
     topology.num_nodes = NUM_NODES
     topology.avg_deg = AVG_DEG
@@ -175,17 +176,19 @@ def main():
     print "Number of colors: {}".format(len(set(topology.node_colors)))
     print "Max degree when deleted: {}".format(max(topology.deg_when_del.values()))
     color_cnt = Counter(topology.node_colors)
-    print "Max color set size: {} \t color: {}".format(color_cnt.most_common(1)[0][1],
-                                                       color_cnt.most_common(1)[0][0])
-    print "Backbone 1 order: {} \t size: {} \t coverage: {}".format(topology.backbones_meta[0][0],
-                                                                    topology.backbones_meta[0][1],
-                                                                    topology.backbones_meta[0][2])
-    print "Backbone 2 order: {} \t size: {} \t coverage: {}".format(topology.backbones_meta[1][0],
-                                                                    topology.backbones_meta[1][1],
-                                                                    topology.backbones_meta[1][2])
-    b1_colors = list(set([topology.node_colors[i] for i in list(topology.backbones[0])]))
+    print "Max color set size: {} \t color: {}".format(
+        color_cnt.most_common(1)[0][1], color_cnt.most_common(1)[0][0])
+    print "Backbone 1 order: {} \t size: {} \t coverage: {}".format(
+        topology.backbones_meta[0][0], topology.backbones_meta[0][1],
+        topology.backbones_meta[0][2])
+    print "Backbone 2 order: {} \t size: {} \t coverage: {}".format(
+        topology.backbones_meta[1][0], topology.backbones_meta[1][1],
+        topology.backbones_meta[1][2])
+    b1_colors = list(set(
+        [topology.node_colors[i] for i in list(topology.backbones[0])]))
     print "Backbone 1 colors: {} {}".format(b1_colors[0], b1_colors[1])
-    b2_colors = list(set([topology.node_colors[i] for i in list(topology.backbones[1])]))
+    b2_colors = list(set(
+        [topology.node_colors[i] for i in list(topology.backbones[1])]))
     print "Backbone 2 colors: {} {}".format(b2_colors[0], b2_colors[1])
     
     if isinstance(topology, Sphere):

@@ -43,10 +43,12 @@ class Topology(object):
         self.curr_pair = 0
         self.curr_backbone = 0
 
+        # used to control _drawNodes functionality
+        self.n_limit = 8000
         self.rot = (0,0,0)
         self.color_bg = 0
         self.color_fg = 255
-        self.color_fill = 180
+        self.color_fill = 220
 
     # public funciton for generating nodes of the graph, must be subclassed
     def generateNodes(self):
@@ -168,11 +170,10 @@ class Topology(object):
 
     # public function for drawing the graph
     def drawGraph(self, n_limit):
+        self.n_limit = n_limit
         self._drawNodes(self.nodes)
-        if self.num_nodes <= n_limit:
-            self._drawEdges(self.nodes)
-        else:
-            self._drawMinMaxDegNodes()
+        self._drawEdges(self.nodes)
+        # self._drawMinMaxDegNodes()
 
     # responsible for drawing the nodes in the canvas
     def _drawNodes(self, node_list):
@@ -186,29 +187,25 @@ class Topology(object):
     # responsible for drawing the edges in the canavas
     def _drawEdges(self, node_list):
         strokeWeight(1)
-        stroke(self.color_fg)
-        fill(self.color_fg)
-
         s = set(node_list)
 
         for n in node_list:
-            for m_i in self.edges[n]:
-                if self.nodes[m_i] in s:
-                    line(n[0]*self.canvas_width, n[1]*self.canvas_height, self.nodes[m_i][0]*self.canvas_width, self.nodes[m_i][1]*self.canvas_height)
+            stroke(self.color_fg)
+            fill(self.color_fg)
 
-    # responsible for drawing the edges of the min and max degree nodes
-    def _drawMinMaxDegNodes(self):
-        strokeWeight(1)
-        stroke(0,self.color_fg,0)
-        fill(self.color_fg)
-        for n_i in self.edges[self.minDeg]:
-            line(self.minDeg[0]*self.canvas_width, self.minDeg[1]*self.canvas_height, self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height)
+            if len(node_list) < self.n_limit:
+                for m_i in self.edges[n]:
+                    if self.nodes[m_i] in s:
+                        line(n[0]*self.canvas_width, n[1]*self.canvas_height, self.nodes[m_i][0]*self.canvas_width, self.nodes[m_i][1]*self.canvas_height)
+            if n == self.minDeg:
+                stroke(0,255,0)
+                for n_i in self.edges[self.minDeg]:
+                    line(self.minDeg[0]*self.canvas_width, self.minDeg[1]*self.canvas_height, self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height)
+            elif n == self.maxDeg:
+                stroke(0,0,255)
+                for n_i in self.edges[self.maxDeg]:
+                    line(self.maxDeg[0]*self.canvas_width, self.maxDeg[1]*self.canvas_height, self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height)
 
-        stroke(0,0,self.color_fg)
-        for n_i in self.edges[self.maxDeg]:
-            line(self.maxDeg[0]*self.canvas_width, self.maxDeg[1]*self.canvas_height, self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height)
-
-    # uses smallest last vertex ordering to color the graph
     def colorGraph(self):
         self.slvo, self.deg_when_del = self._smallestLastVertexOrdering()
         self.node_colors = self._assignNodeColors(self.slvo)
@@ -332,15 +329,6 @@ class Topology(object):
     def switchFgBg(self):
         self.color_fg, self.color_bg = self.color_bg, self.color_fg
         background(self.color_bg)
-
-    # # update the rotation of the drawing
-    # def updateRotation(self, x, y):
-    #     # self.rot = (self.rot[0], self.rot[1]-math.pi/100, self.rot[2])
-    #     # self.rot = (x*math.cos(self.rot[0])*math.pi/500, self.rot[1], self.rot[2])
-    #     self.rot = (self.rot[0], x*math.cos(self.rot[1])*math.pi/1000, self.rot[2])
-    #     # rotateX(self.rot[0])
-    #     # rotateZ(self.rot[2])
-    #     # rotateY(-1*self.rot[1])
 
     # used to draw the graph with the nodes colored
     def drawColoring(self):
@@ -659,8 +647,6 @@ class Sphere(Topology):
     def __init__(self):
         super(Sphere, self).__init__()
         self.rot = (0,math.pi/4,0) # this may move to Topology if rotation is given to the 2D shapes
-        # used to control _drawNodes functionality
-        self.n_limit = 8000
         self.num_faces = []
 
     # places nodes in a unit cube and projects them onto the surface of the sphere
@@ -731,8 +717,8 @@ class Sphere(Topology):
                         # draws line from origin to neighboring node
                         line(0,0,0, (e[0] - n[0])*self.canvas_width, (e[1] - n[1])*self.canvas_height, (e[2] - n[2])*self.canvas_width)
             # draw edges for min degree node
-            elif n == self.minDeg:
-                stroke(0,self.color_fg,0)
+            if n == self.minDeg:
+                stroke(0,255,0)
                 for e_i in self.edges[n]:
                     e = self.nodes[e_i]
                     # draws line from origin to neighboring node
@@ -740,7 +726,7 @@ class Sphere(Topology):
                 stroke(self.color_fg)
             # draw edges for max degree node
             elif n == self.maxDeg:
-                stroke(0,0,self.color_fg)
+                stroke(0,0,255)
                 for e_i in self.edges[n]:
                     e = self.nodes[e_i]
                     # draws line from origin to neighboring node
@@ -780,14 +766,14 @@ class Sphere(Topology):
             # sets drawing origin to current node
             translate(self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height, self.nodes[n_i][2]*self.canvas_width)
 
-            # places ellipse at origin
-            ellipse(0, 0, 10, 10)
-
             if draw_domination:
                 stroke(self.color_fill)
                 fill(self.color_fill, 0.2)
                 # places sphere at origin
                 sphere(self.node_r*self.canvas_width)
+
+            # places ellipse at origin
+            ellipse(0, 0, 10, 10)
 
             popMatrix()
 

@@ -2,6 +2,7 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{csvsimple}
+\usepackage{adjustbox}
 \usepackage{listings}
 \usepackage{color}
 \usepackage{geometry}
@@ -77,7 +78,9 @@ A report on implementing algorithms to partition a random geometric graph into b
     \begin{center}
         \begin{table}[h]
             \centering
-            \csvautotabular{./data/benchmark-data-1.csv}
+            \begin{adjustbox}{width=1\textwidth}
+                \csvautotabular{./data/benchmark-data-1.csv}
+            \end{adjustbox}
             \caption{Benchmarks for generating RGGs. A: input average degree, r: node connection radius}
             \label{tab1}
         \end{table}
@@ -95,7 +98,9 @@ A report on implementing algorithms to partition a random geometric graph into b
     \begin{center}
         \begin{table}[h]
             \centering
-            \csvautotabular{./data/benchmark-data-3.csv}
+            \begin{adjustbox}{width=1\textwidth}
+                \csvautotabular{./data/benchmark-data-3.csv}
+            \end{adjustbox}
             \caption{Benchmarks for backbone determination}
             \label{tab3}
         \end{table}

@@ -217,7 +217,7 @@ def runBenchmarks(graphs=False):
             with open("./report/data/benchmark-data-3.csv", "w+") as f3:
                 f1.write("Benchmark,Order,A,Topology,r,Size,Realized A,Max Deg,Min Deg,Run Time (s)\n")
                 f2.write("Benchmark,Max Deg Deleted,Color Sets,Largest Color Set,Terminal Clique Size\n")
-                f3.write("Benchmark,B1 Order,B1 Size,B1 Domination,B1 Faces,B2 Order,B2 Size,B2 Domination,B2 Faces\n")
+                f3.write("Benchmark,B1 Colors,B1 Order,B1 Size,B1 Domination,B1 Faces,B2 Colors,B2 Order,B2 Size,B2 Domination,B2 Faces\n")
                 n = 0
                 tops = {
                     'Square': (Square, SQUARE_BENCHMARKS),
@@ -242,13 +242,19 @@ def runBenchmarks(graphs=False):
                         run_time = time.clock() - run_time
 
                         color_cnt = Counter(topology.node_colors)
+                        b1_colors = list(set([str(topology.node_colors[j]) for j in list(topology.backbones[0])]))
+                        b2_colors = list(set([str(topology.node_colors[j]) for j in list(topology.backbones[1])]))
 
                         f1.write("{},{},{},{},".format(n, tops[t][1][i][0], tops[t][1][i][1], t))
                         f1.write("{0:.3f},".format(topology.node_r))
                         f1.write("{},{},{},{},".format(topology.findNumEdges(), topology.findAvgDegree(), topology.getMaxDegree(), topology.getMinDegree()))
                         f1.write("{0:.3f}\n".format(run_time))
                         f2.write("{},{},{},{},{}\n".format(n, max(topology.deg_when_del.values()), len(set(topology.node_colors)), color_cnt.most_common(1)[0][1], topology.term_clique_size))
-                        f3.write("{},{},{},{},{},{},{},{},{}\n".format(n, topology.backbones_meta[0][0], topology.backbones_meta[0][1], topology.backbones_meta[0][2], topology.num_faces[0] if t == "Sphere" else "", topology.backbones_meta[1][0], topology.backbones_meta[1][1], topology.backbones_meta[1][2], topology.num_faces[1] if t == "Sphere" else ""))
+                        f3.write("{},{},{},{},".format(n, " \& ".join(b1_colors), topology.backbones_meta[0][0], topology.backbones_meta[0][1]))
+                        f3.write("{0:.3f},".format(topology.backbones_meta[0][2]))
+                        f3.write("{},{},{},{},".format(topology.num_faces[0] if t == "Sphere" else "", " \& ".join(b2_colors), topology.backbones_meta[1][0], topology.backbones_meta[1][1]))
+                        f3.write("{0:.3f},".format(topology.backbones_meta[1][2]))
+                        f3.write("{}\n".format(topology.num_faces[1] if t == "Sphere" else ""))
                         f1.flush()
                         f2.flush()
                         f3.flush()
