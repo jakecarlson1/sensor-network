@@ -40,13 +40,13 @@
 
 \begin{document}
 
-\title{Linear Time Backbone Determination in a Wireless Sensor Network}
+\title{Linear-Time Backbone Determination in a Wireless Sensor Network}
 \author{Jake Carlson}
 \date{April 23, 2018}
 \maketitle
 
 \abstract
-A report on implementing algorithms to partition a random geometric graph into bipartite subgraphs. Three different graph geometries are explored: unit square, unit disk, and unit sphere. Nodes are uniformly distributed in the geometry. Then the edges are determined and the verticies are colored using smallest-last vertex ordering and greedy graph coloring. Once coloring has been used to determine the independent color sets, the combinations of the largest are processed to find the largest backbone. All algorithms used in this report are implemented to run in linear time.
+A report on implementing algorithms to partition a random geometric graph into bipartite subgraphs. Three different graph geometries are explored: unit square, unit disk, and unit sphere. Nodes are uniformly distributed across the geometry. Then the edges are determined and the verticies are colored using smallest-last vertex ordering and greedy graph coloring. Once coloring has been used to determine the independent color sets, the combinations of the largest are processed to find the largest backbones. All algorithms used in this report are implemented to run in linear time.
 \newpage
 
 \tableofcontents
@@ -171,7 +171,7 @@ A report on implementing algorithms to partition a random geometric graph into b
         \par
         The second method to find the edges is the sweep method. This method first sorts the nodes along the x-axis. Then, for any node, we only need to search left and right until the distance along the x-axis is greater than the connection radius for the nodes. This dramatically reduces the search space. The sweep method is $O\left(n lg(n) + 2rn^2\right)$ where $n = |V|$ an $r$ is the connection radius. The $n lg(n)$ portion is for the sorting and the $2rn^2$ portion is for measuring the distance between nodes in a sweep step.
         \par
-        The final method to find edges is the cell method. This method places the nodes into cells of area $r \times r$ based on their position in the topology. When the edge detection runs, each node needs to be visited once, but only the cell the node populates and the neighboring cells need to be searched for connections.
+        The final method to find edges is the cell method \cite{rggpartition}. This method places the nodes into cells of area $r \times r$ based on their position in the topology. When the edge detection runs, each node needs to be visited once, but only the cell the node populates and the neighboring cells need to be searched for connections.
         \par
         The only method that needs to be adjusted for the Sphere is the cell method. Instead of using a two dimensional grid of cells, a three dimentional mesh is needed to divide the topology. The cells then have volume $r \times r \times r$. Only the current cell and the neighboring cells need to be searched.
 
@@ -486,9 +486,6 @@ A report on implementing algorithms to partition a random geometric graph into b
         If the topology is a sphere, the number of faces of the backbone can be calculated using Euler's Polyhedral Formula. This formula operates under the assumtion that a graph is connected and can be represented in planar form. The first is guarunteed because the backbone is the major connected component found in a bipartite subgraph. The second is true because the nodes comprising the backbone can be projected onto a plane and there will be no overlapping edges because the edges do not overlap in the original representation. Therefore, the number of faces can be calculated in constant time using the meta data of the backbone generated earlier.
         \par
         To illustrate this further, the above walkthrough is extended to include the backbone determination stages based on the two largest color sets. These stages are given in Figure \ref{wtbackbone}. With the selected color sets, removing the tails is sufficient for creating the backbone. The other steps yield the same graph, but are necessary for higher-order graphs.
-        % - walkthrough
-        %       - first two colors
-        %       - illustrate domination and planarity
 
         \begin{figure}
             \begin{minipage}{0.3\textwidth}
@@ -532,18 +529,20 @@ A report on implementing algorithms to partition a random geometric graph into b
         To further verify the accuracy of the smallest-last coloring implementation additional code was used to verify that the coloring result was correct while running benchmarks. All of the nodes in the smallest-last vertex ordering are traversed, and for each node, the edges are visited to see if any adjacent nodes have the same color as the node being checked. If any of these neighbors have the same color, the coloring is not correct and our independent sets cannot be used for backbone determination. All of the benchmarks ran and returned valid colorings.
 
         \subsubsection{Backbone Determination}
-        % - screen shots of the two backbones for each benchmark
-        %       - plus order, size, colors used, domination num faces
         The runtime for the backbone determination method can be verified by varying the number of nodes and measuring the runtime of the algorithm. By looking at how the runtime grows, we can calculate the trendline that best fits the growth rate. For the first comparison, the number of nodes is varied from 4,000 to 64,000 in steps of 4,000, while holding the desired average degree constant at 16. As we can see in Figure \ref{runtime}, the growth rates of the runtime of backbone determination follow a linear trend for each of the topologies. The trendline functions are given on the graph.
         \par
         For the second metric, the number of nodes is held constant at 32,000 and the desired average degree is varied from 2 to 32 in steps of 2. The graph is given in Figure \ref{runtime}. It can be seen that the runtimes for this test follow a linear trend for each of the topologies.
-        
+        \par
+        To further verify the integrity of the generated backbones, the final backbones for each topology are given in Figures \ref{squaresa}, \ref{squaresb}, \ref{disks}, and \ref{spheres}. Information on the colors used, order, size, domination, and number of faces are given in \ref{tab3}. It can be seen that there are no nodes with only one neighbor, and each block of nodes has multiple connections to the rest of the backbone. This verifies that if one node were to fail there would still be a path connecting all remaining nodes.
 
 % \section{Results Summary}
 
 \newpage
 
-\begin{thebibliography}{10}
+\begin{thebibliography}{13}
+    \bibitem{rggpartition}
+    Chen, Zizhen; Matula, David, Bipartite Grid Partitioning of a Random Geometric Graph, 2017
+
     \bibitem{slv}
     Matula, David; Beck, Leland, Smallest-Last Ordering and Clustering and Graph Coloring Algorithms, 1983
 
