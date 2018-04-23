@@ -206,6 +206,7 @@ class Topology(object):
                 for n_i in self.edges[self.maxDeg]:
                     line(self.maxDeg[0]*self.canvas_width, self.maxDeg[1]*self.canvas_height, self.nodes[n_i][0]*self.canvas_width, self.nodes[n_i][1]*self.canvas_height)
 
+    # uses smallest last vertex ordering to color the graph
     def colorGraph(self):
         self.slvo, self.deg_when_del = self._smallestLastVertexOrdering()
         self.node_colors = self._assignNodeColors(self.slvo)

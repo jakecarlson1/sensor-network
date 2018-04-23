@@ -7,3 +7,6 @@ report/*.toc
 report/*.out
 report/*.lol
 report/*.synctex*
+
+# pickle files
+report/data/*.pkl

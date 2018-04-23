@@ -261,6 +261,9 @@ def runBenchmarks(graphs=False):
 
                         validateIndepSets(topology)
 
+                        with open('./report/data/{}_{}.pkl'.format(str.lower(t), i), 'w') as f:
+                            pickle.dump(topology, f)
+
                         if graphs:
                             sep = 5
                             if topology.avg_deg >= 128:

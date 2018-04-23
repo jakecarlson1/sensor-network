@@ -2,6 +2,7 @@ import random
 import sys
 import time
 import math
+import pickle
 from collections import Counter
 from objects.topology import Square, Disk, Sphere
 
@@ -95,10 +96,6 @@ def keyPressed():
         print "Using ']' will double the step size, '[' will half it"
         print "Press space to pause rotation of the sphere"
 
-# def mouseDragged():
-#     global topology
-#     topology.updateRotation(mouseX, mouseY)
-
 def toggleLooping():
     global is_looping
     if is_looping:
@@ -130,7 +127,7 @@ def decrementVis():
     background(topology.color_bg)
 
 def main():
-    sys.setrecursionlimit(32000)
+    sys.setrecursionlimit(8000)
     
     global is_looping
     global draw_domination
@@ -145,9 +142,9 @@ def main():
                  "major-comp", "no-bridge", "backbone"]
     
     global topology
-    topology = Square()
+    # topology = Square()
     # topology = Disk()
-    # topology = Sphere()
+    topology = Sphere()
     
     topology.num_nodes = NUM_NODES
     topology.avg_deg = AVG_DEG
@@ -155,17 +152,19 @@ def main():
     topology.canvas_width = CANVAS_WIDTH
     
     if RUN_BENCHMARK:
-        n_benchmark = 0
-        topology.prepBenchmark(n_benchmark)
+        n_benchmark = 2
+        # topology.prepBenchmark(n_benchmark)
+        with open('../report/data/{}_{}.pkl'.format('sphere', n_benchmark), 'r') as f:
+            topology = pickle.load(f)
     
-    run_time = time.clock()
+    # run_time = time.clock()
     
-    topology.generateNodes()
-    topology.findEdges(method="cell")
-    topology.colorGraph()
-    topology.generateBackbones()
+    # topology.generateNodes()
+    # topology.findEdges(method="cell")
+    # topology.colorGraph()
+    # topology.generateBackbones()
     
-    run_time = time.clock() - run_time
+    # run_time = time.clock() - run_time
     
     print "Average degree: {}".format(topology.findAvgDegree())
     print "Min degree: {}".format(topology.getMinDegree())
@@ -195,7 +194,7 @@ def main():
         print "Backbone 1 faces: {}".format(topology.num_faces[0])
         print "Backbone 2 faces: {}".format(topology.num_faces[1])
     
-    print "Run time: {0:.3f} s".format(run_time)
+    # print "Run time: {0:.3f} s".format(run_time)
     
     print "\nPress 'm' for the menu"
 
