@@ -8,8 +8,8 @@ from objects.topology import Square, Disk, Sphere
 CANVAS_HEIGHT = 720
 CANVAS_WIDTH = 720
 
-NUM_NODES = 20
-AVG_DEG = 10
+NUM_NODES = 1000
+AVG_DEG = 16
 
 MAX_NODES_TO_DRAW_EDGES = 8000
 
@@ -142,8 +142,8 @@ def main():
     
     global topology
     # topology = Square()
-    # topology = Disk()
-    topology = Sphere()
+    topology = Disk()
+    # topology = Sphere()
     
     topology.num_nodes = NUM_NODES
     topology.avg_deg = AVG_DEG
@@ -191,7 +191,7 @@ def main():
         print "Backbone 1 faces: {}".format(topology.num_faces[0])
         print "Backbone 2 faces: {}".format(topology.num_faces[1])
     
-    # print "Run time: {0:.3f} s".format(run_time)
+    print "Run time: {0:.3f} s".format(run_time)
     
     print "\nPress 'm' for the menu"
 

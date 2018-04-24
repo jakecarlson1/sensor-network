@@ -621,11 +621,10 @@ class Disk(Topology):
     # places nodes uniformly in a unit square and regenerates the node if it falls
     # outside of the circle
     def generateNodes(self):
-        for i in range(self.num_nodes):
+        while len(self.nodes) < self.num_nodes:
             p = (random.uniform(0,1), random.uniform(0,1))
-            while self._distance(p, (0.5,0.5)) > 0.5:
-                p = (random.uniform(0,1), random.uniform(0,1))
-            self.nodes.append(p)
+            if self._distance(p, (0.5,0.5)) <= 0.5:
+                self.nodes.append(p)
 
     # calculates the radius needed for the requested average degree in a unit circle
     def _getRadiusForAverageDegree(self):
