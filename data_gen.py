@@ -203,20 +203,25 @@ def validateIndepSets(topology):
     print "Valid coloring" if valid else "Node shares color with neighbor"
 
 def plotDistributionOfDegreesWhenDel(topology, top=None, sep=5):
-    c_orig = Counter([len(v) for v in topology.edges.values()])
-    c_del = Counter([topology.deg_when_del[n] for n in topology.nodes])
-    labels_orig = [x[0] for x in c_orig.items()]
-    labels_del = [x[0] for x in c_del.items()]
-    labels = list(set(labels_orig) | set(labels_del))
-    orig_deg = [c_orig[l] for l in labels]
-    del_deg = [c_del[l] for l in labels]
-    indexes = np.arange(len(labels), step=sep)
-    plt.bar(np.arange(len(labels)), orig_deg, color='b', label="Original Degree")
-    plt.bar(np.arange(len(labels)), del_deg, color='r', label="Degree when Deleted in SLVO")
-    plt.xticks(indexes + 0.1, labels[::sep])
-    plt.xlabel("Degree")
-    plt.ylabel("Number of Occurances")
-    plt.title("Distribution of Degrees of Nodes{}".format(", {}, |V| = {}, A = {}".format(top, topology.num_nodes, topology.avg_deg) if top != None else ""))
+    # c_orig = Counter([len(v) for v in topology.edges.values()])
+    # c_del = Counter([topology.deg_when_del[n] for n in topology.nodes])
+    # labels_orig = [x[0] for x in c_orig.items()]
+    # labels_del = [x[0] for x in c_del.items()]
+    # labels = list(set(labels_orig) | set(labels_del))
+    # orig_deg = [c_orig[l] for l in labels]
+    # del_deg = [c_del[l] for l in labels]
+    # indexes = np.arange(len(labels), step=sep)
+    # plt.bar(np.arange(len(labels)), orig_deg, color='b', label="Original Degree")
+    # plt.bar(np.arange(len(labels)), del_deg, color='r', label="Degree when Deleted in SLVO")
+    # plt.xticks(indexes + 0.1, labels[::sep])
+
+    indexes = np.arange(len(topology.nodes), step=sep)
+    # verticies, degrees
+    plt.plot(np.arange(len(topology.nodes)), [len(topology.edges[topology.nodes[n_i]]) for n_i in topology.slvo], 'g', label="Original")
+    plt.plot(np.arange(len(topology.nodes)), [topology.deg_when_del[topology.nodes[n_i]] for n_i in topology.slvo], 'b', label="Deleted")
+    plt.xlabel("Vertex")
+    plt.ylabel("Degree")
+    plt.title("Vertex Degree Plots in SLVO Ordering{}".format(", {}, |V| = {}, A = {}".format(top, topology.num_nodes, topology.avg_deg) if top != None else ""))
     plt.legend()
     plt.show()
 
@@ -292,8 +297,8 @@ def runBenchmarks(graphs=False):
 
 def main():
     # topology = Square()
-    # topology.num_nodes = 20
-    # topology.avg_deg = 10
+    # topology.num_nodes = 32000
+    # topology.avg_deg = 16
     #
     # topology.generateNodes()
     # topology.findEdges(method="cell")
@@ -308,7 +313,24 @@ def main():
     # plotDistributionOfDegreesWhenDel(topology, sep=1)
     # validateIndepSets(topology)
     # plotDistributionOfColors(topology, sep=1)
-    sys.setrecursionlimit(8000)
-    runBenchmarks()
+    # sys.setrecursionlimit(8000)
+    # runBenchmarks()
+
+    tops = {
+        'Square': (Square, SQUARE_BENCHMARKS),
+        'Disk': (Disk, DISK_BENCHMARKS),
+        'Sphere': (Sphere, SPHERE_BENCHMARKS)
+    }
+    for t in ['Sphere']:
+        for i in range(len(tops[t][1])):
+            with open('./report/data/{}_{}.pkl'.format(t, i), 'r') as f:
+                topology = pickle.load(f)
+
+                sep = 5
+                if topology.avg_deg >= 128:
+                    sep = 25
+                # plotDistributionOfDegrees(topology, t, sep)
+                plotDistributionOfDegreesWhenDel(topology, t, sep)
+                # plotDistributionOfColors(topology, t)
 
 main()
