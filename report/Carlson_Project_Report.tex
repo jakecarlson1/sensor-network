@@ -67,9 +67,9 @@ A report on implementing algorithms to partition a random geometric graph into b
     \end{center}
 
     \subsection{Environment Description}
-    The data structures and topologies for this simulation are implemented in Python2.7. The graphics are generated using Processing.py \cite{processing}. All development and benchmarking has been done on a 2014 MackBook Pro with a 3 GHz Intel Core i7 processor and 16 GB of DDR3 RAM running macOS High Sierra 10.13.3.
+    The data structures and topologies for this simulation are implemented in Python2.7. The graphics are generated using Processing.py \cite{processing}. All development and benchmarking has been done on a 2014 MackBook Pro with a 3 GHz Intel Core i7 processor and 16 GB of DDR3 RAM running macOS High Sierra 10.13.4. I used a MacBook Pro and the macOS operating system becuase it is Unix based and is easy to develop in.
     \par
-    Processing offers an easy to use API for drawing and rendering shapes two- and three-dimensions. The Processing.py implementation allows the entire use of the Python programming languages and libraries.
+    Processing offers an easy to use API for drawing and rendering shapes two- and three-dimensions. The Processing.py implementation allows the use of the Python programming languages and libraries.
     \par
     A separate data generation script was used to generate the summary tables (Tables \ref{tab1}, \ref{tab2}, \ref{tab3}). Because these benchmarks were run in a separate script, the timing does not measure the time required to draw the graphs using Processing. The figures were generated using the matplotlib library \cite{matplotlib}. This library, and a variety of others, could not be imported into Processing.py because the jython interpreter used by Processing only accepts libraries written in raw Python.
     \par

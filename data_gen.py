@@ -267,10 +267,7 @@ def runBenchmarks(graphs=False):
                         b2_colors = list(set([str(topology.node_colors[j]) for j in list(topology.backbones[1])]))
 
                         f1.write("{},{},{},{},".format(n, tops[t][1][i][0], tops[t][1][i][1], t))
-                        if t == "Disk":
-                            f1.write("{0:.3f},".format(topology.node_r/2))
-                        else:
-                            f1.write("{0:.3f},".format(topology.node_r))
+                        f1.write("{0:.3f},".format(topology.node_r))
                         f1.write("{},{},{},{},".format(topology.findNumEdges(), topology.findAvgDegree(), topology.getMaxDegree(), topology.getMinDegree()))
                         f1.write("{0:.3f}\n".format(run_time))
                         f2.write("{},{},{},{},{}\n".format(n, max(topology.deg_when_del.values()), len(set(topology.node_colors)), color_cnt.most_common(1)[0][1], topology.term_clique_size))
@@ -284,9 +281,6 @@ def runBenchmarks(graphs=False):
                         f3.flush()
 
                         validateIndepSets(topology)
-
-                        with open('./report/data/{}_{}.pkl'.format(str.lower(t), i), 'w') as f:
-                            pickle.dump(topology, f)
 
                         if graphs:
                             sep = 5
