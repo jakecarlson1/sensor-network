@@ -191,7 +191,7 @@ def main():
         print "Backbone 1 faces: {}".format(topology.num_faces[0])
         print "Backbone 2 faces: {}".format(topology.num_faces[1])
     
-    print "Run time: {0:.3f} s".format(run_time)
+    # print "Run time: {0:.3f} s".format(run_time)
     
     print "\nPress 'm' for the menu"
 

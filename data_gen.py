@@ -321,7 +321,7 @@ def main():
         'Disk': (Disk, DISK_BENCHMARKS),
         'Sphere': (Sphere, SPHERE_BENCHMARKS)
     }
-    for t in ['Sphere']:
+    for t in ['Square', 'Disk', 'Sphere']:
         for i in range(len(tops[t][1])):
             with open('./report/data/{}_{}.pkl'.format(t, i), 'r') as f:
                 topology = pickle.load(f)

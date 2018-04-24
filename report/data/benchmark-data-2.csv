@@ -1,6 +1,6 @@
 Benchmark,Max Deg Deleted,Color Sets,Largest Color Set,Terminal Clique Size
 1,21,22,76,21
-2,39,37,323,34
+2,38,37,322,36
 3,24,25,1162,24
 4,42,41,2526,40
 5,73,66,1374,58
