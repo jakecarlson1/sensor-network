@@ -13,7 +13,7 @@ AVG_DEG = 10
 
 MAX_NODES_TO_DRAW_EDGES = 8000
 
-RUN_BENCHMARK = False
+RUN_BENCHMARK = True
 
 def setup():
     size(CANVAS_WIDTH, CANVAS_HEIGHT, P3D)
@@ -150,16 +150,22 @@ def main():
     topology.canvas_height = CANVAS_HEIGHT
     topology.canvas_width = CANVAS_WIDTH
     
-    if RUN_BENCHMARK:
-        n_benchmark = 0
-        topology.prepBenchmark(n_benchmark)
-    
     run_time = time.clock()
     
-    topology.generateNodes()
-    topology.findEdges(method="cell")
-    topology.colorGraph()
-    topology.generateBackbones()
+    if RUN_BENCHMARK:
+        import pickle
+        global n_benchmark
+        global t_name
+        t_name = 'sphere'
+        n_benchmark = 2
+        # topology.prepBenchmark(n_benchmark)
+        with open('../report/data/{}_{}.pkl'.format(t_name, n_benchmark), 'r') as f:
+            topology = pickle.load(f)
+    else:
+        topology.generateNodes()
+        topology.findEdges(method="cell")
+        topology.colorGraph()
+        topology.generateBackbones()
     
     run_time = time.clock() - run_time
     
@@ -191,7 +197,7 @@ def main():
         print "Backbone 1 faces: {}".format(topology.num_faces[0])
         print "Backbone 2 faces: {}".format(topology.num_faces[1])
     
-    # print "Run time: {0:.3f} s".format(run_time)
+    print "Run time: {0:.3f} s".format(run_time)
     
     print "\nPress 'm' for the menu"
 
