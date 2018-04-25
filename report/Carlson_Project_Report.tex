@@ -42,7 +42,7 @@
 
 \title{Linear-Time Backbone Determination in a Wireless Sensor Network}
 \author{Jake Carlson}
-\date{April 23, 2018}
+\date{April 24, 2018}
 \maketitle
 
 \abstract
@@ -56,9 +56,9 @@ A report on implementing algorithms to partition a random geometric graph into b
 \section{Executive Summary}
 
     \subsection{Introduction}
-    Random geometric graphs (RGGs) are useful for simulating wireless sensor networks placed in different topologies. This project examines three different geometries: Square, Disk, and Sphere. The user supplies parameters for how many nodes they want in the network and how many connections they want for each node. Then, the simulation finds the average radius needed for that number of connections, determines the edges in the graph, colors the graph to find independent sets, pairs the four largest independent sets to find the largest bipartite subgraphs, and cleans these bipartites to find the major component, or backbone, of each bipartite. The cleaning ensures that there are no singular points of failure that could cause the network to become disconnected. In other words, each backbone exists so that there are multiple paths between any two nodes in the backbone.
+    Random geometric graphs (RGGs) are useful for simulating wireless sensor networks placed in different topologies. This project examines three different geometries: Square, Disk, and Sphere. The user supplies parameters for how many nodes they want in the network and how many connections they want for each node. Then, the simulation finds the connection radius needed for that number of connections, determines the edges in the graph, colors the graph to find independent sets, pairs the four largest independent sets to find the largest bipartite subgraphs, and cleans these bipartites to find the major component, or backbone, of each bipartite. The cleaning ensures that there are no singular points of failure that could cause the network to become disconnected. In other words, each backbone exists so that there are multiple paths between any two nodes in the backbone.
     \par
-    This creates network backbones from the random geometric graphs that are highly reliable and allow the largest number of wireless sensors to connect to it in only one hop. Additionally, the linear time implementation of this simulation ensures efficient running time regardless of the input size. The organization of the code base also makes it easy to implement new topologies by subclassing the main Topology class that implements all of the algorithms needed to determine the backbone.
+    This creates network backbones from the random geometric graphs that are highly reliable and allow the largest number of wireless sensors to connect to the backbone in only one hop. Additionally, the linear time implementation of this simulation ensures efficient running time regardless of the input size. The organization of the code base also makes it easy to implement new topologies by subclassing the main Topology class that implements all of the algorithms needed to determine the backbone.
     \par
     All of the code used for this project, including the graphical display of the generated graphs at each stage in the backbone determination process, can be found here:
 
@@ -67,13 +67,13 @@ A report on implementing algorithms to partition a random geometric graph into b
     \end{center}
 
     \subsection{Environment Description}
-    The data structures and topologies for this simulation are implemented in Python2.7. The graphics are generated using Processing.py \cite{processing}. All development and benchmarking has been done on a 2014 MackBook Pro with a 3 GHz Intel Core i7 processor and 16 GB of DDR3 RAM running macOS High Sierra 10.13.4. I used a MacBook Pro and the macOS operating system becuase it is Unix based and is easy to develop in.
+    The data structures and topologies for this simulation are implemented in Python2.7. The graphics are generated using Processing.py \cite{processing}. All development and benchmarking has been done on a 2014 MackBook Pro with a 3 GHz Intel Core i7 processor and 16 GB of DDR3 RAM running macOS High Sierra 10.13.4. I used a MacBook Pro and the macOS operating system becuase the Unix system is easy to develop in.
     \par
     Processing offers an easy to use API for drawing and rendering shapes two- and three-dimensions. The Processing.py implementation allows the use of the Python programming languages and libraries.
     \par
     A separate data generation script was used to generate the summary tables (Tables \ref{tab1}, \ref{tab2}, \ref{tab3}). Because these benchmarks were run in a separate script, the timing does not measure the time required to draw the graphs using Processing. The figures were generated using the matplotlib library \cite{matplotlib}. This library, and a variety of others, could not be imported into Processing.py because the jython interpreter used by Processing only accepts libraries written in raw Python.
     \par
-    The different geometries were implemented in a stand alone Python file and imported into the Processing.py script or the data generation script, depending on what was being run. These classes can then be used directly by Processing or the data generation script. Because there is no intermediary file to hold the generated nodes and edges, there is no additional disk space needed to run the simulation. Everything can be done in system memory managed by Processing.
+    The different geometries were implemented in a stand alone Python file and imported into the Processing.py script or the data generation script, depending on what was being run. These classes can then be used directly by Processing or the data generation script. Because there is no intermediary file to hold the generated nodes and edges, there is no additional disk space required to run the simulation. Everything can be done in system memory managed by Processing. However, in order to maintain consistency between the benchmarks presented in the summary table and the graph visualizations drawn using Processing, the graphs generated for benchmarking are saved to disk for later loading. To save these objects, the pickle object serialization library is used \cite{pickle}. When all of the benchmark topologies are written to disk, the total disk usage is 597 MB.
 
     \begin{center}
         \begin{table}[h]
@@ -111,7 +111,7 @@ A report on implementing algorithms to partition a random geometric graph into b
     \subsection{Data Structure Design}
     The primary data structure used for this project is an adjacency list. However, to allow for constant time lookup of edges of a node, a Python dictionary is used where the keys are nodes and the values are a list of indices of adjacent nodes in the original list of nodes. The space needed by the adjacency list is $\Theta(|V| + 2|E|)$. Two entries are used for each edge because they are undirected. This is superior to the adjacency matrix data structure which would require $\Theta(|E|^2)$ space.
     \par
-    In order to make this project maintainable as it is developed along the semester, the object-oriented capabilities of Python are used to design the different geometries. First, a Topology class is defined that creates the interface Processing uses to draw the graphs. This base class implements all of the methods needed for node placement and edge detection in 2D graphs. Then, three subclasses are created: Square, Disk, and Sphere.
+    In order to make this project maintainable as it is developed, the object-oriented capabilities of Python are used to design the different geometries. First, a Topology class is defined that creates the interface Processing uses to draw the graphs. This base class implements all of the methods needed for node placement, edge detection, graph coloring, and backbone determination in 2D graphs. Then, three subclasses are created: Square, Disk, and Sphere.
     \par
     The Square and Disk topologies simply need to override the methods for generating nodes and calculating the node radius needed for the desired average degree. The Sphere subclass needs to override a few additional functions because it exists in a 3D space. Other than the methods for generating nodes and calculating the node radius, it also needs to override the function used to draw the graph so that Processing will render the graph properly in 3D.
 
@@ -120,7 +120,14 @@ A report on implementing algorithms to partition a random geometric graph into b
         \subsubsection{Node Placement}
         A different node placement algorithm is required for each of the geometries. For the Square, the coordinates for each node are generated as two random numbers taken from a uniform distribution on the range $[0,1]$. All of these points are guaranteed to be in the unit square.
         \par
-        For the Disk, a similar method is used. The coordinates for nodes are randomly sampled from a uniform distribution; however, if a node has a distance from the center of the Disk greater than the radius of 1, the coordinates for that node are resampled.
+        For the Disk, a similar method is used for polar coordinates. The radius from the center, $r$, and angle from the horizontal, $\theta$, are choosen uniformly from the ranges $[0,1]$ and $[0,2\pi)$ respectively. Then, the Cartesian coordinates are given by the equations \ref{diskpoints}:
+
+        \begin{align}
+            x &= \sqrt{r}\cos\theta \\
+            y &= \sqrt{r}\sin\theta \\
+        \end{align}
+
+        These points are guaranteed to be in the unit circle.
         \par
         For the Sphere a different method must be used so that all of the nodes are placed on the surface of the Sphere and the volume is vacant. For this geometry, the following equations are used:
 
@@ -130,7 +137,7 @@ A report on implementing algorithms to partition a random geometric graph into b
             z &= u
         \end{align}
 
-        where $\theta \in [0,2\pi]$ and $u \in [-1,1]$. This is guaranteed to uniformly distribute nodes on the surface area of the sphere \cite{spherepoints}.
+        where $\theta \in [0,2\pi)$ and $u \in [-1,1]$. This is guaranteed to uniformly distribute nodes on the surface area of the sphere \cite{spherepoints}.
         \par
         All of these algorithms can be solved in $\Theta\left(|V|\right)$ where because each node only needs to be assigned a position once.
 
@@ -231,17 +238,7 @@ A report on implementing algorithms to partition a random geometric graph into b
         \subsubsection{Node Placement}
         It is easy to implement the algorithms for placing nodes in the different geometries using Python's math library. This library offers functions for sampling points on a uniform distribution. For the Square, sampling on a range $[0,1]$ is sufficient for all of the nodes. Since each node only needs to be placed once, this runs at $\Theta(|V|)$ where.
         \par
-        For the Disk, the node needs to be resampled if it is too far from the center. To do this, the distance function is used to find the distance between the node and the center. If the node is further than $1$ from the center, node generation falls into a while loop which iterates until the node is within the unit circle. Since nodes are taken from a uniform distribution, the number of nodes that will need to be resampled is approximately equal to the ratio of the area of the square that circumscribes the unit circle which falls outside of the unit circle to the total area of the square. This is given by:
-
-        \begin{align}
-            \frac{(2r)^2-\pi r^2}{(2r)^2} = \frac{4-\pi}{4} = 0.2146
-        \end{align}
-
-        Since the placement algorithm for each node of the Disk will iterate until the node falls within the unit circle, the total number of iterations $N$ can be found as the sum of the geometric series:
-        \begin{align}
-            N = \sum_{k=0}^{\infty} n (0.2146)^k = \frac{n}{1-0.2146} = 1.273n
-        \end{align}
-        where $n = |V|$. This shows this implementation is $\Theta\left(n\right)$.
+        Sampling nodes for the disk is also straightforward. Sampling $r$ from $[0,1]$ and taking the square root, and $\theta$ from $[0,2\pi)$ is sufficient for determining the coordinates of the node in the unit disk. The trigonometric functions sine and cosine need to be evaluated once each for each node. Since this process is only repeated once for each node, this runs in $\Theta(|V|)$.
         \par
         For the node placement algorithm of the Sphere, again the math library in Python makes this easy. Each node needs two random values pulled from a uniform distribution, two square root operations, one sine operation, and one cosine operation. Each node only needs to be placed once so the runtime of this algorithm is $\Theta(n)$ where $n = |V|$.
 
@@ -538,7 +535,7 @@ The linear runtime of the simulation is shown in the runtime graphs in Figure \r
 
 \newpage
 
-\begin{thebibliography}{13}
+\begin{thebibliography}{14}
     \bibitem{rggpartition}
     Chen, Zizhen; Matula, David, Bipartite Grid Partitioning of a Random Geometric Graph, 2017
 
@@ -554,6 +551,10 @@ The linear runtime of the simulation is shown in the runtime graphs in Figure \r
     \bibitem{matplotlib}
     The Matplotlib Development, matplotlib, https://matplotlib.org, 2018
 
+    \bibitem{diskpoints}
+    Weisstein, Eric W., Wolfram MathWorld Disk Point Picking,
+    http://mathworld.wolfram.com/DiskPointPicking.html
+
     \bibitem{spherepoints}
     Weisstein, Eric W., Wolfram MathWorld Sphere Point Picking, http://mathworld.wolfram.com/SpherePointPicking.html
 
@@ -568,6 +569,9 @@ The linear runtime of the simulation is shown in the runtime graphs in Figure \r
 
     \bibitem{listsort}
     Peters, Tim, Timsort, http://svn.python.org/projects/python/trunk/Objects/listsort.txt
+
+    \bibitem{pickle}
+    Python Software Foundation, The Python Standard Library Data Persistance, https://docs.python.org/2/library/pickle.html
 
     \bibitem{dictresize}
     Rees, Gareth, Python's underlying hash data structure for dictionaries, https://stackoverflow.com/questions/4279358/pythons-underlying-hash-data-structure-for-dictionaries, 2010

@@ -142,8 +142,8 @@ def main():
     
     global topology
     # topology = Square()
-    topology = Disk()
-    # topology = Sphere()
+    # topology = Disk()
+    topology = Sphere()
     
     topology.num_nodes = NUM_NODES
     topology.avg_deg = AVG_DEG

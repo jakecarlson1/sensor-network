@@ -618,8 +618,8 @@ class Disk(Topology):
     def __init__(self):
         super(Disk, self).__init__()
 
-    # places nodes uniformly in a unit square and regenerates the node if it falls
-    # outside of the circle
+    # places nodes uniformly in a unit disk, based on:
+    # http://mathworld.wolfram.com/DiskPointPicking.html
     def generateNodes(self):
         for i in range(self.num_nodes):
             r = math.sqrt(random.uniform(0,1))
